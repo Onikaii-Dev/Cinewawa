@@ -1,0 +1,925 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Ciné'Wawa</title>
+<meta name="theme-color" content="#0a0a0d">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="apple-mobile-web-app-title" content="Ciné'Wawa">
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --bg:#0a0a0d; --card:rgba(23,23,29,.92); --border:#2c2c36; --border-h:#4a4a58;
+    --txt:#f2f2f5; --muted:#9a9aa6; --faint:#6f6f7c; --gold:#F6B73C;
+  }
+  *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+  body{margin:0;min-height:100vh;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif}
+
+  /* ---- collage de fond (éclairci) ---- */
+  #collage{position:fixed;inset:0;z-index:0;overflow:hidden}
+  #collage img{position:absolute;aspect-ratio:2/3;object-fit:cover;border-radius:6px;filter:saturate(.95)}
+  #voile{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%)}
+
+  .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:28px 16px 80px}
+
+  /* ---- entête ---- */
+  header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
+  .avatar{width:46px;height:46px;border-radius:50%;background:linear-gradient(135deg,#F6B73C,#e5484d);display:flex;align-items:center;justify-content:center;font-size:24px;flex-shrink:0;border:none;cursor:pointer}
+  h1{margin:0;font-family:'Bebas Neue',sans-serif;font-size:44px;letter-spacing:.02em;font-weight:400}
+  .retour{background:rgba(23,23,29,.9);border:1px solid var(--border);color:var(--txt);width:42px;height:42px;border-radius:50%;font-size:20px;cursor:pointer;flex-shrink:0}
+  .retour:hover{border-color:var(--border-h)}
+  .compteur{margin-left:auto;color:var(--muted);font-size:14px;white-space:nowrap}
+
+  /* ---- accueil : cartes catégories ---- */
+  .grille-cat{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
+  @media (max-width:520px){.grille-cat{grid-template-columns:1fr}}
+  .cat{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 22px;cursor:pointer;transition:transform .15s ease,border-color .15s ease;text-align:left;color:var(--txt);font-family:inherit}
+  .cat:hover{transform:translateY(-3px);border-color:var(--border-h)}
+  .cat .ico{font-size:34px;margin-bottom:10px}
+  .cat .nom{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.03em}
+  .cat .nb{color:var(--muted);font-size:13px;margin-top:4px}
+  .cat .barre{position:absolute;left:0;top:0;bottom:0;width:4px}
+  .accueil-sous{color:var(--muted);text-align:center;font-size:14px;margin-top:6px}
+
+  /* ---- barre d'outils ---- */
+  .toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;backdrop-filter:blur(8px)}
+  .toolbar input,.toolbar select{background:#101014;border:1px solid var(--border);border-radius:9px;color:var(--txt);padding:10px 12px;font-size:14px;outline:none;font-family:inherit}
+  #recherche{flex:2;min-width:140px}
+  #filtreStatut{flex:1;min-width:130px;cursor:pointer}
+  #tri{flex:1;min-width:150px;cursor:pointer}
+  .btn-gold{background:var(--gold);color:#141414;border:none;border-radius:9px;padding:10px 18px;font-size:14px;font-weight:800;cursor:pointer;white-space:nowrap;font-family:inherit}
+  .btn-gold:hover{filter:brightness(1.08)}
+
+  /* ---- cartes items ---- */
+  .card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:12px;backdrop-filter:blur(8px);cursor:pointer;transition:transform .15s ease,border-color .15s ease}
+  .card:hover{transform:translateY(-2px);border-color:var(--border-h)}
+  @media (prefers-reduced-motion: reduce){.card,.cat{transition:none}}
+  .card .poster{position:absolute;right:0;top:0;height:100%;width:42%;object-fit:cover;object-position:center 25%;opacity:.6}
+  .card .fondu{position:absolute;right:0;top:0;height:100%;width:50%;background:linear-gradient(90deg,rgba(23,23,29,1) 0%,rgba(23,23,29,.55) 55%,rgba(23,23,29,.15) 100%)}
+  .card .contenu{position:relative}
+  .card .ligne-titre{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
+  .card .titre{font-size:20px;font-weight:800}
+  .card .chevron{margin-left:auto;color:#5a5a66;font-size:18px}
+  .card .ligne-meta{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .badge{color:#101014;font-weight:800;font-size:13px;border-radius:7px;padding:3px 9px}
+  .badge.statut{color:#fff;font-weight:700}
+  .date,.progression{color:var(--muted);font-size:13px}
+  .avis{margin-top:8px;color:#b8b8c2;font-size:13px;font-style:italic;max-width:60%}
+
+  /* ---- étoiles ---- */
+  .stars{position:relative;display:inline-block;font-size:18px;line-height:1;letter-spacing:2px}
+  .stars .vide{color:#3a3a44}
+  .stars .plein{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--gold);text-shadow:0 0 10px rgba(246,183,60,.45)}
+
+  /* ---- état vide ---- */
+  .vide-msg{text-align:center;padding:60px 20px;background:rgba(23,23,29,.85);border:1px dashed #3a3a44;border-radius:14px;color:var(--muted)}
+  .vide-msg .emoji{font-size:40px;margin-bottom:10px}
+  .vide-msg .gros{font-size:17px;color:#d5d5dc;margin-bottom:6px}
+
+  /* ---- modale ---- */
+  #overlay{display:none;position:fixed;inset:0;z-index:50;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px}
+  #overlay.on{display:flex}
+  .modale{width:100%;max-width:460px;max-height:90vh;overflow-y:auto;background:#17171d;border:1px solid var(--border);border-radius:16px;padding:22px;box-shadow:0 24px 60px rgba(0,0,0,.6)}
+  .modale h2{margin:0 0 18px;font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.03em;color:#fff;font-weight:400}
+  .champ{margin-bottom:14px}
+  .champ label{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.08em;margin-bottom:6px;display:block}
+  .champ input,.champ textarea,.champ select{width:100%;background:#101014;border:1px solid var(--border);border-radius:10px;color:var(--txt);padding:11px 13px;font-size:15px;font-family:inherit;outline:none}
+  .champ input[type=date]{color-scheme:dark}
+  .champ textarea{min-height:60px;resize:vertical}
+  .champ .aide{font-size:12px;color:var(--faint);margin-top:6px}
+  .duo{display:flex;gap:12px}
+  .duo>.champ{flex:1}
+  #apercuNote{margin-bottom:14px;display:none;align-items:center;gap:10px}
+  #apercuNote.on{display:flex}
+  #apercuNote .val{color:var(--gold);font-weight:700}
+  #erreur{color:#ff6b6b;font-size:13px;margin-bottom:12px;display:none}
+  .actions{display:flex;gap:10px}
+  .actions .btn-gold{flex:1;padding:12px 0;font-size:15px}
+  .btn-ghost{background:transparent;color:var(--muted);border:1px solid var(--border);border-radius:10px;padding:12px 16px;cursor:pointer;font-size:14px;font-family:inherit}
+  .btn-danger{display:none;background:transparent;color:#ff6b6b;border:1px solid #5a2a2a;border-radius:10px;padding:12px 16px;cursor:pointer;font-size:14px;font-family:inherit}
+  .btn-danger.on{display:block}
+  select option{background:#17171d}
+  .cache{display:none !important}
+
+  /* ---- sauvegarde fichier ---- */
+  .savebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(23,23,29,.9);border:1px solid var(--border);border-radius:12px;padding:8px 12px;margin-bottom:18px;backdrop-filter:blur(8px);font-size:13px;color:var(--muted)}
+  .savebar .etat{display:flex;align-items:center;gap:7px}
+  .pastille{width:9px;height:9px;border-radius:50%;background:#5a5a66;flex-shrink:0}
+  .pastille.ok{background:#3fb950;box-shadow:0 0 8px rgba(63,185,80,.6)}
+  .savebar .btns{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
+  .btn-mini{background:#101014;color:var(--txt);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .btn-mini:hover{border-color:var(--border-h)}
+  .btn-mini.principal{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700}
+  #banniere{display:none;background:rgba(246,183,60,.12);border:1px solid rgba(246,183,60,.45);border-radius:12px;padding:12px 14px;margin-bottom:18px;color:#f5d48a;font-size:14px;cursor:pointer;text-align:center}
+  #banniere.on{display:block}
+  #banniere:hover{background:rgba(246,183,60,.18)}
+</style>
+</head>
+<body>
+
+<div id="collage"></div>
+<div id="voile"></div>
+
+<div class="wrap">
+
+  <div id="banniere">💾 Un fichier de sauvegarde est lié — <b>clique ici</b> pour tout recharger depuis le fichier.</div>
+
+  <div class="savebar">
+    <span class="etat"><span class="pastille" id="pastille"></span><span id="etatTexte">Sauvegarde : navigateur uniquement</span></span>
+    <span class="btns">
+      <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
+      <button class="btn-mini" id="btnLier">💾 Fichier local</button>
+      <button class="btn-mini" id="btnExport">Exporter</button>
+      <button class="btn-mini" id="btnImport">Importer</button>
+      <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
+    </span>
+  </div>
+
+  <!-- ======== ACCUEIL ======== -->
+  <div id="pageAccueil">
+    <header style="justify-content:center">
+      <div class="avatar" style="cursor:default">🎬</div>
+      <h1 id="titreSite">Ciné'Wawa</h1>
+    </header>
+    <div class="accueil-sous">Que veux-tu consulter ?</div>
+    <div class="grille-cat" id="grilleCat"></div>
+  </div>
+
+  <!-- ======== CATÉGORIE ======== -->
+  <div id="pageCategorie" class="cache">
+    <header>
+      <button class="retour" id="btnRetour" title="Retour à l'accueil">←</button>
+      <div class="avatar" id="catAvatar" style="cursor:default">🎬</div>
+      <h1 id="catTitre">Films</h1>
+      <div class="compteur" id="compteur">0</div>
+    </header>
+
+    <div class="toolbar">
+      <input id="recherche" placeholder="🔍  Rechercher…">
+      <select id="filtreStatut">
+        <option value="">Statut : tous</option>
+        <option value="encours">En cours</option>
+        <option value="termine">Terminé</option>
+        <option value="pause">En pause</option>
+        <option value="abandonne">Abandonné</option>
+        <option value="prevu">Prévu</option>
+      </select>
+      <select id="tri">
+        <option value="ajout-desc">Trier : ajout récent</option>
+        <option value="ajout-asc">Trier : ajout ancien</option>
+        <option value="note-desc">Trier : meilleures notes</option>
+        <option value="note-asc">Trier : pires notes</option>
+        <option value="vu-desc">Trier : vu récemment</option>
+        <option value="alpha">Trier : A → Z</option>
+      </select>
+      <button class="btn-gold" id="btnAjouter">+ Ajouter</button>
+    </div>
+
+    <div id="liste"></div>
+  </div>
+</div>
+
+<!-- ======== MODALE ======== -->
+<div id="overlay">
+  <div class="modale">
+    <h2 id="modaleTitre">Ajouter</h2>
+    <div class="champ">
+      <label>Titre *</label>
+      <input id="fTitre" placeholder="Ex : The Thing">
+    </div>
+
+    <div class="champ" id="blocStatut">
+      <label>Statut</label>
+      <select id="fStatut">
+        <option value="encours">En cours</option>
+        <option value="termine">Terminé</option>
+        <option value="pause">En pause</option>
+        <option value="abandonne">Abandonné</option>
+        <option value="prevu">Prévu (à voir / à lire)</option>
+      </select>
+    </div>
+
+    <div class="duo" id="blocProgression">
+      <div class="champ">
+        <label id="labelP1">Saison</label>
+        <input id="fP1" inputmode="numeric" placeholder="1">
+      </div>
+      <div class="champ">
+        <label id="labelP2">Épisode</label>
+        <input id="fP2" inputmode="numeric" placeholder="1">
+      </div>
+    </div>
+
+    <div class="duo">
+      <div class="champ">
+        <label>Note /10 <span style="text-transform:none;letter-spacing:0">(vide = à noter)</span></label>
+        <input id="fNote" placeholder="7,8" inputmode="decimal">
+      </div>
+      <div class="champ">
+        <label id="labelDate">Vu le</label>
+        <input id="fDate" type="date">
+      </div>
+    </div>
+
+    <div id="apercuNote">
+      <span class="stars" style="font-size:20px"><span class="vide">★★★★★</span><span class="plein" id="apercuPlein">★★★★★</span></span>
+      <span class="val" id="apercuVal"></span>
+    </div>
+
+    <div class="champ">
+      <label>Affiche (URL d'image, optionnel)</label>
+      <input id="fAffiche" placeholder="https://…">
+      <div class="aide">Clic droit sur une affiche (Google Images, TMDB, MyAnimeList…) → « Copier l'adresse de l'image ». Elle nourrit aussi le fond du site.</div>
+    </div>
+    <div class="champ">
+      <label>Avis rapide (optionnel)</label>
+      <textarea id="fAvis" placeholder="Un mot dessus…"></textarea>
+    </div>
+
+    <div id="erreur"></div>
+    <div class="actions">
+      <button class="btn-gold" id="btnSave">Ajouter</button>
+      <button class="btn-danger" id="btnDelete">Supprimer</button>
+      <button class="btn-ghost" id="btnCancel">Annuler</button>
+    </div>
+  </div>
+</div>
+
+<!-- ======== MODALE CLOUD ======== -->
+<div id="overlayCloud" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
+  <div class="modale">
+    <h2>☁️ Synchro cloud (GitHub)</h2>
+    <div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px">
+      Ta sauvegarde est stockée dans un <b>Gist privé</b> sur ton compte GitHub.
+      Colle le même token sur chaque appareil (PC, téléphone…) et tout se synchronise automatiquement.
+    </div>
+    <div class="champ">
+      <label>Token GitHub (permission « gist » uniquement)</label>
+      <input id="cToken" type="password" placeholder="ghp_…" autocomplete="off">
+      <div class="aide">Créé sur github.com → Settings → Developer settings → Tokens (classic) → coche uniquement « gist ». Il reste sur cet appareil, il n'est envoyé qu'à GitHub.</div>
+    </div>
+    <div class="champ">
+      <label>ID du Gist (laisser vide : trouvé ou créé automatiquement)</label>
+      <input id="cGist" placeholder="auto" autocomplete="off">
+    </div>
+    <div id="cMessage" style="font-size:13px;margin-bottom:12px;display:none"></div>
+    <div class="actions">
+      <button class="btn-gold" id="btnCloudOn">Activer la synchro</button>
+      <button class="btn-danger on" id="btnCloudOff" style="display:none">Désactiver</button>
+      <button class="btn-ghost" id="btnCloudFermer">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ================= configuration des catégories =================
+const CATS = {
+  films:  { nom:'Films',  ico:'🎬', couleur:'#F6B73C', progression:null,                        labelDate:'Vu le' },
+  series: { nom:'Séries', ico:'📺', couleur:'#2d6cdf', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le' },
+  anime:  { nom:'Anime',  ico:'⛩️', couleur:'#e5484d', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le' },
+  manga:  { nom:'Manga',  ico:'📖', couleur:'#3fb950', progression:['Tome','Chapitre'],         labelDate:'Dernière lecture' },
+};
+const STATUTS = {
+  encours:   { nom:'En cours',  couleur:'#3fb950' },
+  termine:   { nom:'Terminé',   couleur:'#2d6cdf' },
+  pause:     { nom:'En pause',  couleur:'#b8862d' },
+  abandonne: { nom:'Abandonné', couleur:'#e5484d' },
+  prevu:     { nom:'Prévu',     couleur:'#6f6f7c' },
+};
+
+// ================= état =================
+const CLE = 'cinewawa-v1';
+let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [] };
+let catCourante = null;   // null = accueil
+let enEdition = null;
+
+function normaliser(d){
+  if(!d || typeof d !== 'object') return null;
+  // ancien format (filmothèque seule) → migration
+  if(Array.isArray(d.films) && !d.series && !d.anime && !d.manga){
+    return { titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [] };
+  }
+  if(Array.isArray(d.films) || Array.isArray(d.series) || Array.isArray(d.anime) || Array.isArray(d.manga)){
+    return {
+      titre: d.titre || "Ciné'Wawa",
+      films:  d.films  || [],
+      series: d.series || [],
+      anime:  d.anime  || [],
+      manga:  d.manga  || [],
+      modif:  d.modif  || 0,
+    };
+  }
+  return null;
+}
+
+function charger(){
+  try{
+    const brut = localStorage.getItem(CLE);
+    if(brut){ const d = normaliser(JSON.parse(brut)); if(d) etat = d; }
+  }catch(e){ console.error('Lecture impossible', e); }
+}
+function sauver(){
+  etat.modif = Date.now(); // horodatage pour la synchro (le plus récent gagne)
+  try{ localStorage.setItem(CLE, JSON.stringify(etat)); }
+  catch(e){ console.error('Sauvegarde impossible', e); }
+  ecrireFichier();
+  planifierPush();
+}
+
+// ================= utilitaires =================
+const $ = id => document.getElementById(id);
+function fmtDate(iso){ if(!iso) return ''; const [y,m,d]=iso.split('-'); return d+'/'+m+'/'+y.slice(2); }
+function parseNote(brut){
+  const n = parseFloat(String(brut).replace(',', '.'));
+  if(isNaN(n)) return null;
+  return Math.min(10, Math.max(0, Math.round(n*10)/10));
+}
+const showNote = n => String(n).replace('.', ',');
+const aujourdhui = () => new Date().toISOString().slice(0,10);
+const rnd = seed => { const x = Math.sin(seed*9301+49297)*233280; return x - Math.floor(x); };
+const echap = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+function couleurNote(n){ return n>=8 ? '#3fb950' : n>=6 ? '#F6B73C' : n>=4 ? '#e8833a' : '#e5484d'; }
+const sansNote = f => f.note === null || f.note === undefined;
+
+// ================= collage de fond =================
+function majCollage(){
+  const zone = $('collage');
+  zone.innerHTML = '';
+  const affiches = ['films','series','anime','manga']
+    .flatMap(c => etat[c].map(f => f.affiche))
+    .filter(Boolean);
+  if(!affiches.length) return;
+  // mélange aléatoire des affiches (différent à chaque chargement)
+  const melange = [...affiches];
+  for(let i = melange.length - 1; i > 0; i--){
+    const j = Math.floor(Math.random() * (i + 1));
+    [melange[i], melange[j]] = [melange[j], melange[i]];
+  }
+  const graine = Math.floor(Math.random() * 10000); // disposition différente à chaque fois
+  const total = 28;
+  for(let i=0;i<total;i++){
+    const img = document.createElement('img');
+    img.src = melange[i % melange.length];
+    img.alt = '';
+    img.style.top   = (Math.floor(i/7)*25 + rnd(graine+i+40)*6 - 3) + '%';
+    img.style.left  = ((i%7)*14.5 + rnd(graine+i+80)*4 - 2) + '%';
+    img.style.width = (13 + rnd(graine+i+7)*6) + '%';
+    img.style.transform = 'rotate(' + ((rnd(graine+i+1)-.5)*14) + 'deg)';
+    img.style.opacity = (0.65 + rnd(graine+i+3)*0.3);
+    img.onerror = () => img.remove();
+    zone.appendChild(img);
+  }
+}
+
+// ================= navigation =================
+function allerAccueil(){
+  catCourante = null;
+  $('pageAccueil').classList.remove('cache');
+  $('pageCategorie').classList.add('cache');
+  rendreAccueil();
+}
+function allerCategorie(c){
+  catCourante = c;
+  $('pageAccueil').classList.add('cache');
+  $('pageCategorie').classList.remove('cache');
+  const conf = CATS[c];
+  $('catTitre').textContent = conf.nom;
+  $('catAvatar').textContent = conf.ico;
+  $('catAvatar').style.background = 'linear-gradient(135deg,'+conf.couleur+',#17171d)';
+  $('recherche').value = '';
+  $('filtreStatut').value = '';
+  $('filtreStatut').classList.toggle('cache', c === 'films');
+  document.title = "Ciné'Wawa — " + conf.nom;
+  rendreListe();
+}
+
+function rendreAccueil(){
+  document.title = "Ciné'Wawa";
+  $('grilleCat').innerHTML = Object.entries(CATS).map(([c,conf]) => {
+    const n = etat[c].length;
+    const enCours = etat[c].filter(f => f.statut === 'encours').length;
+    const sousTexte = c === 'films'
+      ? n + ' film' + (n>1?'s':'') + ' vu' + (n>1?'s':'')
+      : n + ' titre' + (n>1?'s':'') + (enCours ? ' · ' + enCours + ' en cours' : '');
+    return '<button class="cat" data-cat="'+c+'">'
+      + '<span class="barre" style="background:'+conf.couleur+'"></span>'
+      + '<div class="ico">'+conf.ico+'</div>'
+      + '<div class="nom">'+conf.nom+'</div>'
+      + '<div class="nb">'+sousTexte+'</div>'
+      + '</button>';
+  }).join('');
+  $('grilleCat').querySelectorAll('.cat').forEach(b => {
+    b.addEventListener('click', () => allerCategorie(b.dataset.cat));
+  });
+}
+
+// ================= étoiles =================
+function etoilesHTML(note, taille){
+  const pct = note/10*100;
+  return '<span class="stars"' + (taille ? ' style="font-size:'+taille+'px"' : '') + '>'
+    + '<span class="vide">★★★★★</span>'
+    + '<span class="plein" style="width:'+pct+'%">★★★★★</span></span>';
+}
+
+// ================= rendu de la liste =================
+function texteProgression(f, cat){
+  const conf = CATS[cat];
+  if(!conf.progression) return '';
+  const [l1, l2] = conf.progression;
+  const bouts = [];
+  if(f.p1) bouts.push(l1 === 'Saison' ? 'S'+f.p1 : l1+' '+f.p1);
+  if(f.p2) bouts.push(l2 === 'Épisode' ? 'Ép. '+f.p2 : l2.toLowerCase()==='chapitre' ? 'Chap. '+f.p2 : l2+' '+f.p2);
+  return bouts.join(' · ');
+}
+
+function rendreListe(){
+  const c = catCourante;
+  const items = etat[c];
+  const n = items.length;
+  $('compteur').textContent = n + ' titre' + (n>1?'s':'');
+
+  const q = $('recherche').value.toLowerCase();
+  const fs = $('filtreStatut').value;
+  let liste = items.filter(f => f.titre.toLowerCase().includes(q));
+  if(c !== 'films' && fs) liste = liste.filter(f => (f.statut||'') === fs);
+
+  const noteOu = (f,d) => sansNote(f) ? d : f.note;
+  const tris = {
+    'ajout-desc': (a,b)=>b.ajout-a.ajout,
+    'ajout-asc' : (a,b)=>a.ajout-b.ajout,
+    'note-desc' : (a,b)=>noteOu(b,-1)-noteOu(a,-1),
+    'note-asc'  : (a,b)=>noteOu(a,99)-noteOu(b,99),
+    'vu-desc'   : (a,b)=>(b.date||'').localeCompare(a.date||''),
+    'alpha'     : (a,b)=>a.titre.localeCompare(b.titre,'fr'),
+  };
+  liste.sort(tris[$('tri').value]);
+
+  const zone = $('liste');
+  if(liste.length === 0){
+    zone.innerHTML = items.length === 0
+      ? '<div class="vide-msg"><div class="emoji">'+CATS[c].ico+'</div><div class="gros">Rien ici pour l\'instant</div><div style="font-size:14px">Ajoute un titre, ou importe ton fichier JSON avec le bouton en haut.</div></div>'
+      : '<div class="vide-msg">Aucun résultat avec ces filtres.</div>';
+    return;
+  }
+
+  zone.innerHTML = liste.map(f => {
+    const poster = f.affiche
+      ? '<img class="poster" src="'+echap(f.affiche)+'" alt="" onerror="this.remove()"><div class="fondu"></div>'
+      : '';
+    const avis = f.avis ? '<div class="avis">« '+echap(f.avis)+' »</div>' : '';
+    const badgeNote = sansNote(f)
+      ? '<span class="badge" style="background:#3a3a44;color:#b8b8c2">À noter</span>'
+      : '<span class="badge" style="background:'+couleurNote(f.note)+'">'+showNote(f.note)+'/10</span>';
+    const st = (c !== 'films' && f.statut && STATUTS[f.statut])
+      ? '<span class="badge statut" style="background:'+STATUTS[f.statut].couleur+'">'+STATUTS[f.statut].nom+'</span>'
+      : '';
+    const prog = texteProgression(f, c);
+    const progHTML = prog ? '<span class="progression">'+prog+'</span>' : '';
+    const dateVu = f.date ? '<span class="date">'+(c==='films'?'Vu le ':'Le ')+fmtDate(f.date)+'</span>' : '';
+    const etoiles = sansNote(f) ? etoilesHTML(0) : etoilesHTML(f.note);
+    return '<div class="card" data-id="'+f.id+'">'
+      + poster
+      + '<div class="contenu">'
+      +   '<div class="ligne-titre"><span class="titre">'+echap(f.titre)+'</span><span class="chevron">›</span></div>'
+      +   '<div class="ligne-meta">'+st+badgeNote+progHTML+dateVu+etoiles+'</div>'
+      +   avis
+      + '</div></div>';
+  }).join('');
+
+  zone.querySelectorAll('.card').forEach(el => {
+    el.addEventListener('click', () => ouvrirModale(Number(el.dataset.id)));
+  });
+}
+
+// ================= modale =================
+function ouvrirModale(id){
+  enEdition = id ?? null;
+  const c = catCourante;
+  const conf = CATS[c];
+  const f = enEdition ? etat[c].find(x=>x.id===enEdition) : null;
+
+  $('modaleTitre').textContent = (f ? 'Modifier' : 'Ajouter') + ' — ' + conf.nom.replace(/s$/,'').toLowerCase();
+  $('btnSave').textContent = f ? 'Enregistrer' : 'Ajouter';
+  $('btnDelete').classList.toggle('on', !!f);
+
+  // champs spécifiques à la catégorie
+  $('blocStatut').classList.toggle('cache', c === 'films');
+  $('blocProgression').classList.toggle('cache', !conf.progression);
+  if(conf.progression){
+    $('labelP1').textContent = conf.progression[0];
+    $('labelP2').textContent = conf.progression[1];
+  }
+  $('labelDate').textContent = conf.labelDate;
+
+  $('fTitre').value  = f ? f.titre : '';
+  $('fStatut').value = f ? (f.statut || 'encours') : 'encours';
+  $('fP1').value     = f ? (f.p1 || '') : '';
+  $('fP2').value     = f ? (f.p2 || '') : '';
+  $('fNote').value   = (f && !sansNote(f)) ? showNote(f.note) : '';
+  $('fDate').value   = f ? (f.date || '') : aujourdhui();
+  $('fAffiche').value= f ? (f.affiche||'') : '';
+  $('fAvis').value   = f ? (f.avis||'') : '';
+  $('erreur').style.display = 'none';
+  majApercu();
+  $('overlay').classList.add('on');
+  $('fTitre').focus();
+}
+function fermerModale(){ $('overlay').classList.remove('on'); enEdition = null; }
+
+function majApercu(){
+  const n = parseNote($('fNote').value);
+  const bloc = $('apercuNote');
+  if(n === null){ bloc.classList.remove('on'); return; }
+  bloc.classList.add('on');
+  $('apercuPlein').style.width = (n/10*100)+'%';
+  $('apercuVal').textContent = showNote(n)+'/10';
+}
+
+function enregistrer(){
+  const c = catCourante;
+  const titre = $('fTitre').value.trim();
+  const noteBrute = $('fNote').value.trim();
+  const note = noteBrute === '' ? null : parseNote(noteBrute);
+  const err = $('erreur');
+  if(!titre){ err.textContent = 'Le titre est obligatoire.'; err.style.display='block'; return; }
+  if(noteBrute !== '' && note === null){ err.textContent = 'La note doit être un nombre entre 0 et 10 (ex : 7,8), ou vide.'; err.style.display='block'; return; }
+
+  const item = {
+    id: enEdition || Date.now(),
+    titre, note,
+    date: $('fDate').value || '',
+    affiche: $('fAffiche').value.trim(),
+    avis: $('fAvis').value.trim(),
+    ajout: enEdition ? etat[c].find(x=>x.id===enEdition).ajout : Date.now(),
+  };
+  if(c !== 'films'){
+    item.statut = $('fStatut').value;
+    item.p1 = $('fP1').value.trim();
+    item.p2 = $('fP2').value.trim();
+  }
+
+  if(enEdition){
+    etat[c] = etat[c].map(x => x.id===enEdition ? item : x);
+  } else {
+    etat[c].unshift(item);
+  }
+  sauver(); fermerModale(); majCollage(); rendreListe();
+}
+
+function supprimer(){
+  if(!enEdition) return;
+  etat[catCourante] = etat[catCourante].filter(x => x.id !== enEdition);
+  sauver(); fermerModale(); majCollage(); rendreListe();
+}
+
+// ================= fichier de sauvegarde =================
+const supporteFichier = 'showSaveFilePicker' in window;
+let fichierHandle = null;
+
+function idb(mode, action){
+  return new Promise((res, rej) => {
+    const req = indexedDB.open('cinewawa-db', 1);
+    req.onupgradeneeded = () => req.result.createObjectStore('kv');
+    req.onerror = () => rej(req.error);
+    req.onsuccess = () => {
+      const tx = req.result.transaction('kv', mode);
+      const r = action(tx.objectStore('kv'));
+      r.onsuccess = () => res(r.result);
+      r.onerror = () => rej(r.error);
+    };
+  });
+}
+const idbGet = k => idb('readonly', s => s.get(k));
+const idbSet = (k,v) => idb('readwrite', s => s.put(v,k));
+
+function majEtatSauvegarde(){
+  const ok = !!fichierHandle;
+  $('pastille').classList.toggle('ok', ok);
+  $('etatTexte').textContent = ok
+    ? 'Sauvegarde : « ' + fichierHandle.name + ' » (auto)'
+    : 'Sauvegarde : navigateur uniquement';
+  $('btnLier').textContent = ok ? '💾 Changer de fichier' : '💾 Lier un fichier';
+}
+
+async function ecrireFichier(){
+  if(!fichierHandle) return;
+  try{
+    const w = await fichierHandle.createWritable();
+    await w.write(JSON.stringify(etat, null, 2));
+    await w.close();
+  }catch(e){ console.error('Écriture du fichier impossible', e); }
+}
+
+function appliquerDonnees(d){
+  const propre = normaliser(d);
+  if(!propre) return false;
+  etat = propre;
+  try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+  majCollage();
+  if(catCourante) rendreListe(); else rendreAccueil();
+  return true;
+}
+
+async function lierFichier(){
+  if(!supporteFichier){
+    alert("Ton navigateur ne permet pas la liaison directe à un fichier (Chrome, Edge, Opera ou Brave le font).\nUtilise Exporter / Importer à la place : ça marche partout.");
+    return;
+  }
+  try{
+    const handle = await window.showSaveFilePicker({
+      suggestedName: 'cinewawa.json',
+      types: [{ description: "Sauvegarde Ciné'Wawa", accept: { 'application/json': ['.json'] } }],
+    });
+    fichierHandle = handle;
+    await idbSet('handle', handle);
+    // si le fichier choisi contient déjà des données et que la base locale est vide, on le lit
+    try{
+      const contenu = await (await handle.getFile()).text();
+      const vide = !etat.films.length && !etat.series.length && !etat.anime.length && !etat.manga.length;
+      if(contenu.trim() && vide){
+        if(appliquerDonnees(JSON.parse(contenu))){ majEtatSauvegarde(); return; }
+      }
+    }catch(e){ /* fichier neuf : on écrira par-dessus */ }
+    await ecrireFichier();
+    majEtatSauvegarde();
+  }catch(e){ /* sélection annulée */ }
+}
+
+async function reconnecterFichier(){
+  try{
+    const handle = await idbGet('handle');
+    if(!handle) return;
+    const perm = await handle.requestPermission({ mode: 'readwrite' });
+    if(perm !== 'granted'){ $('banniere').classList.remove('on'); return; }
+    fichierHandle = handle;
+    try{
+      const contenu = await (await handle.getFile()).text();
+      if(contenu.trim()) appliquerDonnees(JSON.parse(contenu));
+    }catch(e){ console.error('Lecture du fichier impossible', e); }
+    $('banniere').classList.remove('on');
+    majEtatSauvegarde();
+  }catch(e){ console.error(e); }
+}
+
+async function verifierFichierAuDemarrage(){
+  if(!supporteFichier) return;
+  try{
+    const handle = await idbGet('handle');
+    if(!handle) return;
+    const perm = await handle.queryPermission({ mode: 'readwrite' });
+    if(perm === 'granted'){
+      fichierHandle = handle;
+      try{
+        const contenu = await (await handle.getFile()).text();
+        if(contenu.trim()) appliquerDonnees(JSON.parse(contenu));
+      }catch(e){}
+      majEtatSauvegarde();
+    }else{
+      $('banniere').classList.add('on');
+    }
+  }catch(e){ console.error(e); }
+}
+
+// ---- export / import universels ----
+function exporter(){
+  const blob = new Blob([JSON.stringify(etat, null, 2)], { type: 'application/json' });
+  const a = document.createElement('a');
+  a.href = URL.createObjectURL(blob);
+  a.download = 'cinewawa.json';
+  a.click();
+  URL.revokeObjectURL(a.href);
+}
+function importer(fichier){
+  const lecteur = new FileReader();
+  lecteur.onload = () => {
+    try{
+      if(!appliquerDonnees(JSON.parse(lecteur.result))) throw new Error('format');
+      sauver();
+    }catch(e){ alert("Fichier invalide : il faut un export Ciné'Wawa (.json)."); }
+  };
+  lecteur.readAsText(fichier);
+}
+
+// ================= synchro cloud (GitHub Gist) =================
+const CLE_CLOUD = 'cinewawa-cloud';
+let cloud = { token: '', gistId: '' };
+let pushTimer = null;
+let derniereSync = 0;
+
+function chargerCloudConf(){
+  try{ const c = JSON.parse(localStorage.getItem(CLE_CLOUD) || 'null'); if(c && c.token) cloud = c; }catch(e){}
+}
+function sauverCloudConf(){ localStorage.setItem(CLE_CLOUD, JSON.stringify(cloud)); }
+const cloudActif = () => !!(cloud.token && cloud.gistId);
+const enTetes = () => ({
+  'Authorization': 'Bearer ' + cloud.token,
+  'Accept': 'application/vnd.github+json',
+  'Content-Type': 'application/json',
+});
+
+async function gistLire(){
+  const r = await fetch('https://api.github.com/gists/' + cloud.gistId, { headers: enTetes() });
+  if(!r.ok) throw new Error('lecture HTTP ' + r.status);
+  const g = await r.json();
+  const f = g.files && g.files['cinewawa.json'];
+  if(!f) throw new Error('cinewawa.json absent du Gist');
+  let contenu = f.content;
+  if(f.truncated){ contenu = await (await fetch(f.raw_url)).text(); }
+  return contenu.trim() ? JSON.parse(contenu) : null;
+}
+async function gistEcrire(){
+  const r = await fetch('https://api.github.com/gists/' + cloud.gistId, {
+    method: 'PATCH', headers: enTetes(),
+    body: JSON.stringify({ files: { 'cinewawa.json': { content: JSON.stringify(etat, null, 2) } } }),
+  });
+  if(!r.ok) throw new Error('écriture HTTP ' + r.status);
+}
+async function gistTrouver(){
+  const r = await fetch('https://api.github.com/gists?per_page=100', { headers: enTetes() });
+  if(!r.ok) throw new Error('liste HTTP ' + r.status);
+  const liste = await r.json();
+  const g = liste.find(g => g.files && g.files['cinewawa.json']);
+  return g ? g.id : null;
+}
+async function gistCreer(){
+  const r = await fetch('https://api.github.com/gists', {
+    method: 'POST', headers: enTetes(),
+    body: JSON.stringify({
+      description: "Sauvegarde Ciné'Wawa",
+      public: false,
+      files: { 'cinewawa.json': { content: JSON.stringify(etat, null, 2) } },
+    }),
+  });
+  if(!r.ok) throw new Error('création HTTP ' + r.status);
+  return (await r.json()).id;
+}
+
+function heure(){ const d = new Date(); return String(d.getHours()).padStart(2,'0') + ':' + String(d.getMinutes()).padStart(2,'0'); }
+function majCloudEtat(mode, e){
+  if(!cloudActif()){ majEtatSauvegarde(); return; }
+  const p = $('pastille'), t = $('etatTexte');
+  if(mode === 'sync'){ p.classList.remove('ok'); t.textContent = '☁️ Synchronisation…'; }
+  else if(mode === 'ok'){ p.classList.add('ok'); t.textContent = '☁️ Cloud synchronisé à ' + heure() + ' (clic = resync)'; }
+  else { p.classList.remove('ok'); t.textContent = '☁️ Erreur de synchro — clic pour réessayer'; if(e) console.error(e); }
+  $('btnCloud').textContent = '☁️ Cloud ✓';
+}
+
+function planifierPush(){
+  if(!cloudActif()) return;
+  clearTimeout(pushTimer);
+  pushTimer = setTimeout(pousserCloud, 1200);
+}
+async function pousserCloud(){
+  if(!cloudActif()) return;
+  try{ majCloudEtat('sync'); await gistEcrire(); majCloudEtat('ok'); }
+  catch(e){ majCloudEtat('err', e); }
+}
+async function tirerCloud(force){
+  if(!cloudActif()) return;
+  if(!force && Date.now() - derniereSync < 20000) return; // pas plus d'une fois toutes les 20 s
+  derniereSync = Date.now();
+  try{
+    majCloudEtat('sync');
+    const distant = await gistLire();
+    const mDistant = (distant && distant.modif) || 0;
+    const mLocal = etat.modif || 0;
+    if(distant && mDistant > mLocal){
+      appliquerDonnees(distant);            // le cloud est plus récent → on le prend
+    } else if(mLocal > mDistant){
+      await gistEcrire();                   // le local est plus récent → on pousse
+    }
+    majCloudEtat('ok');
+  }catch(e){ majCloudEtat('err', e); }
+}
+
+// ---- modale de configuration ----
+function ouvrirCloud(){
+  $('cToken').value = cloud.token || '';
+  $('cGist').value = cloud.gistId || '';
+  $('btnCloudOff').style.display = cloudActif() ? 'block' : 'none';
+  msgCloud('');
+  $('overlayCloud').style.display = 'flex';
+}
+function fermerCloud(){ $('overlayCloud').style.display = 'none'; }
+function msgCloud(txt, erreur){
+  const m = $('cMessage');
+  if(!txt){ m.style.display = 'none'; return; }
+  m.style.display = 'block';
+  m.style.color = erreur ? '#ff6b6b' : '#7ee2a0';
+  m.textContent = txt;
+}
+async function activerCloud(){
+  const token = $('cToken').value.trim();
+  let gistId = $('cGist').value.trim();
+  if(!token){ msgCloud('Il faut coller ton token GitHub.', true); return; }
+  cloud = { token, gistId };
+  try{
+    msgCloud('Connexion à GitHub…');
+    if(!gistId){
+      gistId = await gistTrouver();                 // un Gist Ciné'Wawa existe déjà ? on le reprend
+      if(gistId) msgCloud('Sauvegarde existante trouvée sur ton compte ! Connexion…');
+    }
+    if(!gistId){
+      gistId = await gistCreer();                   // sinon on le crée avec les données actuelles
+      cloud.gistId = gistId; sauverCloudConf();
+      msgCloud('Sauvegarde cloud créée ✓ Tout est prêt.');
+    } else {
+      cloud.gistId = gistId; sauverCloudConf();
+      const distant = await gistLire();
+      const local = etat.films.length + etat.series.length + etat.anime.length + etat.manga.length;
+      if(distant && ((distant.modif||0) >= (etat.modif||0) || local === 0)){
+        appliquerDonnees(distant);
+        msgCloud('Données récupérées depuis le cloud ✓');
+      } else {
+        await gistEcrire();
+        msgCloud('Données locales envoyées vers le cloud ✓');
+      }
+    }
+    $('cGist').value = cloud.gistId;
+    $('btnCloudOff').style.display = 'block';
+    majCloudEtat('ok');
+  }catch(e){
+    cloud = { token: '', gistId: '' };
+    msgCloud('Échec : ' + e.message + ' — vérifie le token (permission « gist » cochée ?).', true);
+  }
+}
+function desactiverCloud(){
+  cloud = { token: '', gistId: '' };
+  localStorage.removeItem(CLE_CLOUD);
+  $('btnCloudOff').style.display = 'none';
+  $('btnCloud').textContent = '☁️ Cloud';
+  msgCloud('Synchro désactivée. Tes données restent sur cet appareil (et dans le Gist sur GitHub).');
+  majEtatSauvegarde();
+}
+
+// resync quand on revient sur l'onglet / l'appli (pratique en alternant PC et téléphone)
+document.addEventListener('visibilitychange', () => { if(!document.hidden) tirerCloud(false); });
+window.addEventListener('focus', () => tirerCloud(false));
+
+// ================= PWA (installer comme une appli sur téléphone) =================
+function initPWA(){
+  try{
+    const cnv = document.createElement('canvas');
+    cnv.width = cnv.height = 192;
+    const ctx = cnv.getContext('2d');
+    ctx.fillStyle = '#0a0a0d'; ctx.fillRect(0,0,192,192);
+    ctx.font = '120px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
+    ctx.fillText('🎬', 96, 104);
+    const icone = cnv.toDataURL('image/png');
+    const manifest = {
+      name: "Ciné'Wawa", short_name: "Ciné'Wawa",
+      display: 'standalone', start_url: '.',
+      background_color: '#0a0a0d', theme_color: '#0a0a0d',
+      icons: [{ src: icone, sizes: '192x192', type: 'image/png' }],
+    };
+    const lien = document.createElement('link');
+    lien.rel = 'manifest';
+    lien.href = URL.createObjectURL(new Blob([JSON.stringify(manifest)], { type: 'application/json' }));
+    document.head.appendChild(lien);
+  }catch(e){ /* pas bloquant */ }
+}
+
+
+// ================= branchements =================
+$('btnRetour').addEventListener('click', allerAccueil);
+$('btnAjouter').addEventListener('click', () => ouvrirModale(null));
+$('btnSave').addEventListener('click', enregistrer);
+$('btnDelete').addEventListener('click', supprimer);
+$('btnCancel').addEventListener('click', fermerModale);
+$('overlay').addEventListener('click', e => { if(e.target === $('overlay')) fermerModale(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') fermerModale(); });
+$('fNote').addEventListener('input', majApercu);
+$('recherche').addEventListener('input', rendreListe);
+$('filtreStatut').addEventListener('change', rendreListe);
+$('tri').addEventListener('change', rendreListe);
+$('btnLier').addEventListener('click', lierFichier);
+$('btnExport').addEventListener('click', exporter);
+$('btnImport').addEventListener('click', () => $('inputImport').click());
+$('inputImport').addEventListener('change', e => { if(e.target.files[0]) importer(e.target.files[0]); e.target.value=''; });
+$('banniere').addEventListener('click', reconnecterFichier);
+$('btnCloud').addEventListener('click', ouvrirCloud);
+$('btnCloudOn').addEventListener('click', activerCloud);
+$('btnCloudOff').addEventListener('click', desactiverCloud);
+$('btnCloudFermer').addEventListener('click', fermerCloud);
+$('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayCloud')) fermerCloud(); });
+$('etatTexte').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
+
+// go
+initPWA();
+charger();
+chargerCloudConf();
+majCollage();
+rendreAccueil();
+majEtatSauvegarde();
+if(cloudActif()){
+  $('btnCloud').textContent = '☁️ Cloud ✓';
+  tirerCloud(true);            // au démarrage : on récupère la dernière version du cloud
+} else {
+  verifierFichierAuDemarrage(); // sinon, comportement fichier local habituel
+}
+</script>
+</body>
+</html>
