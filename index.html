@@ -9,6 +9,8 @@
 <meta name="apple-mobile-web-app-capable" content="yes">
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
 <meta name="apple-mobile-web-app-title" content="Ciné'Wawa">
+<link rel="apple-touch-icon" href="icon-180.png">
+<link rel="icon" type="image/png" href="icon-192.png">
 <link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Inter:wght@400;600;700;800&display=swap" rel="stylesheet">
 <style>
   :root{
@@ -104,18 +106,49 @@
   select option{background:#17171d}
   .cache{display:none !important}
 
-  /* ---- sauvegarde fichier ---- */
-  .savebar{display:flex;align-items:center;gap:10px;flex-wrap:wrap;background:rgba(23,23,29,.9);border:1px solid var(--border);border-radius:12px;padding:8px 12px;margin-bottom:18px;backdrop-filter:blur(8px);font-size:13px;color:var(--muted)}
-  .savebar .etat{display:flex;align-items:center;gap:7px}
+  /* ---- coin outils (export / import) ---- */
+  .coin-outils{display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px}
+  .btn-mini{background:#101014;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .btn-mini:hover{border-color:var(--border-h);color:var(--txt)}
+  .btn-mini.principal{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700}
+  .btn-mini.principal:hover{color:#141414;filter:brightness(1.08)}
+
+  /* ---- îlot cloud central ---- */
+  #ilotCloud{max-width:430px;margin:0 auto 22px;background:rgba(23,23,29,.92);border:1px solid var(--border);border-radius:14px;padding:13px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;backdrop-filter:blur(8px)}
+  .ilot-ligne{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;text-align:center}
   .pastille{width:9px;height:9px;border-radius:50%;background:#5a5a66;flex-shrink:0}
   .pastille.ok{background:#3fb950;box-shadow:0 0 8px rgba(63,185,80,.6)}
-  .savebar .btns{margin-left:auto;display:flex;gap:8px;flex-wrap:wrap}
-  .btn-mini{background:#101014;color:var(--txt);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
-  .btn-mini:hover{border-color:var(--border-h)}
-  .btn-mini.principal{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700}
-  #banniere{display:none;background:rgba(246,183,60,.12);border:1px solid rgba(246,183,60,.45);border-radius:12px;padding:12px 14px;margin-bottom:18px;color:#f5d48a;font-size:14px;cursor:pointer;text-align:center}
-  #banniere.on{display:block}
-  #banniere:hover{background:rgba(246,183,60,.18)}
+
+  /* ---- compte à rebours prochains épisodes ---- */
+  .cav-section{margin-top:26px}
+  .cav-titre{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;text-align:center}
+  .cav-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .15s ease}
+  .cav-row:hover{border-color:var(--border-h)}
+  .cav-ico{font-size:18px;flex-shrink:0}
+  .cav-info{flex:1;min-width:0}
+  .cav-nom{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cav-sub{font-size:12px;color:var(--muted)}
+  .cav-chip{font-size:12px;font-weight:800;border-radius:7px;padding:4px 10px;white-space:nowrap;flex-shrink:0}
+  .cav-chip.auj{background:var(--gold);color:#141414;box-shadow:0 0 12px rgba(246,183,60,.35)}
+  .cav-chip.demain{background:transparent;color:var(--gold);border:1px solid var(--gold)}
+  .cav-chip.plus-tard{background:#101014;color:var(--muted);border:1px solid var(--border)}
+  .cav-plus{background:#101014;border:1px solid var(--border);color:var(--gold);border-radius:8px;padding:6px 11px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:700;flex-shrink:0}
+  .cav-plus:hover{border-color:var(--gold)}
+
+  /* ---- visite d'une watchlist (lecture seule) ---- */
+  #bandeauVisu{display:none;background:rgba(45,108,223,.15);border:1px solid rgba(45,108,223,.5);border-radius:12px;padding:11px 14px;margin-bottom:18px;color:#9dbcf5;font-size:14px;text-align:center;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
+  #bandeauVisu.on{display:flex}
+  #btnQuitterVisu{background:#2d6cdf;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
+
+  /* ---- page utilisateurs ---- */
+  .user-row{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 16px;margin-bottom:10px;backdrop-filter:blur(8px)}
+  .user-row .avatar-gh{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:#101014;object-fit:cover}
+  .user-row .u-info{flex:1;min-width:0}
+  .user-row .u-pseudo{font-weight:800;font-size:16px}
+  .user-row .u-login{font-size:12px;color:var(--faint)}
+  .user-row .u-stats{font-size:12px;color:var(--muted);margin-top:2px}
+  .user-row .btn-voir{background:var(--gold);color:#141414;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0}
+  .user-row.indispo{opacity:.55}
 </style>
 </head>
 <body>
@@ -125,17 +158,20 @@
 
 <div class="wrap">
 
-  <div id="banniere">💾 Un fichier de sauvegarde est lié — <b>clique ici</b> pour tout recharger depuis le fichier.</div>
+  <div class="coin-outils">
+    <button class="btn-mini" id="btnExport">Exporter</button>
+    <button class="btn-mini" id="btnImport">Importer</button>
+    <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
+  </div>
 
-  <div class="savebar">
-    <span class="etat"><span class="pastille" id="pastille"></span><span id="etatTexte">Sauvegarde : navigateur uniquement</span></span>
-    <span class="btns">
-      <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
-      <button class="btn-mini" id="btnLier">💾 Fichier local</button>
-      <button class="btn-mini" id="btnExport">Exporter</button>
-      <button class="btn-mini" id="btnImport">Importer</button>
-      <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
-    </span>
+  <div id="ilotCloud">
+    <span class="ilot-ligne" id="ligneEtat"><span class="pastille" id="pastille"></span><span id="etatTexte">Cloud non configuré</span></span>
+    <button class="btn-mini principal" id="btnCloud">☁️ Configurer le cloud</button>
+  </div>
+
+  <div id="bandeauVisu">
+    <span>👀 Tu regardes la liste de <b id="visuNom"></b> — lecture seule</span>
+    <button id="btnQuitterVisu">Revenir à ma liste</button>
   </div>
 
   <!-- ======== ACCUEIL ======== -->
@@ -146,6 +182,22 @@
     </header>
     <div class="accueil-sous">Que veux-tu consulter ?</div>
     <div class="grille-cat" id="grilleCat"></div>
+    <div id="zoneUtilisateurs" style="text-align:center;margin-top:24px">
+      <button class="btn-mini" id="btnUtilisateurs">👥 Utilisateurs</button>
+    </div>
+  </div>
+
+  <!-- ======== PAGE UTILISATEURS ======== -->
+  <div id="pageUtilisateurs" class="cache">
+    <header>
+      <button class="retour" id="btnRetourUsers" title="Retour à l'accueil">←</button>
+      <div class="avatar" style="cursor:default;background:linear-gradient(135deg,#2d6cdf,#17171d)">👥</div>
+      <h1>Utilisateurs</h1>
+    </header>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px;text-align:center">
+      Les watchlists publiques de la communauté — consultation seule, personne ne peut modifier celle des autres.
+    </div>
+    <div id="listeUsers"></div>
   </div>
 
   <!-- ======== CATÉGORIE ======== -->
@@ -265,12 +317,17 @@
       <label>ID du Gist (laisser vide : trouvé ou créé automatiquement)</label>
       <input id="cGist" placeholder="auto" autocomplete="off">
     </div>
+    <div class="champ">
+      <label>Pseudo affiché (annuaire des utilisateurs)</label>
+      <input id="cPseudo" placeholder="Ex : Wawa" maxlength="24" autocomplete="off">
+    </div>
     <div id="cMessage" style="font-size:13px;margin-bottom:12px;display:none"></div>
-    <div class="actions">
-      <button class="btn-gold" id="btnCloudOn">Activer la synchro</button>
+    <div class="actions" style="margin-bottom:10px">
+      <button class="btn-gold" id="btnCloudOn">Activer / mettre à jour</button>
       <button class="btn-danger on" id="btnCloudOff" style="display:none">Désactiver</button>
       <button class="btn-ghost" id="btnCloudFermer">Fermer</button>
     </div>
+    <button class="btn-mini" id="btnPublic" style="width:100%;display:none">🌍 Rendre ma liste visible dans l'annuaire</button>
   </div>
 </div>
 
@@ -292,15 +349,17 @@ const STATUTS = {
 
 // ================= état =================
 const CLE = 'cinewawa-v1';
-let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [] };
+let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [], pseudo: '' };
 let catCourante = null;   // null = accueil
 let enEdition = null;
+let visu = null;          // { login, pseudo, data } quand on consulte la liste de quelqu'un (lecture seule)
+const dact = () => visu ? visu.data : etat;   // données actives à afficher
 
 function normaliser(d){
   if(!d || typeof d !== 'object') return null;
   // ancien format (filmothèque seule) → migration
   if(Array.isArray(d.films) && !d.series && !d.anime && !d.manga){
-    return { titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [] };
+    return { titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [], pseudo: '' };
   }
   if(Array.isArray(d.films) || Array.isArray(d.series) || Array.isArray(d.anime) || Array.isArray(d.manga)){
     return {
@@ -309,6 +368,7 @@ function normaliser(d){
       series: d.series || [],
       anime:  d.anime  || [],
       manga:  d.manga  || [],
+      pseudo: d.pseudo || '',
       modif:  d.modif  || 0,
     };
   }
@@ -325,7 +385,6 @@ function sauver(){
   etat.modif = Date.now(); // horodatage pour la synchro (le plus récent gagne)
   try{ localStorage.setItem(CLE, JSON.stringify(etat)); }
   catch(e){ console.error('Sauvegarde impossible', e); }
-  ecrireFichier();
   planifierPush();
 }
 
@@ -349,7 +408,7 @@ function majCollage(){
   const zone = $('collage');
   zone.innerHTML = '';
   const affiches = ['films','series','anime','manga']
-    .flatMap(c => etat[c].map(f => f.affiche))
+    .flatMap(c => dact()[c].map(f => f.affiche))
     .filter(Boolean);
   if(!affiches.length) return;
   // mélange aléatoire des affiches (différent à chaque chargement)
@@ -379,11 +438,13 @@ function allerAccueil(){
   catCourante = null;
   $('pageAccueil').classList.remove('cache');
   $('pageCategorie').classList.add('cache');
+  $('pageUtilisateurs').classList.add('cache');
   rendreAccueil();
 }
 function allerCategorie(c){
   catCourante = c;
   $('pageAccueil').classList.add('cache');
+  $('pageUtilisateurs').classList.add('cache');
   $('pageCategorie').classList.remove('cache');
   const conf = CATS[c];
   $('catTitre').textContent = conf.nom;
@@ -392,6 +453,7 @@ function allerCategorie(c){
   $('recherche').value = '';
   $('filtreStatut').value = '';
   $('filtreStatut').classList.toggle('cache', c === 'films');
+  $('btnAjouter').style.display = visu ? 'none' : '';
   document.title = "Ciné'Wawa — " + conf.nom;
   rendreListe();
 }
@@ -399,8 +461,8 @@ function allerCategorie(c){
 function rendreAccueil(){
   document.title = "Ciné'Wawa";
   $('grilleCat').innerHTML = Object.entries(CATS).map(([c,conf]) => {
-    const n = etat[c].length;
-    const enCours = etat[c].filter(f => f.statut === 'encours').length;
+    const n = dact()[c].length;
+    const enCours = dact()[c].filter(f => f.statut === 'encours').length;
     const sousTexte = c === 'films'
       ? n + ' film' + (n>1?'s':'') + ' vu' + (n>1?'s':'')
       : n + ' titre' + (n>1?'s':'') + (enCours ? ' · ' + enCours + ' en cours' : '');
@@ -414,6 +476,72 @@ function rendreAccueil(){
   $('grilleCat').querySelectorAll('.cat').forEach(b => {
     b.addEventListener('click', () => allerCategorie(b.dataset.cat));
   });
+  rendreProchainsEpisodes();
+}
+
+// ---- compte à rebours des prochains épisodes (sorties hebdomadaires) ----
+function prochaineSortie(dateISO){
+  // prochain épisode = même jour de la semaine que le dernier vu, tous les 7 jours
+  const p = new Date(dateISO + 'T00:00:00');
+  const auj = new Date(); auj.setHours(0,0,0,0);
+  do { p.setDate(p.getDate() + 7); } while(p < auj);
+  return p;
+}
+function rendreProchainsEpisodes(){
+  const auj = new Date(); auj.setHours(0,0,0,0);
+  const items = [];
+  ['anime','series'].forEach(c => dact()[c].forEach(f => {
+    if(f.statut === 'encours' && f.date){
+      items.push({ c, f, sortie: prochaineSortie(f.date) });
+    }
+  }));
+  const ancien = document.getElementById('cavSection');
+  if(ancien) ancien.remove();
+  if(!items.length) return;
+  items.sort((a,b) => a.sortie - b.sortie);
+
+  const section = document.createElement('div');
+  section.className = 'cav-section';
+  section.id = 'cavSection';
+  section.innerHTML = '<div class="cav-titre">⏳ Prochains épisodes</div>'
+    + items.map(({c, f, sortie}) => {
+      const jours = Math.round((sortie - auj) / 864e5);
+      let chip, classe;
+      if(jours <= 0){ chip = "Aujourd'hui !"; classe = 'auj'; }
+      else if(jours === 1){ chip = 'Demain'; classe = 'demain'; }
+      else { chip = 'Dans ' + jours + ' j'; classe = 'plus-tard'; }
+      const epActuel = parseInt(f.p2) || 0;
+      const sous = (f.p1 ? 'S'+f.p1+' · ' : '') + (epActuel ? 'dernier vu : ép. '+epActuel+' → prochain : ép. '+(epActuel+1) : 'épisode suivant');
+      return '<div class="cav-row" data-cat="'+c+'" data-id="'+f.id+'">'
+        + '<span class="cav-ico">'+CATS[c].ico+'</span>'
+        + '<span class="cav-info"><div class="cav-nom">'+echap(f.titre)+'</div><div class="cav-sub">'+sous+'</div></span>'
+        + '<span class="cav-chip '+classe+'">'+chip+'</span>'
+        + (visu ? '' : '<button class="cav-plus" data-cat="'+c+'" data-id="'+f.id+'" title="Marquer l\'épisode suivant comme vu">+1 ép.</button>')
+        + '</div>';
+    }).join('');
+  $('pageAccueil').insertBefore(section, $('zoneUtilisateurs'));
+
+  section.querySelectorAll('.cav-plus').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      plusUnEpisode(b.dataset.cat, Number(b.dataset.id));
+    });
+  });
+  section.querySelectorAll('.cav-row').forEach(r => {
+    r.addEventListener('click', () => {
+      catCourante = r.dataset.cat;          // contexte pour la modale, sans quitter l'accueil
+      ouvrirModale(Number(r.dataset.id));
+    });
+  });
+}
+function plusUnEpisode(c, id){
+  if(visu) return;
+  const f = etat[c].find(x => x.id === id);
+  if(!f) return;
+  f.p2 = String((parseInt(f.p2) || 0) + 1);
+  f.date = aujourdhui();                    // le décompte de 7 jours repart d'aujourd'hui
+  sauver();
+  rendreProchainsEpisodes();
 }
 
 // ================= étoiles =================
@@ -437,7 +565,7 @@ function texteProgression(f, cat){
 
 function rendreListe(){
   const c = catCourante;
-  const items = etat[c];
+  const items = dact()[c];
   const n = items.length;
   $('compteur').textContent = n + ' titre' + (n>1?'s':'');
 
@@ -499,11 +627,14 @@ function ouvrirModale(id){
   enEdition = id ?? null;
   const c = catCourante;
   const conf = CATS[c];
-  const f = enEdition ? etat[c].find(x=>x.id===enEdition) : null;
+  const f = enEdition ? dact()[c].find(x=>x.id===enEdition) : null;
+  const ro = !!visu; // lecture seule pendant une visite
 
-  $('modaleTitre').textContent = (f ? 'Modifier' : 'Ajouter') + ' — ' + conf.nom.replace(/s$/,'').toLowerCase();
+  $('modaleTitre').textContent = (ro ? 'Fiche (lecture seule)' : (f ? 'Modifier' : 'Ajouter')) + ' — ' + conf.nom.replace(/s$/,'').toLowerCase();
   $('btnSave').textContent = f ? 'Enregistrer' : 'Ajouter';
-  $('btnDelete').classList.toggle('on', !!f);
+  $('btnSave').style.display = ro ? 'none' : '';
+  $('btnDelete').classList.toggle('on', !!f && !ro);
+  ['fTitre','fStatut','fP1','fP2','fNote','fDate','fAffiche','fAvis'].forEach(i => $(i).disabled = ro);
 
   // champs spécifiques à la catégorie
   $('blocStatut').classList.toggle('cache', c === 'films');
@@ -539,6 +670,7 @@ function majApercu(){
 }
 
 function enregistrer(){
+  if(visu) return;
   const c = catCourante;
   const titre = $('fTitre').value.trim();
   const noteBrute = $('fNote').value.trim();
@@ -566,51 +698,25 @@ function enregistrer(){
   } else {
     etat[c].unshift(item);
   }
-  sauver(); fermerModale(); majCollage(); rendreListe();
+  sauver(); fermerModale(); majCollage(); rafraichir();
 }
 
 function supprimer(){
-  if(!enEdition) return;
+  if(!enEdition || visu) return;
   etat[catCourante] = etat[catCourante].filter(x => x.id !== enEdition);
-  sauver(); fermerModale(); majCollage(); rendreListe();
+  sauver(); fermerModale(); majCollage(); rafraichir();
 }
 
-// ================= fichier de sauvegarde =================
-const supporteFichier = 'showSaveFilePicker' in window;
-let fichierHandle = null;
-
-function idb(mode, action){
-  return new Promise((res, rej) => {
-    const req = indexedDB.open('cinewawa-db', 1);
-    req.onupgradeneeded = () => req.result.createObjectStore('kv');
-    req.onerror = () => rej(req.error);
-    req.onsuccess = () => {
-      const tx = req.result.transaction('kv', mode);
-      const r = action(tx.objectStore('kv'));
-      r.onsuccess = () => res(r.result);
-      r.onerror = () => rej(r.error);
-    };
-  });
-}
-const idbGet = k => idb('readonly', s => s.get(k));
-const idbSet = (k,v) => idb('readwrite', s => s.put(v,k));
-
+// ================= état de sauvegarde & application des données =================
 function majEtatSauvegarde(){
-  const ok = !!fichierHandle;
-  $('pastille').classList.toggle('ok', ok);
-  $('etatTexte').textContent = ok
-    ? 'Sauvegarde : « ' + fichierHandle.name + ' » (auto)'
-    : 'Sauvegarde : navigateur uniquement';
-  $('btnLier').textContent = ok ? '💾 Changer de fichier' : '💾 Lier un fichier';
+  if(cloudActif()) return; // géré par majCloudEtat
+  $('pastille').classList.remove('ok');
+  $('etatTexte').textContent = 'Cloud non configuré — données gardées sur cet appareil uniquement';
 }
 
-async function ecrireFichier(){
-  if(!fichierHandle) return;
-  try{
-    const w = await fichierHandle.createWritable();
-    await w.write(JSON.stringify(etat, null, 2));
-    await w.close();
-  }catch(e){ console.error('Écriture du fichier impossible', e); }
+function rafraichir(){
+  if($('pageAccueil').classList.contains('cache')) rendreListe();
+  else rendreAccueil();
 }
 
 function appliquerDonnees(d){
@@ -619,71 +725,132 @@ function appliquerDonnees(d){
   etat = propre;
   try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
   majCollage();
-  if(catCourante) rendreListe(); else rendreAccueil();
+  rafraichir();
   return true;
 }
 
-async function lierFichier(){
-  if(!supporteFichier){
-    alert("Ton navigateur ne permet pas la liaison directe à un fichier (Chrome, Edge, Opera ou Brave le font).\nUtilise Exporter / Importer à la place : ça marche partout.");
+// ================= annuaire des utilisateurs & mode visite =================
+function entetesPub(){
+  return cloud.token ? { 'Authorization': 'Bearer ' + cloud.token, 'Accept': 'application/vnd.github+json' } : { 'Accept': 'application/vnd.github+json' };
+}
+
+async function chargerProfilPublic(login){
+  // cherche le cinewawa.json parmi les gists PUBLICS de l'utilisateur
+  const r = await fetch('https://api.github.com/users/' + encodeURIComponent(login) + '/gists?per_page=100', { headers: entetesPub() });
+  if(!r.ok) throw new Error('HTTP ' + r.status);
+  const liste = await r.json();
+  const g = Array.isArray(liste) ? liste.find(g => g.files && g.files['cinewawa.json']) : null;
+  if(!g) return null;
+  const brut = await (await fetch(g.files['cinewawa.json'].raw_url)).text();
+  return normaliser(JSON.parse(brut));
+}
+
+async function allerUtilisateurs(){
+  catCourante = null;
+  $('pageAccueil').classList.add('cache');
+  $('pageCategorie').classList.add('cache');
+  $('pageUtilisateurs').classList.remove('cache');
+  document.title = "Ciné'Wawa — Utilisateurs";
+  const zone = $('listeUsers');
+  zone.innerHTML = '<div class="vide-msg">Chargement de l\'annuaire…</div>';
+
+  let logins = [];
+  try{
+    const r = await fetch('utilisateurs.json', { cache: 'no-store' });
+    if(!r.ok) throw new Error();
+    logins = (await r.json()).utilisateurs || [];
+  }catch(e){
+    zone.innerHTML = '<div class="vide-msg">Annuaire introuvable — il faut que le fichier <b>utilisateurs.json</b> soit présent à côté du site (et que le site soit ouvert en ligne).</div>';
     return;
   }
-  try{
-    const handle = await window.showSaveFilePicker({
-      suggestedName: 'cinewawa.json',
-      types: [{ description: "Sauvegarde Ciné'Wawa", accept: { 'application/json': ['.json'] } }],
-    });
-    fichierHandle = handle;
-    await idbSet('handle', handle);
-    // si le fichier choisi contient déjà des données et que la base locale est vide, on le lit
-    try{
-      const contenu = await (await handle.getFile()).text();
-      const vide = !etat.films.length && !etat.series.length && !etat.anime.length && !etat.manga.length;
-      if(contenu.trim() && vide){
-        if(appliquerDonnees(JSON.parse(contenu))){ majEtatSauvegarde(); return; }
+  if(!logins.length){
+    zone.innerHTML = '<div class="vide-msg">L\'annuaire est vide pour l\'instant.</div>';
+    return;
+  }
+
+  zone.innerHTML = '';
+  for(const login of logins){
+    const row = document.createElement('div');
+    row.className = 'user-row';
+    row.innerHTML = '<img class="avatar-gh" src="https://github.com/' + encodeURIComponent(login) + '.png?size=88" alt="">'
+      + '<span class="u-info"><div class="u-pseudo">' + echap(login) + '</div><div class="u-login">@' + echap(login) + '</div><div class="u-stats">Chargement…</div></span>';
+    zone.appendChild(row);
+    chargerProfilPublic(login).then(d => {
+      if(!d){
+        row.classList.add('indispo');
+        row.querySelector('.u-stats').textContent = 'Liste privée ou introuvable';
+        return;
       }
-    }catch(e){ /* fichier neuf : on écrira par-dessus */ }
-    await ecrireFichier();
-    majEtatSauvegarde();
-  }catch(e){ /* sélection annulée */ }
+      row.querySelector('.u-pseudo').textContent = d.pseudo || login;
+      const enCours = d.anime.filter(f=>f.statut==='encours').length + d.series.filter(f=>f.statut==='encours').length;
+      row.querySelector('.u-stats').textContent =
+        d.films.length + ' films · ' + d.series.length + ' séries · ' + d.anime.length + ' anime · ' + d.manga.length + ' manga' + (enCours ? ' · ' + enCours + ' en cours' : '');
+      const btn = document.createElement('button');
+      btn.className = 'btn-voir';
+      btn.textContent = 'Voir';
+      btn.addEventListener('click', () => voirUtilisateur(login, d));
+      row.appendChild(btn);
+    }).catch(() => {
+      row.classList.add('indispo');
+      row.querySelector('.u-stats').textContent = 'Erreur de chargement';
+    });
+  }
 }
 
-async function reconnecterFichier(){
-  try{
-    const handle = await idbGet('handle');
-    if(!handle) return;
-    const perm = await handle.requestPermission({ mode: 'readwrite' });
-    if(perm !== 'granted'){ $('banniere').classList.remove('on'); return; }
-    fichierHandle = handle;
-    try{
-      const contenu = await (await handle.getFile()).text();
-      if(contenu.trim()) appliquerDonnees(JSON.parse(contenu));
-    }catch(e){ console.error('Lecture du fichier impossible', e); }
-    $('banniere').classList.remove('on');
-    majEtatSauvegarde();
-  }catch(e){ console.error(e); }
+function voirUtilisateur(login, d){
+  visu = { login, pseudo: d.pseudo || login, data: d };
+  $('visuNom').textContent = visu.pseudo;
+  $('bandeauVisu').classList.add('on');
+  $('ilotCloud').style.display = 'none';
+  document.querySelector('.coin-outils').style.display = 'none';
+  $('zoneUtilisateurs').style.display = 'none';
+  majCollage();               // le fond affiche les affiches de l'utilisateur visité !
+  allerAccueil();
+}
+function quitterVisu(){
+  visu = null;
+  $('bandeauVisu').classList.remove('on');
+  $('ilotCloud').style.display = '';
+  document.querySelector('.coin-outils').style.display = '';
+  $('zoneUtilisateurs').style.display = '';
+  majCollage();
+  allerAccueil();
 }
 
-async function verifierFichierAuDemarrage(){
-  if(!supporteFichier) return;
+// ---- rendre sa liste visible (gist public) ----
+async function rendrePublic(){
+  if(!cloudActif()){ msgCloud('Active d\'abord la synchro cloud.', true); return; }
   try{
-    const handle = await idbGet('handle');
-    if(!handle) return;
-    const perm = await handle.queryPermission({ mode: 'readwrite' });
-    if(perm === 'granted'){
-      fichierHandle = handle;
-      try{
-        const contenu = await (await handle.getFile()).text();
-        if(contenu.trim()) appliquerDonnees(JSON.parse(contenu));
-      }catch(e){}
-      majEtatSauvegarde();
-    }else{
-      $('banniere').classList.add('on');
+    msgCloud('Vérification…');
+    const r = await fetch('https://api.github.com/gists/' + cloud.gistId, { headers: enTetes() });
+    const g = await r.json();
+    const login = g.owner ? g.owner.login : '?';
+    if(g.public){
+      msgCloud('Ta liste est déjà publique ✓ Pseudo GitHub à donner pour l\'annuaire : ' + login);
+      return;
     }
-  }catch(e){ console.error(e); }
+    // la visibilité d'un gist ne peut pas changer : on recrée un gist PUBLIC avec les données
+    msgCloud('Création de la version publique…');
+    const rc = await fetch('https://api.github.com/gists', {
+      method: 'POST', headers: enTetes(),
+      body: JSON.stringify({
+        description: "Sauvegarde Ciné'Wawa",
+        public: true,
+        files: { 'cinewawa.json': { content: JSON.stringify(etat, null, 2) } },
+      }),
+    });
+    if(!rc.ok) throw new Error('HTTP ' + rc.status);
+    const nouveau = await rc.json();
+    cloud.gistId = nouveau.id;
+    sauverCloudConf();
+    $('cGist').value = cloud.gistId;
+    msgCloud('Liste publique ✓ Donne ce pseudo GitHub pour être ajouté à l\'annuaire : ' + login + ' (tu peux supprimer l\'ancien gist privé sur gist.github.com)');
+    majCloudEtat('ok');
+  }catch(e){ msgCloud('Échec : ' + e.message, true); }
 }
 
-// ---- export / import universels ----
+
+// ---- export / import ----
 function exporter(){
   const blob = new Blob([JSON.stringify(etat, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
@@ -764,7 +931,7 @@ function majCloudEtat(mode, e){
   if(mode === 'sync'){ p.classList.remove('ok'); t.textContent = '☁️ Synchronisation…'; }
   else if(mode === 'ok'){ p.classList.add('ok'); t.textContent = '☁️ Cloud synchronisé à ' + heure() + ' (clic = resync)'; }
   else { p.classList.remove('ok'); t.textContent = '☁️ Erreur de synchro — clic pour réessayer'; if(e) console.error(e); }
-  $('btnCloud').textContent = '☁️ Cloud ✓';
+  $('btnCloud').textContent = '⚙️ Réglages cloud';
 }
 
 function planifierPush(){
@@ -799,7 +966,9 @@ async function tirerCloud(force){
 function ouvrirCloud(){
   $('cToken').value = cloud.token || '';
   $('cGist').value = cloud.gistId || '';
+  $('cPseudo').value = etat.pseudo || '';
   $('btnCloudOff').style.display = cloudActif() ? 'block' : 'none';
+  $('btnPublic').style.display = cloudActif() ? 'block' : 'none';
   msgCloud('');
   $('overlayCloud').style.display = 'flex';
 }
@@ -840,6 +1009,10 @@ async function activerCloud(){
     }
     $('cGist').value = cloud.gistId;
     $('btnCloudOff').style.display = 'block';
+    $('btnPublic').style.display = 'block';
+    // pseudo : enregistré avec la sauvegarde
+    const pseudo = $('cPseudo').value.trim();
+    if(pseudo !== (etat.pseudo || '')){ etat.pseudo = pseudo; sauver(); }
     majCloudEtat('ok');
   }catch(e){
     cloud = { token: '', gistId: '' };
@@ -862,18 +1035,14 @@ window.addEventListener('focus', () => tirerCloud(false));
 // ================= PWA (installer comme une appli sur téléphone) =================
 function initPWA(){
   try{
-    const cnv = document.createElement('canvas');
-    cnv.width = cnv.height = 192;
-    const ctx = cnv.getContext('2d');
-    ctx.fillStyle = '#0a0a0d'; ctx.fillRect(0,0,192,192);
-    ctx.font = '120px serif'; ctx.textAlign = 'center'; ctx.textBaseline = 'middle';
-    ctx.fillText('🎬', 96, 104);
-    const icone = cnv.toDataURL('image/png');
     const manifest = {
       name: "Ciné'Wawa", short_name: "Ciné'Wawa",
       display: 'standalone', start_url: '.',
       background_color: '#0a0a0d', theme_color: '#0a0a0d',
-      icons: [{ src: icone, sizes: '192x192', type: 'image/png' }],
+      icons: [
+        { src: new URL('icon-192.png', location.href).href, sizes: '192x192', type: 'image/png' },
+        { src: new URL('icon-512.png', location.href).href, sizes: '512x512', type: 'image/png' },
+      ],
     };
     const lien = document.createElement('link');
     lien.rel = 'manifest';
@@ -895,17 +1064,19 @@ $('fNote').addEventListener('input', majApercu);
 $('recherche').addEventListener('input', rendreListe);
 $('filtreStatut').addEventListener('change', rendreListe);
 $('tri').addEventListener('change', rendreListe);
-$('btnLier').addEventListener('click', lierFichier);
 $('btnExport').addEventListener('click', exporter);
 $('btnImport').addEventListener('click', () => $('inputImport').click());
 $('inputImport').addEventListener('change', e => { if(e.target.files[0]) importer(e.target.files[0]); e.target.value=''; });
-$('banniere').addEventListener('click', reconnecterFichier);
 $('btnCloud').addEventListener('click', ouvrirCloud);
 $('btnCloudOn').addEventListener('click', activerCloud);
 $('btnCloudOff').addEventListener('click', desactiverCloud);
 $('btnCloudFermer').addEventListener('click', fermerCloud);
 $('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayCloud')) fermerCloud(); });
-$('etatTexte').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
+$('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
+$('btnUtilisateurs').addEventListener('click', allerUtilisateurs);
+$('btnRetourUsers').addEventListener('click', allerAccueil);
+$('btnQuitterVisu').addEventListener('click', quitterVisu);
+$('btnPublic').addEventListener('click', rendrePublic);
 
 // go
 initPWA();
@@ -915,10 +1086,8 @@ majCollage();
 rendreAccueil();
 majEtatSauvegarde();
 if(cloudActif()){
-  $('btnCloud').textContent = '☁️ Cloud ✓';
+  $('btnCloud').textContent = '⚙️ Réglages cloud';
   tirerCloud(true);            // au démarrage : on récupère la dernière version du cloud
-} else {
-  verifierFichierAuDemarrage(); // sinon, comportement fichier local habituel
 }
 </script>
 </body>
