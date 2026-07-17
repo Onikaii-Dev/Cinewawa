@@ -563,56 +563,96 @@ function rendreProchainsEpisodes(){
   });
 }
 // ================= recherche automatique d'affiche =================
+// contournement CORS pour iTunes (JSONP)
+function jsonp(url){
+  return new Promise((res, rej) => {
+    const cb = 'cw_cb_' + Date.now() + '_' + Math.floor(Math.random()*1e6);
+    const s = document.createElement('script');
+    const fin = () => { delete window[cb]; s.remove(); };
+    window[cb] = data => { fin(); res(data); };
+    s.onerror = () => { fin(); rej(new Error('jsonp')); };
+    s.src = url + (url.includes('?') ? '&' : '?') + 'callback=' + cb;
+    document.head.appendChild(s);
+    setTimeout(() => { if(window[cb]){ fin(); rej(new Error('timeout')); } }, 9000);
+  });
+}
+
+async function srcJikan(titre, type){ // anime / manga (base MyAnimeList)
+  const r = await fetch('https://api.jikan.moe/v4/' + type + '?q=' + encodeURIComponent(titre) + '&limit=6');
+  if(!r.ok) throw new Error('Jikan ' + r.status);
+  const j = await r.json();
+  return (j.data || []).map(a => ({
+    url: (a.images && a.images.jpg && (a.images.jpg.large_image_url || a.images.jpg.image_url)) || '',
+    nom: a.title,
+  }));
+}
+async function srcTVMaze(titre){ // séries
+  const r = await fetch('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(titre));
+  if(!r.ok) throw new Error('TVMaze ' + r.status);
+  const j = await r.json();
+  return (j || []).filter(x => x.show && x.show.image).map(x => ({
+    url: x.show.image.original || x.show.image.medium,
+    nom: x.show.name,
+  }));
+}
+async function srcITunes(titre){ // films (via JSONP car iTunes bloque les requêtes classiques)
+  const j = await jsonp('https://itunes.apple.com/search?term=' + encodeURIComponent(titre) + '&media=movie&country=fr&limit=6');
+  return (j.results || []).filter(x => x.artworkUrl100).map(x => ({
+    url: x.artworkUrl100.replace('100x100', '600x600'),
+    nom: x.trackName,
+  }));
+}
+async function srcWikipedia(titre, indice){ // secours universel, très fiable
+  const r = await fetch('https://fr.wikipedia.org/w/api.php?action=query&generator=search&gsrsearch='
+    + encodeURIComponent(titre + ' ' + indice) + '&gsrlimit=6&prop=pageimages&piprop=thumbnail&pithumbsize=500&format=json&origin=*');
+  if(!r.ok) throw new Error('Wikipedia ' + r.status);
+  const j = await r.json();
+  const pages = (j.query && j.query.pages) ? Object.values(j.query.pages) : [];
+  return pages.sort((a,b)=>(a.index||0)-(b.index||0))
+    .filter(p => p.thumbnail && p.thumbnail.source)
+    .map(p => ({ url: p.thumbnail.source, nom: p.title }));
+}
+
 async function chercherAffiche(){
   const titre = $('fTitre').value.trim();
   const zone = $('resAffiches');
   zone.classList.add('on');
   if(!titre){ zone.innerHTML = '<div class="res-info">Écris d\'abord le titre au-dessus.</div>'; return; }
   zone.innerHTML = '<div class="res-info">Recherche en cours…</div>';
-  try{
-    let resultats = [];
-    if(catCourante === 'anime' || catCourante === 'manga'){
-      // Jikan = base MyAnimeList, gratuite
-      const type = catCourante === 'anime' ? 'anime' : 'manga';
-      const r = await fetch('https://api.jikan.moe/v4/' + type + '?q=' + encodeURIComponent(titre) + '&limit=6');
-      const j = await r.json();
-      resultats = (j.data || []).map(a => ({
-        url: (a.images && a.images.jpg && (a.images.jpg.large_image_url || a.images.jpg.image_url)) || '',
-        nom: a.title,
-      }));
-    } else if(catCourante === 'series'){
-      const r = await fetch('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(titre));
-      const j = await r.json();
-      resultats = (j || []).filter(x => x.show && x.show.image).map(x => ({
-        url: x.show.image.original || x.show.image.medium,
-        nom: x.show.name,
-      }));
-    } else {
-      const r = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(titre) + '&media=movie&country=fr&limit=6');
-      const j = await r.json();
-      resultats = (j.results || []).filter(x => x.artworkUrl100).map(x => ({
-        url: x.artworkUrl100.replace('100x100', '600x600'),
-        nom: x.trackName,
-      }));
-    }
-    resultats = resultats.filter(x => x.url).slice(0, 6);
-    if(!resultats.length){
-      zone.innerHTML = '<div class="res-info">Aucun résultat — essaie un autre titre, ou colle l\'URL à la main.</div>';
-      return;
-    }
-    zone.innerHTML = '<div class="res-info">Clique sur la bonne affiche :</div>'
-      + resultats.map((x,i) => '<img src="'+echap(x.url)+'" title="'+echap(x.nom)+'" data-i="'+i+'" loading="lazy">').join('');
-    zone.querySelectorAll('img').forEach(img => {
-      img.addEventListener('click', () => {
-        $('fAffiche').value = resultats[Number(img.dataset.i)].url;
-        zone.classList.remove('on');
-        zone.innerHTML = '';
-      });
-      img.addEventListener('error', () => img.remove());
-    });
-  }catch(e){
-    zone.innerHTML = '<div class="res-info">Recherche impossible (connexion ?). Colle l\'URL à la main.</div>';
+
+  // sources par catégorie, essayées dans l'ordre jusqu'à trouver des résultats
+  const sources = {
+    anime:  [() => srcJikan(titre, 'anime'), () => srcWikipedia(titre, 'anime')],
+    manga:  [() => srcJikan(titre, 'manga'), () => srcWikipedia(titre, 'manga')],
+    series: [() => srcTVMaze(titre),         () => srcWikipedia(titre, 'série télévisée')],
+    films:  [() => srcITunes(titre),         () => srcWikipedia(titre, 'film')],
+  }[catCourante] || [() => srcWikipedia(titre, '')];
+
+  let resultats = [];
+  let erreurs = 0;
+  for(const src of sources){
+    try{
+      resultats = (await src()).filter(x => x.url).slice(0, 6);
+      if(resultats.length) break;
+    }catch(e){ erreurs++; console.error('Source affiche :', e); }
   }
+
+  if(!resultats.length){
+    zone.innerHTML = '<div class="res-info">' + (erreurs === sources.length
+      ? 'Les services de recherche ne répondent pas — réessaie dans quelques secondes, ou colle l\'URL à la main.'
+      : 'Aucun résultat — essaie le titre original (souvent en anglais/japonais), ou colle l\'URL à la main.') + '</div>';
+    return;
+  }
+  zone.innerHTML = '<div class="res-info">Clique sur la bonne affiche :</div>'
+    + resultats.map((x,i) => '<img src="'+echap(x.url)+'" title="'+echap(x.nom)+'" data-i="'+i+'" loading="lazy">').join('');
+  zone.querySelectorAll('img').forEach(img => {
+    img.addEventListener('click', () => {
+      $('fAffiche').value = resultats[Number(img.dataset.i)].url;
+      zone.classList.remove('on');
+      zone.innerHTML = '';
+    });
+    img.addEventListener('error', () => img.remove());
+  });
 }
 
 function plusUnEpisode(c, id){
