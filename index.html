@@ -328,7 +328,7 @@
 <!-- ======== MODALE CLOUD ======== -->
 <div id="overlayCloud" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
   <div class="modale">
-    <h2>☁️ Synchro cloud (GitHub)</h2>
+    <h2>☁️ Synchro cloud (GitHub) <span style="font-size:13px;color:#6f6f7c" id="verSite"></span></h2>
     <div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px">
       Ta sauvegarde est stockée dans un <b>Gist privé</b> sur ton compte GitHub.
       Colle le même token sur chaque appareil (PC, téléphone…) et tout se synchronise automatiquement.
@@ -357,6 +357,9 @@
 </div>
 
 <script>
+const VERSION = 'v8';
+console.log("Ciné'Wawa " + VERSION);
+document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
 const CATS = {
   films:  { nom:'Films',  ico:'🎬', couleur:'#F6B73C', progression:null,                        labelDate:'Vu le' },
@@ -577,6 +580,22 @@ function jsonp(url){
   });
 }
 
+async function srcAniList(titre, type){ // ANIME ou MANGA — covers verticales de qualité
+  const r = await fetch('https://graphql.anilist.co', {
+    method: 'POST',
+    headers: { 'Content-Type': 'application/json', 'Accept': 'application/json' },
+    body: JSON.stringify({
+      query: 'query($s:String,$t:MediaType){Page(perPage:6){media(search:$s,type:$t){title{romaji english}coverImage{extraLarge large}}}}',
+      variables: { s: titre, t: type },
+    }),
+  });
+  if(!r.ok) throw new Error('AniList ' + r.status);
+  const j = await r.json();
+  return (((j.data||{}).Page||{}).media||[]).map(m => ({
+    url: (m.coverImage && (m.coverImage.extraLarge || m.coverImage.large)) || '',
+    nom: (m.title && (m.title.romaji || m.title.english)) || titre,
+  }));
+}
 async function srcJikan(titre, type){ // anime / manga (base MyAnimeList)
   const r = await fetch('https://api.jikan.moe/v4/' + type + '?q=' + encodeURIComponent(titre) + '&limit=6');
   if(!r.ok) throw new Error('Jikan ' + r.status);
@@ -622,10 +641,10 @@ async function chercherAffiche(){
 
   // sources par catégorie, essayées dans l'ordre jusqu'à trouver des résultats
   const sources = {
-    anime:  [() => srcJikan(titre, 'anime'), () => srcWikipedia(titre, 'anime')],
-    manga:  [() => srcJikan(titre, 'manga'), () => srcWikipedia(titre, 'manga')],
-    series: [() => srcTVMaze(titre),         () => srcWikipedia(titre, 'série télévisée')],
-    films:  [() => srcITunes(titre),         () => srcWikipedia(titre, 'film')],
+    anime:  [() => srcAniList(titre, 'ANIME'), () => srcJikan(titre, 'anime'), () => srcWikipedia(titre, 'anime')],
+    manga:  [() => srcAniList(titre, 'MANGA'), () => srcJikan(titre, 'manga'), () => srcWikipedia(titre, 'manga')],
+    series: [() => srcTVMaze(titre),           () => srcWikipedia(titre, 'série télévisée')],
+    films:  [() => srcITunes(titre),           () => srcWikipedia(titre, 'film')],
   }[catCourante] || [() => srcWikipedia(titre, '')];
 
   let resultats = [];
