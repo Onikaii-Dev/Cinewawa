@@ -106,18 +106,31 @@
   select option{background:#17171d}
   .cache{display:none !important}
 
-  /* ---- coin outils (export / import) ---- */
-  .coin-outils{display:flex;justify-content:flex-end;gap:8px;margin-bottom:12px}
+  /* ---- header du site ---- */
+  #topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
+  .tb-gauche{display:flex;align-items:center;gap:10px;flex-shrink:0;order:1}
+  .tb-logo{width:38px;height:38px;border-radius:10px;display:block}
+  .tb-nom{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.03em;line-height:1}
+  #ilotCloud{order:2;flex:1;min-width:250px;display:flex;flex-direction:column;align-items:center;gap:7px;background:rgba(23,23,29,.92);border:1px solid var(--border);border-radius:12px;padding:9px 14px;backdrop-filter:blur(8px)}
+  .tb-droite{order:3;display:flex;gap:8px;flex-shrink:0;margin-left:auto}
+  @media (max-width:640px){
+    #ilotCloud{order:3;flex-basis:100%}
+    .tb-droite{order:2}
+  }
   .btn-mini{background:#101014;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
   .btn-mini:hover{border-color:var(--border-h);color:var(--txt)}
   .btn-mini.principal{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700}
   .btn-mini.principal:hover{color:#141414;filter:brightness(1.08)}
-
-  /* ---- îlot cloud central ---- */
-  #ilotCloud{max-width:430px;margin:0 auto 22px;background:rgba(23,23,29,.92);border:1px solid var(--border);border-radius:14px;padding:13px 18px;display:flex;flex-direction:column;align-items:center;gap:10px;backdrop-filter:blur(8px)}
   .ilot-ligne{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;text-align:center}
   .pastille{width:9px;height:9px;border-radius:50%;background:#5a5a66;flex-shrink:0}
   .pastille.ok{background:#3fb950;box-shadow:0 0 8px rgba(63,185,80,.6)}
+
+  /* ---- résultats recherche d'affiche ---- */
+  .res-affiches{display:none;flex-wrap:wrap;gap:8px;margin-top:10px}
+  .res-affiches.on{display:flex}
+  .res-affiches img{width:74px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:border-color .12s ease}
+  .res-affiches img:hover{border-color:var(--gold)}
+  .res-affiches .res-info{width:100%;font-size:12px;color:var(--faint)}
 
   /* ---- compte à rebours prochains épisodes ---- */
   .cav-section{margin-top:26px}
@@ -158,15 +171,20 @@
 
 <div class="wrap">
 
-  <div class="coin-outils">
-    <button class="btn-mini" id="btnExport">Exporter</button>
-    <button class="btn-mini" id="btnImport">Importer</button>
-    <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
-  </div>
-
-  <div id="ilotCloud">
-    <span class="ilot-ligne" id="ligneEtat"><span class="pastille" id="pastille"></span><span id="etatTexte">Cloud non configuré</span></span>
-    <button class="btn-mini principal" id="btnCloud">☁️ Configurer le cloud</button>
+  <div id="topbar">
+    <div class="tb-gauche">
+      <img src="icon-192.png" class="tb-logo" alt="" onerror="this.style.display='none'">
+      <span class="tb-nom">Ciné'Wawa</span>
+    </div>
+    <div id="ilotCloud">
+      <span class="ilot-ligne" id="ligneEtat"><span class="pastille" id="pastille"></span><span id="etatTexte">Cloud non configuré</span></span>
+      <button class="btn-mini principal" id="btnCloud">☁️ Configurer le cloud</button>
+    </div>
+    <div class="tb-droite" id="tbDroite">
+      <button class="btn-mini" id="btnExport">Exporter</button>
+      <button class="btn-mini" id="btnImport">Importer</button>
+      <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
+    </div>
   </div>
 
   <div id="bandeauVisu">
@@ -176,11 +194,7 @@
 
   <!-- ======== ACCUEIL ======== -->
   <div id="pageAccueil">
-    <header style="justify-content:center">
-      <div class="avatar" style="cursor:default">🎬</div>
-      <h1 id="titreSite">Ciné'Wawa</h1>
-    </header>
-    <div class="accueil-sous">Que veux-tu consulter ?</div>
+    <div class="accueil-sous" style="margin-top:4px">Que veux-tu consulter ?</div>
     <div class="grille-cat" id="grilleCat"></div>
     <div id="zoneUtilisateurs" style="text-align:center;margin-top:24px">
       <button class="btn-mini" id="btnUtilisateurs">👥 Utilisateurs</button>
@@ -265,6 +279,16 @@
       </div>
     </div>
 
+    <div class="champ" id="blocFreq">
+      <label>Rythme de sortie (pour le rappel)</label>
+      <select id="fFreq">
+        <option value="7">Chaque semaine</option>
+        <option value="14">Toutes les 2 semaines</option>
+        <option value="30">Chaque mois</option>
+        <option value="0">Pas de rappel (tout est déjà sorti)</option>
+      </select>
+    </div>
+
     <div class="duo">
       <div class="champ">
         <label>Note /10 <span style="text-transform:none;letter-spacing:0">(vide = à noter)</span></label>
@@ -284,7 +308,8 @@
     <div class="champ">
       <label>Affiche (URL d'image, optionnel)</label>
       <input id="fAffiche" placeholder="https://…">
-      <div class="aide">Clic droit sur une affiche (Google Images, TMDB, MyAnimeList…) → « Copier l'adresse de l'image ». Elle nourrit aussi le fond du site.</div>
+      <button class="btn-mini" id="btnChercherAffiche" style="margin-top:8px;width:100%">🔍 Chercher l'affiche automatiquement</button>
+      <div class="res-affiches" id="resAffiches"></div>
     </div>
     <div class="champ">
       <label>Avis rapide (optionnel)</label>
@@ -479,20 +504,21 @@ function rendreAccueil(){
   rendreProchainsEpisodes();
 }
 
-// ---- compte à rebours des prochains épisodes (sorties hebdomadaires) ----
-function prochaineSortie(dateISO){
-  // prochain épisode = même jour de la semaine que le dernier vu, tous les 7 jours
+// ---- compte à rebours des prochaines sorties (rythme configurable) ----
+function prochaineSortie(dateISO, pas){
+  // prochaine sortie = dernier visionnage/lecture + N jours, répété jusqu'à une date future
   const p = new Date(dateISO + 'T00:00:00');
   const auj = new Date(); auj.setHours(0,0,0,0);
-  do { p.setDate(p.getDate() + 7); } while(p < auj);
+  do { p.setDate(p.getDate() + pas); } while(p < auj);
   return p;
 }
 function rendreProchainsEpisodes(){
   const auj = new Date(); auj.setHours(0,0,0,0);
   const items = [];
-  ['anime','series'].forEach(c => dact()[c].forEach(f => {
-    if(f.statut === 'encours' && f.date){
-      items.push({ c, f, sortie: prochaineSortie(f.date) });
+  ['anime','series','manga'].forEach(c => dact()[c].forEach(f => {
+    const pas = parseInt(f.freq === undefined ? '7' : f.freq);
+    if(f.statut === 'encours' && f.date && pas > 0){
+      items.push({ c, f, pas, sortie: prochaineSortie(f.date, pas) });
     }
   }));
   const ancien = document.getElementById('cavSection');
@@ -503,20 +529,22 @@ function rendreProchainsEpisodes(){
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'cavSection';
-  section.innerHTML = '<div class="cav-titre">⏳ Prochains épisodes</div>'
+  section.innerHTML = '<div class="cav-titre">⏳ Prochaines sorties</div>'
     + items.map(({c, f, sortie}) => {
       const jours = Math.round((sortie - auj) / 864e5);
       let chip, classe;
       if(jours <= 0){ chip = "Aujourd'hui !"; classe = 'auj'; }
       else if(jours === 1){ chip = 'Demain'; classe = 'demain'; }
       else { chip = 'Dans ' + jours + ' j'; classe = 'plus-tard'; }
-      const epActuel = parseInt(f.p2) || 0;
-      const sous = (f.p1 ? 'S'+f.p1+' · ' : '') + (epActuel ? 'dernier vu : ép. '+epActuel+' → prochain : ép. '+(epActuel+1) : 'épisode suivant');
+      const unite = c === 'manga' ? 'chap.' : 'ép.';
+      const actuel = parseInt(f.p2) || 0;
+      const sous = (f.p1 ? (c==='manga' ? 'T'+f.p1+' · ' : 'S'+f.p1+' · ') : '')
+        + (actuel ? 'dernier : '+unite+' '+actuel+' → prochain : '+unite+' '+(actuel+1) : (c==='manga'?'chapitre suivant':'épisode suivant'));
       return '<div class="cav-row" data-cat="'+c+'" data-id="'+f.id+'">'
         + '<span class="cav-ico">'+CATS[c].ico+'</span>'
         + '<span class="cav-info"><div class="cav-nom">'+echap(f.titre)+'</div><div class="cav-sub">'+sous+'</div></span>'
         + '<span class="cav-chip '+classe+'">'+chip+'</span>'
-        + (visu ? '' : '<button class="cav-plus" data-cat="'+c+'" data-id="'+f.id+'" title="Marquer l\'épisode suivant comme vu">+1 ép.</button>')
+        + (visu ? '' : '<button class="cav-plus" data-cat="'+c+'" data-id="'+f.id+'" title="Marquer comme vu/lu">+1 '+unite+'</button>')
         + '</div>';
     }).join('');
   $('pageAccueil').insertBefore(section, $('zoneUtilisateurs'));
@@ -534,6 +562,59 @@ function rendreProchainsEpisodes(){
     });
   });
 }
+// ================= recherche automatique d'affiche =================
+async function chercherAffiche(){
+  const titre = $('fTitre').value.trim();
+  const zone = $('resAffiches');
+  zone.classList.add('on');
+  if(!titre){ zone.innerHTML = '<div class="res-info">Écris d\'abord le titre au-dessus.</div>'; return; }
+  zone.innerHTML = '<div class="res-info">Recherche en cours…</div>';
+  try{
+    let resultats = [];
+    if(catCourante === 'anime' || catCourante === 'manga'){
+      // Jikan = base MyAnimeList, gratuite
+      const type = catCourante === 'anime' ? 'anime' : 'manga';
+      const r = await fetch('https://api.jikan.moe/v4/' + type + '?q=' + encodeURIComponent(titre) + '&limit=6');
+      const j = await r.json();
+      resultats = (j.data || []).map(a => ({
+        url: (a.images && a.images.jpg && (a.images.jpg.large_image_url || a.images.jpg.image_url)) || '',
+        nom: a.title,
+      }));
+    } else if(catCourante === 'series'){
+      const r = await fetch('https://api.tvmaze.com/search/shows?q=' + encodeURIComponent(titre));
+      const j = await r.json();
+      resultats = (j || []).filter(x => x.show && x.show.image).map(x => ({
+        url: x.show.image.original || x.show.image.medium,
+        nom: x.show.name,
+      }));
+    } else {
+      const r = await fetch('https://itunes.apple.com/search?term=' + encodeURIComponent(titre) + '&media=movie&country=fr&limit=6');
+      const j = await r.json();
+      resultats = (j.results || []).filter(x => x.artworkUrl100).map(x => ({
+        url: x.artworkUrl100.replace('100x100', '600x600'),
+        nom: x.trackName,
+      }));
+    }
+    resultats = resultats.filter(x => x.url).slice(0, 6);
+    if(!resultats.length){
+      zone.innerHTML = '<div class="res-info">Aucun résultat — essaie un autre titre, ou colle l\'URL à la main.</div>';
+      return;
+    }
+    zone.innerHTML = '<div class="res-info">Clique sur la bonne affiche :</div>'
+      + resultats.map((x,i) => '<img src="'+echap(x.url)+'" title="'+echap(x.nom)+'" data-i="'+i+'" loading="lazy">').join('');
+    zone.querySelectorAll('img').forEach(img => {
+      img.addEventListener('click', () => {
+        $('fAffiche').value = resultats[Number(img.dataset.i)].url;
+        zone.classList.remove('on');
+        zone.innerHTML = '';
+      });
+      img.addEventListener('error', () => img.remove());
+    });
+  }catch(e){
+    zone.innerHTML = '<div class="res-info">Recherche impossible (connexion ?). Colle l\'URL à la main.</div>';
+  }
+}
+
 function plusUnEpisode(c, id){
   if(visu) return;
   const f = etat[c].find(x => x.id === id);
@@ -634,10 +715,12 @@ function ouvrirModale(id){
   $('btnSave').textContent = f ? 'Enregistrer' : 'Ajouter';
   $('btnSave').style.display = ro ? 'none' : '';
   $('btnDelete').classList.toggle('on', !!f && !ro);
-  ['fTitre','fStatut','fP1','fP2','fNote','fDate','fAffiche','fAvis'].forEach(i => $(i).disabled = ro);
+  ['fTitre','fStatut','fFreq','fP1','fP2','fNote','fDate','fAffiche','fAvis'].forEach(i => $(i).disabled = ro);
+  $('btnChercherAffiche').style.display = ro ? 'none' : '';
 
   // champs spécifiques à la catégorie
   $('blocStatut').classList.toggle('cache', c === 'films');
+  $('blocFreq').classList.toggle('cache', c === 'films');
   $('blocProgression').classList.toggle('cache', !conf.progression);
   if(conf.progression){
     $('labelP1').textContent = conf.progression[0];
@@ -647,12 +730,15 @@ function ouvrirModale(id){
 
   $('fTitre').value  = f ? f.titre : '';
   $('fStatut').value = f ? (f.statut || 'encours') : 'encours';
+  $('fFreq').value   = f ? (f.freq || '7') : '7';
   $('fP1').value     = f ? (f.p1 || '') : '';
   $('fP2').value     = f ? (f.p2 || '') : '';
   $('fNote').value   = (f && !sansNote(f)) ? showNote(f.note) : '';
   $('fDate').value   = f ? (f.date || '') : aujourdhui();
   $('fAffiche').value= f ? (f.affiche||'') : '';
   $('fAvis').value   = f ? (f.avis||'') : '';
+  $('resAffiches').classList.remove('on');
+  $('resAffiches').innerHTML = '';
   $('erreur').style.display = 'none';
   majApercu();
   $('overlay').classList.add('on');
@@ -689,6 +775,7 @@ function enregistrer(){
   };
   if(c !== 'films'){
     item.statut = $('fStatut').value;
+    item.freq = $('fFreq').value;
     item.p1 = $('fP1').value.trim();
     item.p2 = $('fP2').value.trim();
   }
@@ -802,7 +889,7 @@ function voirUtilisateur(login, d){
   $('visuNom').textContent = visu.pseudo;
   $('bandeauVisu').classList.add('on');
   $('ilotCloud').style.display = 'none';
-  document.querySelector('.coin-outils').style.display = 'none';
+  $('tbDroite').style.display = 'none';
   $('zoneUtilisateurs').style.display = 'none';
   majCollage();               // le fond affiche les affiches de l'utilisateur visité !
   allerAccueil();
@@ -811,7 +898,7 @@ function quitterVisu(){
   visu = null;
   $('bandeauVisu').classList.remove('on');
   $('ilotCloud').style.display = '';
-  document.querySelector('.coin-outils').style.display = '';
+  $('tbDroite').style.display = '';
   $('zoneUtilisateurs').style.display = '';
   majCollage();
   allerAccueil();
@@ -1077,6 +1164,7 @@ $('btnUtilisateurs').addEventListener('click', allerUtilisateurs);
 $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
 $('btnPublic').addEventListener('click', rendrePublic);
+$('btnChercherAffiche').addEventListener('click', chercherAffiche);
 
 // go
 initPWA();
