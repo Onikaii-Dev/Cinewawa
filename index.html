@@ -76,6 +76,8 @@
   .stars{position:relative;display:inline-block;font-size:18px;line-height:1;letter-spacing:2px}
   .stars .vide{color:#3a3a44}
   .stars .plein{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--gold);text-shadow:0 0 10px rgba(246,183,60,.45)}
+  .stars.stars-orange .plein{color:#ff8c42;text-shadow:0 0 10px rgba(255,140,66,.4)}
+  .ligne-pub{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:7px}
 
   /* ---- état vide ---- */
   .vide-msg{text-align:center;padding:60px 20px;background:rgba(23,23,29,.85);border:1px dashed #3a3a44;border-radius:14px;color:var(--muted)}
@@ -105,6 +107,13 @@
   .btn-danger{display:none;background:transparent;color:#ff6b6b;border:1px solid #5a2a2a;border-radius:10px;padding:12px 16px;cursor:pointer;font-size:14px;font-family:inherit}
   .btn-danger.on{display:block}
   select option{background:#17171d}
+
+  /* ---- tutos ---- */
+  .tuto{background:#101014;border:1px solid var(--border);border-radius:10px;padding:10px 14px;margin-bottom:16px;font-size:13px;color:var(--muted)}
+  .tuto summary{cursor:pointer;font-weight:700;color:#d5d5dc}
+  .tuto ol{margin:10px 0 4px;padding-left:18px;line-height:1.75}
+  .tuto li{margin-bottom:5px}
+  .tuto b{color:#e8e8ee}
   .cache{display:none !important}
 
   /* ---- header du site ---- */
@@ -253,6 +262,7 @@
         <option value="vu-desc">Trier : vu récemment</option>
         <option value="alpha">Trier : A → Z</option>
       </select>
+      <button class="btn-mini" id="btnNotesTout" style="display:none">📊 Notes MAL partout</button>
       <button class="btn-gold" id="btnAjouter">+ Ajouter</button>
     </div>
 
@@ -342,14 +352,47 @@
   </div>
 </div>
 
+<!-- ======== MODALE LETTERBOXD ======== -->
+<div id="overlayLbx" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
+  <div class="modale">
+    <h2>🎬 Importer depuis Letterboxd</h2>
+    <div class="tuto" style="margin-bottom:14px">
+      <ol style="margin-top:2px">
+        <li>Sur <b>letterboxd.com</b> (depuis un navigateur) : ton avatar → <b>Settings</b> → onglet <b>Data</b>.</li>
+        <li>Clique <b>« Export your data »</b> → un fichier <b>ZIP</b> se télécharge.</li>
+        <li><b>Dézippe-le</b> (clic droit → Extraire tout).</li>
+        <li>Dedans, prends <b>ratings.csv</b> (tes films notés) ou <b>watched.csv</b> (tout ce que tu as vu).</li>
+      </ol>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">
+      Les notes /5 sont converties en /10 (4½ ★ → 9), les dates de visionnage sont reprises, et les films déjà présents sont ignorés. Les affiches se récupèrent ensuite fiche par fiche avec 🔍.
+    </div>
+    <div class="actions">
+      <button class="btn-gold" id="btnLbxChoisir">📂 Choisir mon fichier CSV</button>
+      <button class="btn-ghost" id="btnLbxFermer">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======== MODALE CLOUD ======== -->
 <div id="overlayCloud" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
   <div class="modale">
     <h2>☁️ Synchro cloud (GitHub) <span style="font-size:13px;color:#6f6f7c" id="verSite"></span></h2>
-    <div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:16px">
-      Ta sauvegarde est stockée dans un <b>Gist privé</b> sur ton compte GitHub.
+    <div style="font-size:13px;color:var(--muted);line-height:1.5;margin-bottom:12px">
+      Ta sauvegarde est stockée sur <b>ton</b> compte GitHub.
       Colle le même token sur chaque appareil (PC, téléphone…) et tout se synchronise automatiquement.
     </div>
+    <details class="tuto">
+      <summary>❓ Première fois ? Le tuto complet (2 min)</summary>
+      <ol>
+        <li>Crée un compte gratuit sur <b>github.com</b> (si tu n'en as pas).</li>
+        <li>Va sur <b>github.com/settings/tokens</b> → « Generate new token <b>(classic)</b> ».</li>
+        <li>Donne un nom (ex : cinewawa), expiration « <b>No expiration</b> », et coche <b>UNIQUEMENT la case « gist »</b>.</li>
+        <li>Clique « Generate token » et <b>copie le code ghp_…</b> (montré une seule fois : garde-le dans tes notes).</li>
+        <li>Colle-le ci-dessous, choisis un pseudo, puis « <b>Activer</b> » — ta sauvegarde cloud est créée.</li>
+        <li>Sur ton téléphone : ouvre ce même site → ☁️ → colle <b>le même token</b> → Activer. Tout se retrouve !</li>
+      </ol>
+    </details>
     <div class="champ">
       <label>Token GitHub (permission « gist » uniquement)</label>
       <input id="cToken" type="password" placeholder="ghp_…" autocomplete="off">
@@ -387,7 +430,7 @@
 </div>
 
 <script>
-const VERSION = 'v12';
+const VERSION = 'v13';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -514,6 +557,7 @@ function allerCategorie(c){
   $('filtreStatut').value = '';
   $('filtreStatut').classList.toggle('cache', c === 'films');
   $('btnAjouter').style.display = visu ? 'none' : '';
+  $('btnNotesTout').style.display = (!visu && (c === 'anime' || c === 'manga')) ? '' : 'none';
   document.title = "Ciné'Wawa — " + conf.nom;
   rendreListe();
 }
@@ -705,6 +749,55 @@ async function chargerNotesCommu(){
   }catch(e){}
 }
 
+// ---- récupération en masse pour toute la section (anime / manga) ----
+let notesEnCours = false;
+async function notesToutes(){
+  if(notesEnCours){ notesEnCours = false; return; } // re-clic = stop
+  const c = catCourante;
+  if(c !== 'anime' && c !== 'manga') return;
+  const manquants = etat[c].filter(f => !f.notePub);
+  const btn = $('btnNotesTout');
+  if(!manquants.length){ alert('Tous les titres de cette section ont déjà leur note publique ✓'); return; }
+  if(!confirm(manquants.length + ' titre(s) sans note publique.\nLa récupération prend ~1 seconde par titre (limites des services gratuits).\nTu peux continuer à naviguer, ou re-cliquer le bouton pour arrêter.\n\nLancer ?')) return;
+  notesEnCours = true;
+  let ok = 0;
+  for(let i = 0; i < manquants.length; i++){
+    if(!notesEnCours) break;
+    const f = manquants[i];
+    btn.textContent = '⏳ ' + (i+1) + '/' + manquants.length + ' — stop';
+    try{
+      let res = null;
+      try{
+        const r = await fetch('https://api.jikan.moe/v4/' + c + '?q=' + encodeURIComponent(f.titre) + '&limit=1');
+        if(r.ok){
+          const j = await r.json();
+          const a = (j.data || [])[0];
+          if(a && a.score) res = { note: Math.round(a.score*10)/10, src: 'MAL' };
+        }
+      }catch(e){}
+      if(!res){
+        const j = await (await fetch('https://graphql.anilist.co', {
+          method: 'POST', headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            query: 'query($s:String,$t:MediaType){Media(search:$s,type:$t){averageScore}}',
+            variables: { s: f.titre, t: c.toUpperCase() },
+          }),
+        })).json();
+        const m = j.data && j.data.Media;
+        if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList' };
+      }
+      if(res){ f.notePub = res.note; f.notePubSrc = res.src; ok++; }
+    }catch(e){}
+    if(i % 8 === 7){ sauver(); if(catCourante === c && !visu) rendreListe(); }
+    await new Promise(r => setTimeout(r, 1200)); // respecte les limites de Jikan/AniList
+  }
+  notesEnCours = false;
+  sauver();
+  if(catCourante === c && !visu) rendreListe();
+  btn.textContent = '📊 Notes MAL partout';
+  alert(ok + ' note(s) récupérée(s) ✓' + (manquants.length - ok ? '\n' + (manquants.length - ok) + ' titre(s) sans résultat — réessaie fiche par fiche avec le titre original.' : ''));
+}
+
 // ================= recherche automatique d'affiche =================
 // contournement CORS pour iTunes (JSONP)
 function jsonp(url){
@@ -825,9 +918,9 @@ function plusUnEpisode(c, id){
 }
 
 // ================= étoiles =================
-function etoilesHTML(note, taille){
+function etoilesHTML(note, taille, classe){
   const pct = note/10*100;
-  return '<span class="stars"' + (taille ? ' style="font-size:'+taille+'px"' : '') + '>'
+  return '<span class="stars' + (classe ? ' ' + classe : '') + '"' + (taille ? ' style="font-size:'+taille+'px"' : '') + '>'
     + '<span class="vide">★★★★★</span>'
     + '<span class="plein" style="width:'+pct+'%">★★★★★</span></span>';
 }
@@ -883,13 +976,14 @@ function rendreListe(){
       ? '<span class="badge" style="background:#3a3a44;color:#b8b8c2">À noter</span>'
       : '<span class="badge" style="background:'+couleurNote(f.note)+'">'+showNote(f.note)+'/10</span>';
     const badgePub = f.notePub
-      ? '<span class="badge badge-pub" title="Note du public">'+echap(f.notePubSrc || 'Public')+' '+showNote(f.notePub)+'</span>'
+      ? '<span class="badge badge-pub" title="Note du public">'+echap(f.notePubSrc || 'Public')+' '+showNote(f.notePub)+'</span>' + etoilesHTML(f.notePub, 15, 'stars-orange')
       : '';
     const k = cleTitre(c, f.titre);
     const cm = notesCommu && notesCommu[k];
     const badgeCommu = (cm && cm.n > 0)
       ? '<span class="badge badge-pub" title="Note moyenne des utilisateurs du site ('+cm.n+' note'+(cm.n>1?'s':'')+')">👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</span>'
       : '';
+    const lignePub = (badgePub || badgeCommu) ? '<div class="ligne-pub">'+badgePub+badgeCommu+'</div>' : '';
     const st = (c !== 'films' && f.statut && STATUTS[f.statut])
       ? '<span class="badge statut" style="background:'+STATUTS[f.statut].couleur+'">'+STATUTS[f.statut].nom+'</span>'
       : '';
@@ -901,7 +995,8 @@ function rendreListe(){
       + poster
       + '<div class="contenu">'
       +   '<div class="ligne-titre"><span class="titre">'+echap(f.titre)+'</span><span class="chevron">›</span></div>'
-      +   '<div class="ligne-meta">'+st+badgeNote+badgePub+badgeCommu+progHTML+dateVu+etoiles+'</div>'
+      +   '<div class="ligne-meta">'+st+badgeNote+progHTML+dateVu+etoiles+'</div>'
+      +   lignePub
       +   avis
       + '</div></div>';
   }).join('');
@@ -1493,7 +1588,11 @@ $('tri').addEventListener('change', rendreListe);
 $('btnExport').addEventListener('click', exporter);
 $('btnImport').addEventListener('click', () => $('inputImport').click());
 $('inputImport').addEventListener('change', e => { if(e.target.files[0]) importer(e.target.files[0]); e.target.value=''; });
-$('btnLbx').addEventListener('click', () => $('inputLbx').click());
+$('btnLbx').addEventListener('click', () => { $('overlayLbx').style.display = 'flex'; });
+$('btnLbxChoisir').addEventListener('click', () => { $('overlayLbx').style.display = 'none'; $('inputLbx').click(); });
+$('btnLbxFermer').addEventListener('click', () => { $('overlayLbx').style.display = 'none'; });
+$('overlayLbx').addEventListener('click', e => { if(e.target === $('overlayLbx')) $('overlayLbx').style.display = 'none'; });
+$('btnNotesTout').addEventListener('click', notesToutes);
 $('inputLbx').addEventListener('change', e => { if(e.target.files[0]) importerLetterboxd(e.target.files[0]); e.target.value=''; });
 $('btnCloud').addEventListener('click', ouvrirCloud);
 $('btnCloudOn').addEventListener('click', activerCloud);
