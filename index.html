@@ -161,6 +161,7 @@
   .user-row .u-login{font-size:12px;color:var(--faint)}
   .user-row .u-stats{font-size:12px;color:var(--muted);margin-top:2px}
   .user-row .btn-voir{background:var(--gold);color:#141414;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0}
+  .user-row .btn-prive{background:#e5484d;color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:800;cursor:default;font-family:inherit;flex-shrink:0;opacity:.9}
   .user-row.indispo{opacity:.55}
 </style>
 </head>
@@ -352,12 +353,16 @@
       <button class="btn-danger on" id="btnCloudOff" style="display:none">Désactiver</button>
       <button class="btn-ghost" id="btnCloudFermer">Fermer</button>
     </div>
+    <label style="display:flex;align-items:center;gap:9px;font-size:13px;color:var(--muted);cursor:pointer;margin-bottom:12px;user-select:none">
+      <input type="checkbox" id="cPrive" style="width:17px;height:17px;accent-color:#e5484d;cursor:pointer">
+      🔒 Profil privé — je reste dans l'annuaire mais personne ne peut ouvrir ma liste
+    </label>
     <button class="btn-mini" id="btnPublic" style="width:100%;display:none">🌍 Rendre ma liste visible dans l'annuaire</button>
   </div>
 </div>
 
 <script>
-const VERSION = 'v8';
+const VERSION = 'v9';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -397,6 +402,7 @@ function normaliser(d){
       anime:  d.anime  || [],
       manga:  d.manga  || [],
       pseudo: d.pseudo || '',
+      prive:  !!d.prive,
       modif:  d.modif  || 0,
     };
   }
@@ -928,6 +934,14 @@ async function allerUtilisateurs(){
         return;
       }
       row.querySelector('.u-pseudo').textContent = d.pseudo || login;
+      if(d.prive){
+        row.querySelector('.u-stats').textContent = 'Ce profil est privé';
+        const badge = document.createElement('button');
+        badge.className = 'btn-prive';
+        badge.textContent = '🔒 Privé';
+        row.appendChild(badge);
+        return;
+      }
       const enCours = d.anime.filter(f=>f.statut==='encours').length + d.series.filter(f=>f.statut==='encours').length;
       row.querySelector('.u-stats').textContent =
         d.films.length + ' films · ' + d.series.length + ' séries · ' + d.anime.length + ' anime · ' + d.manga.length + ' manga' + (enCours ? ' · ' + enCours + ' en cours' : '');
@@ -1113,6 +1127,7 @@ function ouvrirCloud(){
   $('cToken').value = cloud.token || '';
   $('cGist').value = cloud.gistId || '';
   $('cPseudo').value = etat.pseudo || '';
+  $('cPrive').checked = !!etat.prive;
   $('btnCloudOff').style.display = cloudActif() ? 'block' : 'none';
   $('btnPublic').style.display = cloudActif() ? 'block' : 'none';
   msgCloud('');
@@ -1224,6 +1239,11 @@ $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
 $('btnPublic').addEventListener('click', rendrePublic);
 $('btnChercherAffiche').addEventListener('click', chercherAffiche);
+$('cPrive').addEventListener('change', () => {
+  etat.prive = $('cPrive').checked;
+  sauver();
+  msgCloud(etat.prive ? '🔒 Profil privé — dès la synchro, plus personne ne pourra ouvrir ta liste.' : '🌍 Profil visible dans l\'annuaire.');
+});
 
 // go
 initPWA();
