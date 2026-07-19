@@ -21,9 +21,9 @@
   body{margin:0;min-height:100vh;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif}
 
   /* ---- collage de fond (éclairci) ---- */
-  #collage{position:fixed;inset:0;z-index:0;overflow:hidden}
+  #collage{position:fixed;inset:0;z-index:0;overflow:hidden;will-change:transform;transform:translateZ(0)}
   #collage img{position:absolute;aspect-ratio:2/3;object-fit:cover;border-radius:6px;filter:saturate(.95)}
-  #voile{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%)}
+  #voile{position:fixed;inset:0;z-index:0;transform:translateZ(0);background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%)}
 
   .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:28px 16px 80px}
 
@@ -121,7 +121,7 @@
   .cache{display:none !important}
 
   /* ---- header du site : barre pleine largeur ---- */
-  #topbar{position:relative;z-index:10;width:100%;background:rgba(12,12,16,.72);border-bottom:1px solid rgba(58,58,68,.55);backdrop-filter:blur(10px);padding:12px 26px}
+  #topbar{position:relative;z-index:10;width:100%;background:linear-gradient(180deg,#0c0c10 0%,#0c0c10 72%,rgba(12,12,16,.94) 100%);border-bottom:1px solid rgba(58,58,68,.55);padding:12px 26px}
   .tb-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:1400px;margin:0 auto}
   #tbDroite{display:contents}
   .tb-grp{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -497,7 +497,7 @@
 </div>
 
 <script>
-const VERSION = 'v31';
+const VERSION = 'v33';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -667,12 +667,13 @@ function ilYA(t){
 function rendreFeed(){
   const ancien = document.getElementById('feedSection');
   if(ancien) ancien.remove();
-  if(visu || !feedCommu || !feedCommu.length) return;
+  const feed = feedFusion();
+  if(visu || !feed.length) return;
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'feedSection';
   section.innerHTML = '<div class="cav-titre">📰 Activité de la communauté</div>'
-    + feedCommu.map(e =>
+    + feed.map(e =>
       '<div class="feed-row">'
       + '<span class="f-ico">' + CATS[e.c].ico + '</span>'
       + '<span class="f-texte"><b>' + echap(e.p) + '</b> a noté <b>' + echap(e.titre) + '</b></span>'
@@ -786,12 +787,42 @@ async function recupererNotePub(){
 function cleTitre(c, t){
   return c + '|' + String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^a-z0-9]+/g, ' ').trim();
 }
-let notesCommu = null; // { cle: {s: somme, n: nombre} }
-let feedCommu = null;  // dernières notes de la communauté
+let notesAutres = null; // agrégat des AUTRES utilisateurs (mis en cache)
+let feedAutres = null;  // activité des AUTRES utilisateurs (mise en cache)
+
+// mes propres notes, toujours recalculées en direct → jamais de décalage après une modif
+function mesNotes(){
+  const agg = {}, feed = [];
+  const moiNom = etat.pseudo || 'Moi';
+  ['films','series','anime','manga'].forEach(c => etat[c].forEach(f => {
+    if(f.note === null || f.note === undefined) return;
+    const k = cleTitre(c, f.titre);
+    agg[k] = { s: f.note, n: 1 };
+    const t = f.majNote || 0;
+    if(t) feed.push({ p: moiNom, login: '', titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec });
+  }));
+  return { agg, feed };
+}
+// vue fusionnée utilisée par l'affichage
+function notesCommuFusion(){
+  const { agg } = mesNotes();
+  const total = {};
+  [notesAutres || {}, agg].forEach(src => {
+    Object.entries(src).forEach(([k, v]) => {
+      total[k] = total[k] || { s: 0, n: 0 };
+      total[k].s += v.s; total[k].n += v.n;
+    });
+  });
+  return total;
+}
+function feedFusion(){
+  const { feed } = mesNotes();
+  return [...(feedAutres || []), ...feed].sort((a,b) => b.t - a.t).slice(0, 8);
+}
 async function chargerNotesCommu(){
   try{
     const cache = JSON.parse(localStorage.getItem('cinewawa-commu') || 'null');
-    if(cache && Date.now() - cache.ts < 900e3){ notesCommu = cache.data; feedCommu = cache.feed || []; rafraichir(); return; }
+    if(cache && Date.now() - cache.ts < 900e3){ notesAutres = cache.data; feedAutres = cache.feed || []; rafraichir(); return; }
   }catch(e){}
   try{
     const r = await fetch('utilisateurs.json', { cache: 'no-store' });
@@ -802,13 +833,12 @@ async function chargerNotesCommu(){
     const moi = (await obtenirMonLogin()).toLowerCase();
     for(const login of logins){
       try{
+        if(moi && login.toLowerCase() === moi) continue; // mes notes sont calculées en direct
         const d = await chargerProfilPublic(login);
         if(!d) continue;
-        // une liste compte si elle m'est visible : publique, la mienne, ou amis dont je fais partie
+        // une liste compte si elle m'est visible : publique, ou amis dont je fais partie
         const vis = d.visibilite || 'public';
-        const visible = vis === 'public'
-          || (moi && login.toLowerCase() === moi)
-          || (vis === 'amis' && moi && (d.amis || []).some(a => a.toLowerCase() === moi));
+        const visible = vis === 'public' || (vis === 'amis' && moi && (d.amis || []).some(a => a.toLowerCase() === moi));
         if(!visible) continue;
         ['films','series','anime','manga'].forEach(c => d[c].forEach(f => {
           if(f.note === null || f.note === undefined) return;
@@ -821,9 +851,9 @@ async function chargerNotesCommu(){
       }catch(e){}
     }
     feed.sort((a,b) => b.t - a.t);
-    notesCommu = agg;
-    feedCommu = feed.slice(0, 8);
-    localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedCommu }));
+    notesAutres = agg;
+    feedAutres = feed.slice(0, 12);
+    localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres }));
     rafraichir();
   }catch(e){}
 }
@@ -1101,6 +1131,7 @@ function rendreListe(){
     return;
   }
 
+  const notesFusionnees = visu ? null : notesCommuFusion();
   zone.innerHTML = liste.map(f => {
     const poster = f.affiche
       ? '<img class="poster" src="'+echap(f.affiche)+'" alt="" onerror="this.remove()"><div class="fondu"></div>'
@@ -1119,7 +1150,7 @@ function rendreListe(){
         + '<span class="badge badge-pub">'+showNote(f.notePub)+'</span>' + etoilesHTML(f.notePub, 14, 'stars-orange') + '</span>');
     }
     const k = cleTitre(c, f.titre);
-    const cm = notesCommu && notesCommu[k];
+    const cm = notesFusionnees && notesFusionnees[k];
     if(cm && cm.n > 0){
       cellules.push('<span class="note-cell" title="Note moyenne des utilisateurs du site ('+cm.n+' note'+(cm.n>1?'s':'')+')"><span class="note-lab">Communauté Wawa</span>'
         + '<span class="badge badge-pub">👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</span></span>');
@@ -1235,9 +1266,6 @@ function enregistrer(){
     if(precedent.majNote) item.majNote = precedent.majNote;
     if(precedent.evol) item.evol = precedent.evol;
     if(precedent.notePrec !== undefined) item.notePrec = precedent.notePrec;
-  }
-  if(nouvelleNote){
-    feedCommu = [{ p: etat.pseudo || 'Moi', login: '', titre: item.titre, note: item.note, c, t: item.majNote, ev: item.evol || 0, np: item.notePrec }, ...(feedCommu || [])].slice(0, 8);
   }
   // note du public : le champ manuel fait foi
   const brutePub = $('fNotePub').value.trim();
@@ -1821,7 +1849,7 @@ majEtatSauvegarde();
 if(cloudActif()){
   tirerCloud(true);            // au démarrage : on récupère la dernière version du cloud
 }
-chargerNotesCommu();           // notes 👥 des utilisateurs du site (cache 1 h)
+chargerNotesCommu();           // notes 👥 des autres utilisateurs (cache 15 min ; les miennes sont en direct)
 </script>
 </body>
 </html>
