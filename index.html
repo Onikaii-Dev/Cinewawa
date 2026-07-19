@@ -116,15 +116,19 @@
   .tuto b{color:#e8e8ee}
   .cache{display:none !important}
 
-  /* ---- header du site : bande translucide ---- */
-  #topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:rgba(16,16,21,.55);border:1px solid rgba(58,58,68,.5);border-radius:14px;padding:10px 16px;margin-bottom:24px;backdrop-filter:blur(12px)}
+  /* ---- header du site : barre pleine largeur ---- */
+  #topbar{position:relative;z-index:10;width:100%;background:rgba(12,12,16,.72);border-bottom:1px solid rgba(58,58,68,.55);backdrop-filter:blur(16px);padding:12px 26px}
+  .tb-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:1400px;margin:0 auto}
+  #tbDroite{display:contents}
+  .tb-grp{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  @media (max-width:640px){#topbar{padding:10px 14px}}
   .tb-gauche{display:flex;align-items:center;gap:11px;flex-shrink:0}
   .tb-logo{width:38px;height:38px;border-radius:10px;display:block}
   .tb-nom{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.03em;line-height:1}
-  .tb-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
-  .tb-sep{width:1px;height:22px;background:var(--border);margin:0 3px}
   .pill-sync{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);background:rgba(16,16,20,.65);border:1px solid var(--border);border-radius:99px;padding:6px 12px;cursor:pointer;white-space:nowrap}
   .pill-sync:hover{border-color:var(--border-h)}
+  .btn-users-top{background:linear-gradient(135deg,rgba(45,108,223,.4),rgba(23,23,29,.9));border:1px solid rgba(45,108,223,.65);color:#cfe0ff;font-weight:700;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:box-shadow .15s ease,border-color .15s ease}
+  .btn-users-top:hover{border-color:#2d6cdf;box-shadow:0 0 14px rgba(45,108,223,.35)}
   .btn-mini{background:#101014;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
   .btn-mini:hover{border-color:var(--border-h);color:var(--txt)}
   .btn-mini.principal{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700}
@@ -141,10 +145,10 @@
 
   /* ---- sections de l'accueil : séparateurs et apparition ---- */
   .cav-section{margin-top:34px;animation:montee .45s ease both}
-  .cav-titre{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin-bottom:12px;white-space:nowrap}
-  .cav-titre::before,.cav-titre::after{content:'';flex:1;height:1px}
-  .cav-titre::before{background:linear-gradient(90deg,transparent,#4a4a58)}
-  .cav-titre::after{background:linear-gradient(90deg,#4a4a58,transparent)}
+  .cav-titre{display:flex;align-items:center;gap:16px;font-family:'Bebas Neue',sans-serif;font-size:21px;color:#ececf2;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;white-space:nowrap;text-shadow:0 2px 8px rgba(0,0,0,.6)}
+  .cav-titre::before,.cav-titre::after{content:'';flex:1;height:2px;border-radius:2px}
+  .cav-titre::before{background:linear-gradient(90deg,transparent,var(--gold))}
+  .cav-titre::after{background:linear-gradient(90deg,var(--gold),transparent)}
   @keyframes montee{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .grille-cat .cat{animation:montee .45s ease both}
   .grille-cat .cat:nth-child(1){animation-delay:.02s}
@@ -153,11 +157,6 @@
   .grille-cat .cat:nth-child(4){animation-delay:.2s}
   @media (prefers-reduced-motion: reduce){.cav-section,.grille-cat .cat{animation:none}}
 
-  /* ---- grand bouton utilisateurs ---- */
-  .btn-users-large{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;background:linear-gradient(135deg,rgba(45,108,223,.28),rgba(23,23,29,.92));border:1px solid rgba(45,108,223,.55);border-radius:16px;padding:18px 20px;font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:.04em;color:#fff;cursor:pointer;backdrop-filter:blur(8px);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
-  .btn-users-large:hover{transform:translateY(-2px);border-color:#2d6cdf;box-shadow:0 8px 28px rgba(45,108,223,.25)}
-  .btn-users-large .sous{font-family:'Inter',sans-serif;font-size:12.5px;color:#9dbcf5;letter-spacing:0;text-transform:none;font-weight:400}
-  @media (prefers-reduced-motion: reduce){.btn-users-large{transition:none}}
   .cav-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .15s ease}
   .cav-row:hover{border-color:var(--border-h)}
   .cav-ico{font-size:18px;flex-shrink:0}
@@ -200,26 +199,33 @@
 <div id="collage"></div>
 <div id="voile"></div>
 
-<div class="wrap">
-
-  <div id="topbar">
+<div id="topbar">
+  <div class="tb-inner">
     <div class="tb-gauche">
       <img src="icon-192.png" class="tb-logo" alt="" onerror="this.style.display='none'">
       <span class="tb-nom">Ciné'Wawa</span>
     </div>
-    <div class="tb-actions" id="tbDroite">
-      <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
-      <button class="btn-mini" id="btnUsersTop">👥 Utilisateurs</button>
-      <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
-      <button class="btn-mini" id="btnConf">🔒 Confidentialité</button>
-      <span class="tb-sep"></span>
-      <button class="btn-mini" id="btnExport">Exporter</button>
-      <button class="btn-mini" id="btnImport">Importer</button>
-      <button class="btn-mini" id="btnLbx" title="Importer un export Letterboxd">Letterboxd</button>
-      <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
-      <input type="file" id="inputLbx" accept=".csv,text/csv" style="display:none">
+    <div id="tbDroite">
+      <div class="tb-grp">
+        <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
+        <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
+      </div>
+      <div class="tb-grp">
+        <button class="btn-users-top" id="btnUsersTop">👥 Utilisateurs</button>
+        <button class="btn-mini" id="btnConf">🔒 Confidentialité</button>
+      </div>
+      <div class="tb-grp">
+        <button class="btn-mini" id="btnExport">Exporter</button>
+        <button class="btn-mini" id="btnImport">Importer</button>
+        <button class="btn-mini" id="btnLbx" title="Importer un export Letterboxd">Letterboxd</button>
+        <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
+        <input type="file" id="inputLbx" accept=".csv,text/csv" style="display:none">
+      </div>
     </div>
   </div>
+</div>
+
+<div class="wrap">
 
   <div id="bandeauVisu">
     <span>👀 Tu regardes la liste de <b id="visuNom"></b> — lecture seule</span>
@@ -228,14 +234,9 @@
 
   <!-- ======== ACCUEIL ======== -->
   <div id="pageAccueil">
-    <div class="accueil-sous" style="margin-top:4px">Que veux-tu consulter ?</div>
+    <div class="cav-titre" style="margin-top:4px;margin-bottom:16px">🍿 Que veux-tu consulter ?</div>
     <div class="grille-cat" id="grilleCat"></div>
-    <div id="zoneUtilisateurs" class="cav-section">
-      <button class="btn-users-large" id="btnUtilisateurs">
-        <span>👥</span>
-        <span>Utilisateurs<br><span class="sous">Watchlists de la commu · compatibilité · notes des autres</span></span>
-      </button>
-    </div>
+    <div id="zoneUtilisateurs"></div>
   </div>
 
   <!-- ======== PAGE UTILISATEURS ======== -->
@@ -461,7 +462,7 @@
 </div>
 
 <script>
-const VERSION = 'v15';
+const VERSION = 'v19';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1634,7 +1635,6 @@ $('btnCloudOff').addEventListener('click', desactiverCloud);
 $('btnCloudFermer').addEventListener('click', fermerCloud);
 $('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayCloud')) fermerCloud(); });
 $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
-$('btnUtilisateurs').addEventListener('click', allerUtilisateurs);
 $('btnUsersTop').addEventListener('click', allerUtilisateurs);
 $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
