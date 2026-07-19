@@ -360,7 +360,7 @@
         <option value="7">Chaque semaine</option>
         <option value="14">Toutes les 2 semaines</option>
         <option value="30">Chaque mois</option>
-        <option value="0">Pas de rappel (tout est déjà sorti)</option>
+        <option value="0">Pas de rappel</option>
       </select>
     </div>
 
@@ -497,7 +497,7 @@
 </div>
 
 <script>
-const VERSION = 'v33';
+const VERSION = 'v34';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -505,7 +505,7 @@ const CATS = {
   films:  { nom:'Films',  ico:'🎬', couleur:'#F6B73C', progression:null,                        labelDate:'Vu le' },
   series: { nom:'Séries', ico:'📺', couleur:'#2d6cdf', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le' },
   anime:  { nom:'Anime',  ico:'⛩️', couleur:'#e5484d', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le' },
-  manga:  { nom:'Manga',  ico:'📖', couleur:'#3fb950', progression:['Tome','Chapitre'],         labelDate:'Dernière lecture' },
+  manga:  { nom:'Manga/Manhwa', ico:'📖', couleur:'#3fb950', progression:['Tome','Chapitre'],  labelDate:'Dernière lecture' },
 };
 const STATUTS = {
   encours:   { nom:'En cours',  couleur:'#3fb950' },
