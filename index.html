@@ -61,7 +61,7 @@
   @media (prefers-reduced-motion: reduce){.card,.cat{transition:none}}
   .card .poster{position:absolute;right:0;top:0;height:100%;width:40%;object-fit:cover;object-position:center 25%;opacity:.6}
   .card .fondu{position:absolute;right:0;top:0;height:100%;width:52%;background:linear-gradient(90deg,rgba(23,23,29,1) 0%,rgba(23,23,29,.75) 45%,rgba(23,23,29,.2) 100%)}
-  .card .contenu{position:relative;padding-right:32%}
+  .card .contenu{position:relative;padding-right:40%}
   @media (max-width:640px){.card .contenu{padding-right:10%}}
   .card .ligne-titre{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
   .card .titre{font-size:20px;font-weight:800}
@@ -466,7 +466,7 @@
 </div>
 
 <script>
-const VERSION = 'v23';
+const VERSION = 'v24';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1018,7 +1018,8 @@ function rendreListe(){
     const avis = f.avis ? '<div class="avis">« '+echap(f.avis)+' »</div>' : '';
     // barre de notes : Moi | Source publique | Site — chaque note avec son étiquette
     const cellules = [];
-    cellules.push('<span class="note-cell">'
+    const nomProfil = echap((visu ? visu.pseudo : etat.pseudo) || 'Moi');
+    cellules.push('<span class="note-cell"><span class="note-lab">'+nomProfil+'</span>'
       + (sansNote(f)
         ? '<span class="badge" style="background:#3a3a44;color:#b8b8c2">À noter</span>'
         : '<span class="badge" style="background:'+couleurNote(f.note)+'">'+showNote(f.note)+'</span>' + etoilesHTML(f.note, 14))
