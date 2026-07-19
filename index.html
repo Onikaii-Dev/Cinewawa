@@ -219,6 +219,9 @@
   .feed-row .f-ico{flex-shrink:0}
   .feed-row .f-texte{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .feed-row .f-quand{color:var(--faint);font-size:12px;flex-shrink:0}
+  .f-evol{font-size:13px;font-weight:800;flex-shrink:0;cursor:default}
+  .f-evol.up{color:#3fb950;text-shadow:0 0 8px rgba(63,185,80,.4)}
+  .f-evol.down{color:#e5484d;text-shadow:0 0 8px rgba(229,72,77,.4)}
 </style>
 </head>
 <body>
@@ -494,7 +497,7 @@
 </div>
 
 <script>
-const VERSION = 'v29';
+const VERSION = 'v30';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -672,6 +675,7 @@ function rendreFeed(){
       + '<span class="f-ico">' + CATS[e.c].ico + '</span>'
       + '<span class="f-texte"><b>' + echap(e.p) + '</b> a noté <b>' + echap(e.titre) + '</b></span>'
       + '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '/10</span>'
+      + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="' + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation') + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '')
       + '<span class="f-quand">' + ilYA(e.t) + '</span>'
       + '</div>'
     ).join('');
@@ -810,7 +814,7 @@ async function chargerNotesCommu(){
           agg[k] = agg[k] || { s: 0, n: 0 };
           agg[k].s += f.note; agg[k].n++;
           const t = f.majNote || (f.ajout > 1e12 ? f.ajout : 0);
-          if(t) feed.push({ p: d.pseudo || login, login, titre: f.titre, note: f.note, c, t });
+          if(t) feed.push({ p: d.pseudo || login, login, titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec });
         }));
       }catch(e){}
     }
@@ -1218,10 +1222,20 @@ function enregistrer(){
   };
   // horodatage de la note (alimente le feed d'activité de la communauté)
   const nouvelleNote = note !== null && (!precedent || precedent.note !== note);
-  if(nouvelleNote) item.majNote = Date.now();
-  else if(precedent && precedent.majNote) item.majNote = precedent.majNote;
   if(nouvelleNote){
-    feedCommu = [{ p: etat.pseudo || 'Moi', login: '', titre: item.titre, note: item.note, c, t: item.majNote }, ...(feedCommu || [])].slice(0, 8);
+    item.majNote = Date.now();
+    // évolution : re-notation d'un titre déjà noté → flèche dans le feed
+    if(precedent && precedent.note !== null && precedent.note !== undefined){
+      item.evol = note > precedent.note ? 1 : -1;
+      item.notePrec = precedent.note;
+    }
+  } else if(precedent){
+    if(precedent.majNote) item.majNote = precedent.majNote;
+    if(precedent.evol) item.evol = precedent.evol;
+    if(precedent.notePrec !== undefined) item.notePrec = precedent.notePrec;
+  }
+  if(nouvelleNote){
+    feedCommu = [{ p: etat.pseudo || 'Moi', login: '', titre: item.titre, note: item.note, c, t: item.majNote, ev: item.evol || 0, np: item.notePrec }, ...(feedCommu || [])].slice(0, 8);
   }
   // note du public : le champ manuel fait foi
   const brutePub = $('fNotePub').value.trim();
