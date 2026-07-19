@@ -116,22 +116,19 @@
   .tuto b{color:#e8e8ee}
   .cache{display:none !important}
 
-  /* ---- header du site ---- */
-  #topbar{display:flex;align-items:center;gap:14px;flex-wrap:wrap;margin-bottom:24px}
-  .tb-gauche{display:flex;align-items:center;gap:10px;flex-shrink:0;order:1}
+  /* ---- header du site : bande translucide ---- */
+  #topbar{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;background:rgba(16,16,21,.55);border:1px solid rgba(58,58,68,.5);border-radius:14px;padding:10px 16px;margin-bottom:24px;backdrop-filter:blur(12px)}
+  .tb-gauche{display:flex;align-items:center;gap:11px;flex-shrink:0}
   .tb-logo{width:38px;height:38px;border-radius:10px;display:block}
   .tb-nom{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.03em;line-height:1}
-  #ilotCloud{order:2;flex:1;min-width:250px;display:flex;flex-direction:column;align-items:center;gap:7px;background:rgba(23,23,29,.92);border:1px solid var(--border);border-radius:12px;padding:9px 14px;backdrop-filter:blur(8px)}
-  .tb-droite{order:3;display:flex;gap:8px;flex-shrink:0;margin-left:auto}
-  @media (max-width:640px){
-    #ilotCloud{order:3;flex-basis:100%}
-    .tb-droite{order:2}
-  }
+  .tb-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end;margin-left:auto}
+  .tb-sep{width:1px;height:22px;background:var(--border);margin:0 3px}
+  .pill-sync{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);background:rgba(16,16,20,.65);border:1px solid var(--border);border-radius:99px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+  .pill-sync:hover{border-color:var(--border-h)}
   .btn-mini{background:#101014;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
   .btn-mini:hover{border-color:var(--border-h);color:var(--txt)}
   .btn-mini.principal{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700}
   .btn-mini.principal:hover{color:#141414;filter:brightness(1.08)}
-  .ilot-ligne{display:flex;align-items:center;gap:8px;font-size:13px;color:var(--muted);cursor:pointer;text-align:center}
   .pastille{width:9px;height:9px;border-radius:50%;background:#5a5a66;flex-shrink:0}
   .pastille.ok{background:#3fb950;box-shadow:0 0 8px rgba(63,185,80,.6)}
 
@@ -194,14 +191,14 @@
       <img src="icon-192.png" class="tb-logo" alt="" onerror="this.style.display='none'">
       <span class="tb-nom">Ciné'Wawa</span>
     </div>
-    <div id="ilotCloud">
-      <span class="ilot-ligne" id="ligneEtat"><span class="pastille" id="pastille"></span><span id="etatTexte">Cloud non configuré</span></span>
-      <button class="btn-mini principal" id="btnCloud">☁️ Configurer le cloud</button>
-    </div>
-    <div class="tb-droite" id="tbDroite">
+    <div class="tb-actions" id="tbDroite">
+      <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
+      <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
+      <button class="btn-mini" id="btnConf">🔒 Confidentialité</button>
+      <span class="tb-sep"></span>
       <button class="btn-mini" id="btnExport">Exporter</button>
       <button class="btn-mini" id="btnImport">Importer</button>
-      <button class="btn-mini" id="btnLbx" title="Importer un export Letterboxd (ratings.csv ou watched.csv)">Letterboxd</button>
+      <button class="btn-mini" id="btnLbx" title="Importer un export Letterboxd">Letterboxd</button>
       <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
       <input type="file" id="inputLbx" accept=".csv,text/csv" style="display:none">
     </div>
@@ -327,8 +324,12 @@
       <span class="val" id="apercuVal"></span>
     </div>
 
-    <div class="champ">
-      <button class="btn-mini" id="btnNotePub" style="width:100%">📊 Récupérer la note MAL du public</button>
+    <div class="champ" id="blocNotePub">
+      <label>Note du public /10 (modifiable à la main)</label>
+      <div style="display:flex;gap:8px">
+        <input id="fNotePub" placeholder="8,6" inputmode="decimal" style="flex:1">
+        <button class="btn-mini" id="btnNotePub" style="white-space:nowrap">📊 Auto (MAL)</button>
+      </div>
       <div id="infoNotePub" style="font-size:13px;color:var(--muted);margin-top:6px"></div>
     </div>
 
@@ -374,6 +375,34 @@
   </div>
 </div>
 
+<!-- ======== MODALE CONFIDENTIALITÉ ======== -->
+<div id="overlayConf" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
+  <div class="modale">
+    <h2>🔒 Confidentialité &amp; profil</h2>
+    <div class="champ">
+      <label>Pseudo affiché (annuaire des utilisateurs)</label>
+      <input id="cPseudo" placeholder="Ex : Wawa" maxlength="24" autocomplete="off">
+    </div>
+    <div class="champ">
+      <label>Visibilité de ma liste dans l'annuaire</label>
+      <select id="cVisibilite">
+        <option value="public">🌍 Publique — tout le monde peut la voir</option>
+        <option value="amis">👥 Amis seulement</option>
+        <option value="prive">🔒 Privée — personne</option>
+      </select>
+    </div>
+    <div class="champ" id="blocAmis" style="display:none">
+      <label>Mes amis (pseudos GitHub, séparés par des virgules)</label>
+      <input id="cAmis" placeholder="pote1, pote2, pote3" autocomplete="off">
+      <div class="aide">Un ami doit avoir configuré son cloud pour que le site le reconnaisse quand il visite l'annuaire.</div>
+    </div>
+    <div id="cMessage2" style="font-size:13px;margin-bottom:12px;display:none"></div>
+    <div class="actions">
+      <button class="btn-ghost" id="btnConfFermer" style="flex:1">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======== MODALE CLOUD ======== -->
 <div id="overlayCloud" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
   <div class="modale">
@@ -402,35 +431,17 @@
       <label>ID du Gist (laisser vide : trouvé ou créé automatiquement)</label>
       <input id="cGist" placeholder="auto" autocomplete="off">
     </div>
-    <div class="champ">
-      <label>Pseudo affiché (annuaire des utilisateurs)</label>
-      <input id="cPseudo" placeholder="Ex : Wawa" maxlength="24" autocomplete="off">
-    </div>
     <div id="cMessage" style="font-size:13px;margin-bottom:12px;display:none"></div>
-    <div class="actions" style="margin-bottom:10px">
+    <div class="actions">
       <button class="btn-gold" id="btnCloudOn">Activer / mettre à jour</button>
       <button class="btn-danger on" id="btnCloudOff" style="display:none">Désactiver</button>
       <button class="btn-ghost" id="btnCloudFermer">Fermer</button>
     </div>
-    <div class="champ">
-      <label>Visibilité de ma liste dans l'annuaire</label>
-      <select id="cVisibilite">
-        <option value="public">🌍 Publique — tout le monde peut la voir</option>
-        <option value="amis">👥 Amis seulement</option>
-        <option value="prive">🔒 Privée — personne</option>
-      </select>
-    </div>
-    <div class="champ" id="blocAmis" style="display:none">
-      <label>Mes amis (pseudos GitHub, séparés par des virgules)</label>
-      <input id="cAmis" placeholder="pote1, pote2, pote3" autocomplete="off">
-      <div class="aide">Un ami doit avoir configuré son cloud pour que le site le reconnaisse quand il visite l'annuaire.</div>
-    </div>
-    <button class="btn-mini" id="btnPublic" style="width:100%;display:none">🌍 Rendre ma liste visible dans l'annuaire</button>
   </div>
 </div>
 
 <script>
-const VERSION = 'v13';
+const VERSION = 'v14';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -704,6 +715,7 @@ async function recupererNotePub(){
     }
     if(!res){ info.textContent = 'Pas de note trouvée — essaie le titre original (anglais/romaji).'; return; }
     notePubTemp = res;
+    $('fNotePub').value = showNote(res.note);
     info.innerHTML = '✓ <b style="color:#c9c9d4">' + res.src + ' ' + showNote(res.note) + '/10</b> — ' + echap(res.nom) + ' <span style="color:#6f6f7c">(enregistrée à la sauvegarde)</span>';
   }catch(e){
     info.textContent = 'Recherche impossible pour le moment, réessaie.';
@@ -719,7 +731,7 @@ let feedCommu = null;  // dernières notes de la communauté
 async function chargerNotesCommu(){
   try{
     const cache = JSON.parse(localStorage.getItem('cinewawa-commu') || 'null');
-    if(cache && Date.now() - cache.ts < 3600e3){ notesCommu = cache.data; feedCommu = cache.feed || []; rafraichir(); return; }
+    if(cache && Date.now() - cache.ts < 900e3){ notesCommu = cache.data; feedCommu = cache.feed || []; rafraichir(); return; }
   }catch(e){}
   try{
     const r = await fetch('utilisateurs.json', { cache: 'no-store' });
@@ -727,10 +739,17 @@ async function chargerNotesCommu(){
     const logins = (await r.json()).utilisateurs || [];
     const agg = {};
     const feed = [];
+    const moi = (await obtenirMonLogin()).toLowerCase();
     for(const login of logins){
       try{
         const d = await chargerProfilPublic(login);
-        if(!d || (d.visibilite || 'public') !== 'public') continue; // seules les listes publiques comptent
+        if(!d) continue;
+        // une liste compte si elle m'est visible : publique, la mienne, ou amis dont je fais partie
+        const vis = d.visibilite || 'public';
+        const visible = vis === 'public'
+          || (moi && login.toLowerCase() === moi)
+          || (vis === 'amis' && moi && (d.amis || []).some(a => a.toLowerCase() === moi));
+        if(!visible) continue;
         ['films','series','anime','manga'].forEach(c => d[c].forEach(f => {
           if(f.note === null || f.note === undefined) return;
           const k = cleTitre(c, f.titre);
@@ -1018,7 +1037,7 @@ function ouvrirModale(id){
   $('btnSave').textContent = f ? 'Enregistrer' : 'Ajouter';
   $('btnSave').style.display = ro ? 'none' : '';
   $('btnDelete').classList.toggle('on', !!f && !ro);
-  ['fTitre','fStatut','fFreq','fP1','fP2','fNote','fDate','fAffiche','fAvis'].forEach(i => $(i).disabled = ro);
+  ['fTitre','fStatut','fFreq','fP1','fP2','fNote','fNotePub','fDate','fAffiche','fAvis'].forEach(i => $(i).disabled = ro);
   $('btnChercherAffiche').style.display = ro ? 'none' : '';
 
   // champs spécifiques à la catégorie
@@ -1043,10 +1062,10 @@ function ouvrirModale(id){
   $('resAffiches').classList.remove('on');
   $('resAffiches').innerHTML = '';
   notePubTemp = (f && f.notePub) ? { note: f.notePub, src: f.notePubSrc || 'Public', nom: f.titre } : null;
-  $('infoNotePub').innerHTML = notePubTemp ? '✓ <b style="color:#c9c9d4">' + notePubTemp.src + ' ' + showNote(notePubTemp.note) + '/10</b>' : '';
+  $('fNotePub').value = (f && f.notePub) ? showNote(f.notePub) : '';
+  $('infoNotePub').innerHTML = notePubTemp ? 'Source actuelle : ' + notePubTemp.src : '';
   const notesDispo = (c === 'anime' || c === 'manga');
   $('btnNotePub').style.display = (ro || !notesDispo) ? 'none' : '';
-  if(!notesDispo) $('infoNotePub').innerHTML = '';
   $('erreur').style.display = 'none';
   majApercu();
   $('overlay').classList.add('on');
@@ -1083,9 +1102,22 @@ function enregistrer(){
     ajout: precedent ? precedent.ajout : Date.now(),
   };
   // horodatage de la note (alimente le feed d'activité de la communauté)
-  if(note !== null && (!precedent || precedent.note !== note)) item.majNote = Date.now();
+  const nouvelleNote = note !== null && (!precedent || precedent.note !== note);
+  if(nouvelleNote) item.majNote = Date.now();
   else if(precedent && precedent.majNote) item.majNote = precedent.majNote;
-  if(notePubTemp){ item.notePub = notePubTemp.note; item.notePubSrc = notePubTemp.src; }
+  if(nouvelleNote){
+    feedCommu = [{ p: etat.pseudo || 'Moi', login: '', titre: item.titre, note: item.note, c, t: item.majNote }, ...(feedCommu || [])].slice(0, 8);
+  }
+  // note du public : le champ manuel fait foi
+  const brutePub = $('fNotePub').value.trim();
+  if(brutePub !== ''){
+    const nPub = parseNote(brutePub);
+    if(nPub === null){ err.textContent = 'La note du public doit être un nombre entre 0 et 10, ou vide.'; err.style.display='block'; return; }
+    item.notePub = nPub;
+    item.notePubSrc = (notePubTemp && notePubTemp.note === nPub) ? notePubTemp.src
+      : (precedent && precedent.notePub === nPub) ? (precedent.notePubSrc || 'MAL')
+      : ((c === 'anime' || c === 'manga') ? 'MAL' : 'IMDb');
+  }
   if(c !== 'films'){
     item.statut = $('fStatut').value;
     item.freq = $('fFreq').value;
@@ -1111,7 +1143,7 @@ function supprimer(){
 function majEtatSauvegarde(){
   if(cloudActif()) return; // géré par majCloudEtat
   $('pastille').classList.remove('ok');
-  $('etatTexte').textContent = 'Cloud non configuré — données gardées sur cet appareil uniquement';
+  $('etatTexte').textContent = 'Hors cloud';
 }
 
 function rafraichir(){
@@ -1250,7 +1282,6 @@ function voirUtilisateur(login, d){
   visu = { login, pseudo: d.pseudo || login, data: d };
   $('visuNom').textContent = visu.pseudo;
   $('bandeauVisu').classList.add('on');
-  $('ilotCloud').style.display = 'none';
   $('tbDroite').style.display = 'none';
   $('zoneUtilisateurs').style.display = 'none';
   majCollage();               // le fond affiche les affiches de l'utilisateur visité !
@@ -1259,45 +1290,11 @@ function voirUtilisateur(login, d){
 function quitterVisu(){
   visu = null;
   $('bandeauVisu').classList.remove('on');
-  $('ilotCloud').style.display = '';
   $('tbDroite').style.display = '';
   $('zoneUtilisateurs').style.display = '';
   majCollage();
   allerAccueil();
 }
-
-// ---- rendre sa liste visible (gist public) ----
-async function rendrePublic(){
-  if(!cloudActif()){ msgCloud('Active d\'abord la synchro cloud.', true); return; }
-  try{
-    msgCloud('Vérification…');
-    const r = await fetch('https://api.github.com/gists/' + cloud.gistId, { headers: enTetes() });
-    const g = await r.json();
-    const login = g.owner ? g.owner.login : '?';
-    if(g.public){
-      msgCloud('Ta liste est déjà publique ✓ Pseudo GitHub à donner pour l\'annuaire : ' + login);
-      return;
-    }
-    // la visibilité d'un gist ne peut pas changer : on recrée un gist PUBLIC avec les données
-    msgCloud('Création de la version publique…');
-    const rc = await fetch('https://api.github.com/gists', {
-      method: 'POST', headers: enTetes(),
-      body: JSON.stringify({
-        description: "Sauvegarde Ciné'Wawa",
-        public: true,
-        files: { 'cinewawa.json': { content: JSON.stringify(etat, null, 2) } },
-      }),
-    });
-    if(!rc.ok) throw new Error('HTTP ' + rc.status);
-    const nouveau = await rc.json();
-    cloud.gistId = nouveau.id;
-    sauverCloudConf();
-    $('cGist').value = cloud.gistId;
-    msgCloud('Liste publique ✓ Donne ce pseudo GitHub pour être ajouté à l\'annuaire : ' + login + ' (tu peux supprimer l\'ancien gist privé sur gist.github.com)');
-    majCloudEtat('ok');
-  }catch(e){ msgCloud('Échec : ' + e.message, true); }
-}
-
 
 // ================= import Letterboxd =================
 function parseCSV(txt){
@@ -1434,7 +1431,7 @@ async function gistCreer(){
     method: 'POST', headers: enTetes(),
     body: JSON.stringify({
       description: "Sauvegarde Ciné'Wawa",
-      public: false,
+      public: true,
       files: { 'cinewawa.json': { content: JSON.stringify(etat, null, 2) } },
     }),
   });
@@ -1446,10 +1443,9 @@ function heure(){ const d = new Date(); return String(d.getHours()).padStart(2,'
 function majCloudEtat(mode, e){
   if(!cloudActif()){ majEtatSauvegarde(); return; }
   const p = $('pastille'), t = $('etatTexte');
-  if(mode === 'sync'){ p.classList.remove('ok'); t.textContent = '☁️ Synchronisation…'; }
-  else if(mode === 'ok'){ p.classList.add('ok'); t.textContent = '☁️ Cloud synchronisé à ' + heure() + ' (clic = resync)'; }
-  else { p.classList.remove('ok'); t.textContent = '☁️ Erreur de synchro — clic pour réessayer'; if(e) console.error(e); }
-  $('btnCloud').textContent = '⚙️ Réglages cloud';
+  if(mode === 'sync'){ p.classList.remove('ok'); t.textContent = 'Synchro…'; }
+  else if(mode === 'ok'){ p.classList.add('ok'); t.textContent = 'Sync ' + heure(); }
+  else { p.classList.remove('ok'); t.textContent = 'Erreur — réessayer'; if(e) console.error(e); }
 }
 
 function planifierPush(){
@@ -1484,14 +1480,24 @@ async function tirerCloud(force){
 function ouvrirCloud(){
   $('cToken').value = cloud.token || '';
   $('cGist').value = cloud.gistId || '';
+  $('btnCloudOff').style.display = cloudActif() ? 'block' : 'none';
+  msgCloud('');
+  $('overlayCloud').style.display = 'flex';
+}
+function ouvrirConf(){
   $('cPseudo').value = etat.pseudo || '';
   $('cVisibilite').value = etat.visibilite || 'public';
   $('cAmis').value = (etat.amis || []).join(', ');
   $('blocAmis').style.display = (etat.visibilite === 'amis') ? '' : 'none';
-  $('btnCloudOff').style.display = cloudActif() ? 'block' : 'none';
-  $('btnPublic').style.display = cloudActif() ? 'block' : 'none';
-  msgCloud('');
-  $('overlayCloud').style.display = 'flex';
+  msgConf('');
+  $('overlayConf').style.display = 'flex';
+}
+function msgConf(txt, erreur){
+  const m = $('cMessage2');
+  if(!txt){ m.style.display = 'none'; return; }
+  m.style.display = 'block';
+  m.style.color = erreur ? '#ff6b6b' : '#7ee2a0';
+  m.textContent = txt;
 }
 function fermerCloud(){ $('overlayCloud').style.display = 'none'; }
 function msgCloud(txt, erreur){
@@ -1528,12 +1534,20 @@ async function activerCloud(){
         msgCloud('Données locales envoyées vers le cloud ✓');
       }
     }
+    // la sauvegarde doit être lisible par l'annuaire (la confidentialité se règle dans 🔒)
+    try{
+      const rg = await fetch('https://api.github.com/gists/' + cloud.gistId + '?t=' + Date.now(), { headers: enTetes(), cache: 'no-store' });
+      const g = await rg.json();
+      if(g && g.public === false){
+        const rc = await fetch('https://api.github.com/gists', {
+          method: 'POST', headers: enTetes(),
+          body: JSON.stringify({ description: "Sauvegarde Ciné'Wawa", public: true, files: { 'cinewawa.json': { content: JSON.stringify(etat, null, 2) } } }),
+        });
+        if(rc.ok){ cloud.gistId = (await rc.json()).id; sauverCloudConf(); }
+      }
+    }catch(e){}
     $('cGist').value = cloud.gistId;
     $('btnCloudOff').style.display = 'block';
-    $('btnPublic').style.display = 'block';
-    // pseudo : enregistré avec la sauvegarde
-    const pseudo = $('cPseudo').value.trim();
-    if(pseudo !== (etat.pseudo || '')){ etat.pseudo = pseudo; sauver(); }
     majCloudEtat('ok');
   }catch(e){
     cloud = { token: '', gistId: '' };
@@ -1603,18 +1617,25 @@ $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(tru
 $('btnUtilisateurs').addEventListener('click', allerUtilisateurs);
 $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
-$('btnPublic').addEventListener('click', rendrePublic);
 $('btnChercherAffiche').addEventListener('click', chercherAffiche);
+$('btnConf').addEventListener('click', ouvrirConf);
+$('btnConfFermer').addEventListener('click', () => { $('overlayConf').style.display = 'none'; });
+$('overlayConf').addEventListener('click', e => { if(e.target === $('overlayConf')) $('overlayConf').style.display = 'none'; });
+$('cPseudo').addEventListener('change', () => {
+  etat.pseudo = $('cPseudo').value.trim();
+  sauver();
+  msgConf('Pseudo enregistré : ' + (etat.pseudo || '(vide)'));
+});
 $('cVisibilite').addEventListener('change', () => {
   etat.visibilite = $('cVisibilite').value;
   $('blocAmis').style.display = (etat.visibilite === 'amis') ? '' : 'none';
   sauver();
-  msgCloud({ public:'🌍 Liste visible par tout le monde.', amis:'👥 Liste réservée à tes amis — ajoute leurs pseudos GitHub en dessous.', prive:'🔒 Liste privée.' }[etat.visibilite]);
+  msgConf({ public:'🌍 Liste visible par tout le monde.', amis:'👥 Liste réservée à tes amis — ajoute leurs pseudos GitHub en dessous.', prive:'🔒 Liste privée.' }[etat.visibilite]);
 });
 $('cAmis').addEventListener('change', () => {
   etat.amis = $('cAmis').value.split(',').map(x => x.trim()).filter(Boolean);
   sauver();
-  msgCloud('Liste d\'amis enregistrée (' + etat.amis.length + ').');
+  msgConf('Liste d\'amis enregistrée (' + etat.amis.length + ').');
 });
 $('btnNotePub').addEventListener('click', recupererNotePub);
 
@@ -1626,7 +1647,6 @@ majCollage();
 rendreAccueil();
 majEtatSauvegarde();
 if(cloudActif()){
-  $('btnCloud').textContent = '⚙️ Réglages cloud';
   tirerCloud(true);            // au démarrage : on récupère la dernière version du cloud
 }
 chargerNotesCommu();           // notes 👥 des utilisateurs du site (cache 1 h)
