@@ -140,6 +140,27 @@
   .pastille{width:9px;height:9px;border-radius:50%;background:#5a5a66;flex-shrink:0}
   .pastille.ok{background:#3fb950;box-shadow:0 0 8px rgba(63,185,80,.6)}
 
+  /* ---- sélecteur de vue liste / grille ---- */
+  .vue-switch{display:flex;background:#101014;border:1px solid var(--border);border-radius:9px;overflow:hidden}
+  .vue-switch button{background:transparent;border:none;color:var(--muted);font-size:15px;padding:9px 13px;cursor:pointer;line-height:1;font-family:inherit}
+  .vue-switch button.on{background:var(--gold);color:#141414}
+  .vue-switch button:not(.on):hover{color:var(--txt)}
+
+  /* ---- vue grille (façon Letterboxd) ---- */
+  .grille-affiches{display:grid;grid-template-columns:repeat(auto-fill,minmax(132px,1fr));gap:15px}
+  @media (max-width:520px){.grille-affiches{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:11px}}
+  .tuile{cursor:pointer;transition:transform .15s ease}
+  .tuile:hover{transform:translateY(-4px)}
+  @media (prefers-reduced-motion: reduce){.tuile{transition:none}}
+  .t-poster{position:relative;aspect-ratio:2/3;border-radius:10px;overflow:hidden;border:1px solid var(--border);background:#17171d;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .tuile:hover .t-poster{border-color:var(--border-h)}
+  .t-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .t-vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;padding:10px;font-weight:700;font-size:13px;color:#b8b8c2;background:linear-gradient(160deg,#1f1f28,#101014)}
+  .t-statut{position:absolute;top:7px;left:7px;width:11px;height:11px;border-radius:50%;border:2px solid rgba(0,0,0,.55);z-index:2}
+  .t-bas{display:flex;align-items:center;justify-content:center;gap:6px;margin-top:6px;min-height:17px}
+  .t-note{font-size:12px;font-weight:800;color:var(--gold)}
+  .t-anoter{font-size:11px;color:#8a8a96}
+
   /* ---- résultats recherche d'affiche ---- */
   .res-affiches{display:none;flex-wrap:wrap;gap:8px;margin-top:10px}
   .res-affiches.on{display:flex}
@@ -284,7 +305,12 @@
         <option value="vu-desc">Trier : vu récemment</option>
         <option value="alpha">Trier : A → Z</option>
       </select>
+      <div class="vue-switch" title="Affichage : liste ou grille d'affiches">
+        <button id="vueListe" class="on">☰</button>
+        <button id="vueGrille">▦</button>
+      </div>
       <button class="btn-mini" id="btnNotesTout" style="display:none">📊 Notes MAL partout</button>
+      <button class="btn-mini" id="btnAffichesTout">🖼️ Affiches partout</button>
       <button class="btn-gold" id="btnAjouter">+ Ajouter</button>
     </div>
 
@@ -466,7 +492,7 @@
 </div>
 
 <script>
-const VERSION = 'v26';
+const VERSION = 'v28';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -594,6 +620,7 @@ function allerCategorie(c){
   $('filtreStatut').classList.toggle('cache', c === 'films');
   $('btnAjouter').style.display = visu ? 'none' : '';
   $('btnNotesTout').style.display = (!visu && (c === 'anime' || c === 'manga')) ? '' : 'none';
+  $('btnAffichesTout').style.display = visu ? 'none' : '';
   document.title = "Ciné'Wawa — " + conf.nom;
   rendreListe();
 }
@@ -843,6 +870,28 @@ async function notesToutes(){
 }
 
 // ================= recherche automatique d'affiche =================
+const TMDB_KEY = '009de795eac14c41655c09e56a345f7d'; // clé partagée du site (affiches films & séries)
+async function srcTMDB(titre, type){ // 'movie' ou 'tv' — affiches officielles haute qualité
+  const r = await fetch('https://api.themoviedb.org/3/search/' + type + '?api_key=' + TMDB_KEY
+    + '&query=' + encodeURIComponent(titre) + '&language=fr-FR&include_adult=false');
+  if(!r.ok) throw new Error('TMDB ' + r.status);
+  const j = await r.json();
+  return (j.results || []).filter(x => x.poster_path).map(x => ({
+    url: 'https://image.tmdb.org/t/p/w500' + x.poster_path,
+    nom: (x.title || x.name) + ((x.release_date || x.first_air_date) ? ' (' + (x.release_date || x.first_air_date).slice(0,4) + ')' : ''),
+  }));
+}
+
+function sourcesPour(titre, cat){
+  const q = titre.replace(/\s*\(\d{4}\)\s*$/, ''); // « Superman (2025) » → « Superman »
+  return {
+    anime:  [() => srcAniList(q, 'ANIME'), () => srcJikan(q, 'anime'), () => srcWikipedia(q, 'anime')],
+    manga:  [() => srcAniList(q, 'MANGA'), () => srcJikan(q, 'manga'), () => srcWikipedia(q, 'manga')],
+    series: [() => srcTMDB(q, 'tv'),    () => srcTVMaze(q),  () => srcWikipedia(q, 'série télévisée')],
+    films:  [() => srcTMDB(q, 'movie'), () => srcITunes(q),  () => srcWikipedia(q, 'film')],
+  }[cat] || [() => srcWikipedia(q, '')];
+}
+
 // contournement CORS pour iTunes (JSONP)
 function jsonp(url){
   return new Promise((res, rej) => {
@@ -917,12 +966,7 @@ async function chercherAffiche(){
   zone.innerHTML = '<div class="res-info">Recherche en cours…</div>';
 
   // sources par catégorie, essayées dans l'ordre jusqu'à trouver des résultats
-  const sources = {
-    anime:  [() => srcAniList(titre, 'ANIME'), () => srcJikan(titre, 'anime'), () => srcWikipedia(titre, 'anime')],
-    manga:  [() => srcAniList(titre, 'MANGA'), () => srcJikan(titre, 'manga'), () => srcWikipedia(titre, 'manga')],
-    series: [() => srcTVMaze(titre),           () => srcWikipedia(titre, 'série télévisée')],
-    films:  [() => srcITunes(titre),           () => srcWikipedia(titre, 'film')],
-  }[catCourante] || [() => srcWikipedia(titre, '')];
+  const sources = sourcesPour(titre, catCourante);
 
   let resultats = [];
   let erreurs = 0;
@@ -1008,6 +1052,29 @@ function rendreListe(){
     zone.innerHTML = items.length === 0
       ? '<div class="vide-msg"><div class="emoji">'+CATS[c].ico+'</div><div class="gros">Rien ici pour l\'instant</div><div style="font-size:14px">Ajoute un titre, ou importe ton fichier JSON avec le bouton en haut.</div></div>'
       : '<div class="vide-msg">Aucun résultat avec ces filtres.</div>';
+    return;
+  }
+
+  // ---- vue grille : mur d'affiches façon Letterboxd ----
+  if((localStorage.getItem('cinewawa-vue') || 'liste') === 'grille'){
+    zone.innerHTML = '<div class="grille-affiches">' + liste.map(f => {
+      const pointStatut = (c !== 'films' && f.statut && STATUTS[f.statut])
+        ? '<span class="t-statut" style="background:'+STATUTS[f.statut].couleur+'"></span>'
+        : '';
+      const img = f.affiche ? '<img src="'+echap(f.affiche)+'" loading="lazy" alt="" onerror="this.remove()">' : '';
+      const bas = sansNote(f)
+        ? '<span class="t-anoter">À noter</span>'
+        : etoilesHTML(f.note, 12) + '<span class="t-note">'+showNote(f.note)+'</span>';
+      const infoBulle = echap(f.titre) + (!sansNote(f) ? ' — ' + showNote(f.note) + '/10' : '')
+        + ((c !== 'films' && f.statut && STATUTS[f.statut]) ? ' · ' + STATUTS[f.statut].nom : '');
+      return '<div class="tuile" data-id="'+f.id+'" title="'+infoBulle+'">'
+        + '<div class="t-poster"><div class="t-vide">'+echap(f.titre)+'</div>'+img+pointStatut+'</div>'
+        + '<div class="t-bas">'+bas+'</div>'
+        + '</div>';
+    }).join('') + '</div>';
+    zone.querySelectorAll('.tuile').forEach(el => {
+      el.addEventListener('click', () => ouvrirModale(Number(el.dataset.id)));
+    });
     return;
   }
 
@@ -1327,6 +1394,37 @@ function quitterVisu(){
   allerAccueil();
 }
 
+// ---- affiches en masse pour toute la section ----
+let affichesEnCours = false;
+async function affichesToutes(){
+  if(affichesEnCours){ affichesEnCours = false; return; } // re-clic = stop
+  const c = catCourante;
+  const manquants = etat[c].filter(f => !f.affiche);
+  const btn = $('btnAffichesTout');
+  if(!manquants.length){ alert('Tous les titres de cette section ont déjà une affiche ✓'); return; }
+  if(!confirm(manquants.length + ' titre(s) sans affiche.\nLa récupération prend ~1 seconde par titre, et prend la première affiche trouvée (vérifie ensuite les titres ambigus).\nRe-clique le bouton pour arrêter en cours de route.\n\nLancer ?')) return;
+  affichesEnCours = true;
+  let ok = 0;
+  for(let i = 0; i < manquants.length; i++){
+    if(!affichesEnCours) break;
+    const f = manquants[i];
+    btn.textContent = '⏳ ' + (i+1) + '/' + manquants.length + ' — stop';
+    for(const src of sourcesPour(f.titre, c)){
+      try{
+        const res = (await src()).filter(x => x.url);
+        if(res.length){ f.affiche = res[0].url; ok++; break; }
+      }catch(e){}
+    }
+    if(i % 8 === 7){ sauver(); if(catCourante === c && !visu) rendreListe(); }
+    await new Promise(r => setTimeout(r, 1200)); // respecte les limites des services gratuits
+  }
+  affichesEnCours = false;
+  sauver(); majCollage();
+  if(catCourante === c && !visu) rendreListe();
+  btn.textContent = '🖼️ Affiches partout';
+  alert(ok + ' affiche(s) récupérée(s) ✓' + (manquants.length - ok ? '\n' + (manquants.length - ok) + ' titre(s) sans résultat — récupérables fiche par fiche.' : '') + '\n\nSi une affiche ne correspond pas, ouvre la fiche et re-cherche avec 🔍.');
+}
+
 // ================= import Letterboxd =================
 function parseCSV(txt){
   const lignes = [];
@@ -1638,6 +1736,16 @@ $('btnLbxChoisir').addEventListener('click', () => { $('overlayLbx').style.displ
 $('btnLbxFermer').addEventListener('click', () => { $('overlayLbx').style.display = 'none'; });
 $('overlayLbx').addEventListener('click', e => { if(e.target === $('overlayLbx')) $('overlayLbx').style.display = 'none'; });
 $('btnNotesTout').addEventListener('click', notesToutes);
+$('btnAffichesTout').addEventListener('click', affichesToutes);
+function setVue(v){
+  localStorage.setItem('cinewawa-vue', v);
+  $('vueListe').classList.toggle('on', v === 'liste');
+  $('vueGrille').classList.toggle('on', v === 'grille');
+  if(catCourante) rendreListe();
+}
+$('vueListe').addEventListener('click', () => setVue('liste'));
+$('vueGrille').addEventListener('click', () => setVue('grille'));
+setVue(localStorage.getItem('cinewawa-vue') || 'liste');
 $('inputLbx').addEventListener('change', e => { if(e.target.files[0]) importerLetterboxd(e.target.files[0]); e.target.value=''; });
 $('btnCloud').addEventListener('click', ouvrirCloud);
 $('btnCloudOn').addEventListener('click', activerCloud);
