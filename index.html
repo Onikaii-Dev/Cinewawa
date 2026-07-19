@@ -139,9 +139,25 @@
   .res-affiches img:hover{border-color:var(--gold)}
   .res-affiches .res-info{width:100%;font-size:12px;color:var(--faint)}
 
-  /* ---- compte à rebours prochains épisodes ---- */
-  .cav-section{margin-top:26px}
-  .cav-titre{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.12em;margin-bottom:10px;text-align:center}
+  /* ---- sections de l'accueil : séparateurs et apparition ---- */
+  .cav-section{margin-top:34px;animation:montee .45s ease both}
+  .cav-titre{display:flex;align-items:center;gap:14px;font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.14em;margin-bottom:12px;white-space:nowrap}
+  .cav-titre::before,.cav-titre::after{content:'';flex:1;height:1px}
+  .cav-titre::before{background:linear-gradient(90deg,transparent,#4a4a58)}
+  .cav-titre::after{background:linear-gradient(90deg,#4a4a58,transparent)}
+  @keyframes montee{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+  .grille-cat .cat{animation:montee .45s ease both}
+  .grille-cat .cat:nth-child(1){animation-delay:.02s}
+  .grille-cat .cat:nth-child(2){animation-delay:.08s}
+  .grille-cat .cat:nth-child(3){animation-delay:.14s}
+  .grille-cat .cat:nth-child(4){animation-delay:.2s}
+  @media (prefers-reduced-motion: reduce){.cav-section,.grille-cat .cat{animation:none}}
+
+  /* ---- grand bouton utilisateurs ---- */
+  .btn-users-large{display:flex;align-items:center;justify-content:center;gap:12px;width:100%;background:linear-gradient(135deg,rgba(45,108,223,.28),rgba(23,23,29,.92));border:1px solid rgba(45,108,223,.55);border-radius:16px;padding:18px 20px;font-family:'Bebas Neue',sans-serif;font-size:25px;letter-spacing:.04em;color:#fff;cursor:pointer;backdrop-filter:blur(8px);transition:transform .15s ease,border-color .15s ease,box-shadow .15s ease}
+  .btn-users-large:hover{transform:translateY(-2px);border-color:#2d6cdf;box-shadow:0 8px 28px rgba(45,108,223,.25)}
+  .btn-users-large .sous{font-family:'Inter',sans-serif;font-size:12.5px;color:#9dbcf5;letter-spacing:0;text-transform:none;font-weight:400}
+  @media (prefers-reduced-motion: reduce){.btn-users-large{transition:none}}
   .cav-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .15s ease}
   .cav-row:hover{border-color:var(--border-h)}
   .cav-ico{font-size:18px;flex-shrink:0}
@@ -193,6 +209,7 @@
     </div>
     <div class="tb-actions" id="tbDroite">
       <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
+      <button class="btn-mini" id="btnUsersTop">👥 Utilisateurs</button>
       <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
       <button class="btn-mini" id="btnConf">🔒 Confidentialité</button>
       <span class="tb-sep"></span>
@@ -213,8 +230,11 @@
   <div id="pageAccueil">
     <div class="accueil-sous" style="margin-top:4px">Que veux-tu consulter ?</div>
     <div class="grille-cat" id="grilleCat"></div>
-    <div id="zoneUtilisateurs" style="text-align:center;margin-top:24px">
-      <button class="btn-mini" id="btnUtilisateurs">👥 Utilisateurs</button>
+    <div id="zoneUtilisateurs" class="cav-section">
+      <button class="btn-users-large" id="btnUtilisateurs">
+        <span>👥</span>
+        <span>Utilisateurs<br><span class="sous">Watchlists de la commu · compatibilité · notes des autres</span></span>
+      </button>
     </div>
   </div>
 
@@ -441,7 +461,7 @@
 </div>
 
 <script>
-const VERSION = 'v14';
+const VERSION = 'v15';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1615,6 +1635,7 @@ $('btnCloudFermer').addEventListener('click', fermerCloud);
 $('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayCloud')) fermerCloud(); });
 $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
 $('btnUtilisateurs').addEventListener('click', allerUtilisateurs);
+$('btnUsersTop').addEventListener('click', allerUtilisateurs);
 $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
 $('btnChercherAffiche').addEventListener('click', chercherAffiche);
