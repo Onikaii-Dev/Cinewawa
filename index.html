@@ -60,8 +60,8 @@
   .card:hover{transform:translateY(-2px);border-color:var(--border-h)}
   @media (prefers-reduced-motion: reduce){.card,.cat{transition:none}}
   .card .poster{position:absolute;right:0;top:0;height:100%;width:40%;object-fit:cover;object-position:center 25%;opacity:.6}
-  .card .fondu{position:absolute;right:0;top:0;height:100%;width:52%;background:linear-gradient(90deg,rgba(23,23,29,1) 0%,rgba(23,23,29,.75) 45%,rgba(23,23,29,.2) 100%)}
-  .card .contenu{position:relative;padding-right:40%}
+  .card .fondu{position:absolute;right:0;top:0;height:100%;width:58%;background:linear-gradient(90deg,rgba(23,23,29,1) 0%,rgba(23,23,29,.92) 40%,rgba(23,23,29,.55) 70%,rgba(23,23,29,.15) 100%)}
+  .card .contenu{position:relative;padding-right:30%;text-shadow:0 1px 6px rgba(0,0,0,.7)}
   @media (max-width:640px){.card .contenu{padding-right:10%}}
   .card .ligne-titre{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
   .card .titre{font-size:20px;font-weight:800}
@@ -78,7 +78,7 @@
   .stars .vide{color:#3a3a44}
   .stars .plein{position:absolute;left:0;top:0;overflow:hidden;white-space:nowrap;color:var(--gold);text-shadow:0 0 10px rgba(246,183,60,.45)}
   .stars.stars-orange .plein{color:#ff8c42;text-shadow:0 0 10px rgba(255,140,66,.4)}
-  .notes-bar{display:flex;align-items:center;gap:13px;flex-wrap:wrap;margin-top:9px}
+  .notes-bar{display:flex;align-items:center;gap:11px;flex-wrap:wrap;margin-top:9px}
   .note-cell{display:flex;align-items:center;gap:7px}
   .note-lab{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.09em;font-weight:700}
   .note-sep{width:1px;height:16px;background:#34343f;flex-shrink:0}
@@ -466,7 +466,7 @@
 </div>
 
 <script>
-const VERSION = 'v24';
+const VERSION = 'v26';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1031,7 +1031,7 @@ function rendreListe(){
     const k = cleTitre(c, f.titre);
     const cm = notesCommu && notesCommu[k];
     if(cm && cm.n > 0){
-      cellules.push('<span class="note-cell" title="Note moyenne des utilisateurs du site ('+cm.n+' note'+(cm.n>1?'s':'')+')"><span class="note-lab">Communauté</span>'
+      cellules.push('<span class="note-cell" title="Note moyenne des utilisateurs du site ('+cm.n+' note'+(cm.n>1?'s':'')+')"><span class="note-lab">Communauté Wawa</span>'
         + '<span class="badge badge-pub">👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</span></span>');
     }
     const barreNotes = '<div class="notes-bar">' + cellules.join('<span class="note-sep"></span>') + '</div>';
