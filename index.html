@@ -25,7 +25,7 @@
   #collage img{position:absolute;aspect-ratio:2/3;object-fit:cover;border-radius:6px;filter:saturate(.95)}
   #voile{position:fixed;inset:0;z-index:0;background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%)}
 
-  .wrap{position:relative;z-index:1;max-width:760px;margin:0 auto;padding:28px 16px 80px}
+  .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:28px 16px 80px}
 
   /* ---- entête ---- */
   header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
@@ -59,9 +59,10 @@
   .card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:12px;backdrop-filter:blur(8px);cursor:pointer;transition:transform .15s ease,border-color .15s ease}
   .card:hover{transform:translateY(-2px);border-color:var(--border-h)}
   @media (prefers-reduced-motion: reduce){.card,.cat{transition:none}}
-  .card .poster{position:absolute;right:0;top:0;height:100%;width:42%;object-fit:cover;object-position:center 25%;opacity:.6}
-  .card .fondu{position:absolute;right:0;top:0;height:100%;width:50%;background:linear-gradient(90deg,rgba(23,23,29,1) 0%,rgba(23,23,29,.55) 55%,rgba(23,23,29,.15) 100%)}
-  .card .contenu{position:relative}
+  .card .poster{position:absolute;right:0;top:0;height:100%;width:40%;object-fit:cover;object-position:center 25%;opacity:.6}
+  .card .fondu{position:absolute;right:0;top:0;height:100%;width:52%;background:linear-gradient(90deg,rgba(23,23,29,1) 0%,rgba(23,23,29,.75) 45%,rgba(23,23,29,.2) 100%)}
+  .card .contenu{position:relative;padding-right:32%}
+  @media (max-width:640px){.card .contenu{padding-right:10%}}
   .card .ligne-titre{display:flex;align-items:baseline;gap:10px;margin-bottom:8px}
   .card .titre{font-size:20px;font-weight:800}
   .card .chevron{margin-left:auto;color:#5a5a66;font-size:18px}
@@ -70,7 +71,7 @@
   .badge.statut{color:#fff;font-weight:700}
   .badge.badge-pub{background:#22222b;color:#c9c9d4;border:1px solid #34343f;font-weight:700}
   .date,.progression{color:var(--muted);font-size:13px}
-  .avis{margin-top:8px;color:#b8b8c2;font-size:13px;font-style:italic;max-width:60%}
+  .avis{margin-top:8px;color:#b8b8c2;font-size:13px;font-style:italic}
 
   /* ---- étoiles ---- */
   .stars{position:relative;display:inline-block;font-size:18px;line-height:1;letter-spacing:2px}
@@ -465,7 +466,7 @@
 </div>
 
 <script>
-const VERSION = 'v22';
+const VERSION = 'v23';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
