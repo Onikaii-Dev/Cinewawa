@@ -164,8 +164,10 @@
   /* ---- résultats recherche d'affiche ---- */
   .res-affiches{display:none;flex-wrap:wrap;gap:8px;margin-top:10px}
   .res-affiches.on{display:flex}
-  .res-affiches img{width:74px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;cursor:pointer;border:2px solid transparent;transition:border-color .12s ease}
-  .res-affiches img:hover{border-color:var(--gold)}
+  .res-item{display:flex;flex-direction:column;align-items:center;cursor:pointer;width:76px}
+  .res-item img{width:74px;aspect-ratio:2/3;object-fit:cover;border-radius:8px;border:2px solid transparent;transition:border-color .12s ease}
+  .res-item:hover img{border-color:var(--gold)}
+  .res-nom{font-size:10.5px;color:var(--muted);margin-top:4px;max-width:76px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
   .res-affiches .res-info{width:100%;font-size:12px;color:var(--faint)}
 
   /* ---- sections de l'accueil : séparateurs et apparition ---- */
@@ -492,7 +494,7 @@
 </div>
 
 <script>
-const VERSION = 'v28';
+const VERSION = 'v29';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -882,13 +884,25 @@ async function srcTMDB(titre, type){ // 'movie' ou 'tv' — affiches officielles
   }));
 }
 
+async function srcTMDBMulti(q, type){
+  // retente sans l'article si la recherche exacte échoue (« La loup de wall street » → « loup de wall street »)
+  const variantes = [q];
+  const sansArticle = q.replace(/^(le|la|les|l')\s*/i, '').replace(/^(the|un|une|a|an)\s+/i, '');
+  if(sansArticle && sansArticle !== q) variantes.push(sansArticle);
+  for(const v of variantes){
+    const res = await srcTMDB(v, type);
+    if(res.length) return res;
+  }
+  return [];
+}
+
 function sourcesPour(titre, cat){
   const q = titre.replace(/\s*\(\d{4}\)\s*$/, ''); // « Superman (2025) » → « Superman »
   return {
     anime:  [() => srcAniList(q, 'ANIME'), () => srcJikan(q, 'anime'), () => srcWikipedia(q, 'anime')],
     manga:  [() => srcAniList(q, 'MANGA'), () => srcJikan(q, 'manga'), () => srcWikipedia(q, 'manga')],
-    series: [() => srcTMDB(q, 'tv'),    () => srcTVMaze(q),  () => srcWikipedia(q, 'série télévisée')],
-    films:  [() => srcTMDB(q, 'movie'), () => srcITunes(q),  () => srcWikipedia(q, 'film')],
+    series: [() => srcTMDBMulti(q, 'tv'),    () => srcTVMaze(q),  () => srcWikipedia(q, 'série télévisée')],
+    films:  [() => srcTMDBMulti(q, 'movie'), () => srcITunes(q),  () => srcWikipedia(q, 'film')],
   }[cat] || [() => srcWikipedia(q, '')];
 }
 
@@ -984,14 +998,17 @@ async function chercherAffiche(){
     return;
   }
   zone.innerHTML = '<div class="res-info">Clique sur la bonne affiche :</div>'
-    + resultats.map((x,i) => '<img src="'+echap(x.url)+'" title="'+echap(x.nom)+'" data-i="'+i+'" loading="lazy">').join('');
-  zone.querySelectorAll('img').forEach(img => {
-    img.addEventListener('click', () => {
-      $('fAffiche').value = resultats[Number(img.dataset.i)].url;
+    + resultats.map((x,i) => '<div class="res-item" data-i="'+i+'" title="'+echap(x.nom)+'">'
+      + '<img src="'+echap(x.url)+'" loading="lazy" alt="">'
+      + '<div class="res-nom">'+echap(x.nom)+'</div>'
+      + '</div>').join('');
+  zone.querySelectorAll('.res-item').forEach(el => {
+    el.addEventListener('click', () => {
+      $('fAffiche').value = resultats[Number(el.dataset.i)].url;
       zone.classList.remove('on');
       zone.innerHTML = '';
     });
-    img.addEventListener('error', () => img.remove());
+    el.querySelector('img').addEventListener('error', () => el.remove());
   });
 }
 
