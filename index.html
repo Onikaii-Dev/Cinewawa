@@ -47,7 +47,7 @@
   .accueil-sous{color:var(--muted);text-align:center;font-size:14px;margin-top:6px}
 
   /* ---- barre d'outils ---- */
-  .toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px;backdrop-filter:blur(8px)}
+  .toolbar{display:flex;gap:10px;margin-bottom:18px;flex-wrap:wrap;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:10px}
   .toolbar input,.toolbar select{background:#101014;border:1px solid var(--border);border-radius:9px;color:var(--txt);padding:10px 12px;font-size:14px;outline:none;font-family:inherit}
   #recherche{flex:2;min-width:140px}
   #filtreStatut{flex:1;min-width:130px;cursor:pointer}
@@ -56,7 +56,7 @@
   .btn-gold:hover{filter:brightness(1.08)}
 
   /* ---- cartes items ---- */
-  .card{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:12px;backdrop-filter:blur(8px);cursor:pointer;transition:transform .15s ease,border-color .15s ease}
+  .card{position:relative;overflow:hidden;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:13px;padding:16px 18px;margin-bottom:12px;cursor:pointer;transition:transform .15s ease,border-color .15s ease}
   .card:hover{transform:translateY(-2px);border-color:var(--border-h)}
   @media (prefers-reduced-motion: reduce){.card,.cat{transition:none}}
   .card .poster{position:absolute;right:0;top:0;height:100%;width:40%;object-fit:cover;object-position:center 25%;opacity:.6}
@@ -121,7 +121,7 @@
   .cache{display:none !important}
 
   /* ---- header du site : barre pleine largeur ---- */
-  #topbar{position:relative;z-index:10;width:100%;background:rgba(12,12,16,.72);border-bottom:1px solid rgba(58,58,68,.55);backdrop-filter:blur(16px);padding:12px 26px}
+  #topbar{position:relative;z-index:10;width:100%;background:rgba(12,12,16,.72);border-bottom:1px solid rgba(58,58,68,.55);backdrop-filter:blur(10px);padding:12px 26px}
   .tb-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:1400px;margin:0 auto}
   #tbDroite{display:contents}
   .tb-grp{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
@@ -184,7 +184,7 @@
   .grille-cat .cat:nth-child(4){animation-delay:.2s}
   @media (prefers-reduced-motion: reduce){.cav-section,.grille-cat .cat{animation:none}}
 
-  .cav-row{display:flex;align-items:center;gap:12px;background:var(--card);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer;backdrop-filter:blur(8px);transition:border-color .15s ease}
+  .cav-row{display:flex;align-items:center;gap:12px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s ease}
   .cav-row:hover{border-color:var(--border-h)}
   .cav-ico{font-size:18px;flex-shrink:0}
   .cav-info{flex:1;min-width:0}
@@ -203,7 +203,7 @@
   #btnQuitterVisu{background:#2d6cdf;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 
   /* ---- page utilisateurs ---- */
-  .user-row{display:flex;align-items:center;gap:13px;background:var(--card);border:1px solid var(--border);border-radius:13px;padding:13px 16px;margin-bottom:10px;backdrop-filter:blur(8px)}
+  .user-row{display:flex;align-items:center;gap:13px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:13px;padding:13px 16px;margin-bottom:10px}
   .user-row .avatar-gh{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:#101014;object-fit:cover}
   .user-row .u-info{flex:1;min-width:0}
   .user-row .u-pseudo{font-weight:800;font-size:16px}
@@ -215,7 +215,7 @@
   .u-compat{font-size:12px;color:var(--gold);margin-top:2px;font-weight:700}
 
   /* ---- feed d'activité ---- */
-  .feed-row{display:flex;align-items:center;gap:10px;background:var(--card);border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:7px;backdrop-filter:blur(8px);font-size:13.5px;color:#d5d5dc}
+  .feed-row{display:flex;align-items:center;gap:10px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:7px;font-size:13.5px;color:#d5d5dc}
   .feed-row .f-ico{flex-shrink:0}
   .feed-row .f-texte{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .feed-row .f-quand{color:var(--faint);font-size:12px;flex-shrink:0}
@@ -497,7 +497,7 @@
 </div>
 
 <script>
-const VERSION = 'v30';
+const VERSION = 'v31';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -591,6 +591,8 @@ function majCollage(){
   const total = 28;
   for(let i=0;i<total;i++){
     const img = document.createElement('img');
+    img.loading = 'lazy';
+    img.decoding = 'async';
     img.src = melange[i % melange.length];
     img.alt = '';
     img.style.top   = (Math.floor(i/7)*25 + rnd(graine+i+40)*6 - 3) + '%';
