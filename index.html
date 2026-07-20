@@ -504,7 +504,7 @@
 </div>
 
 <script>
-const VERSION = 'v47';
+const VERSION = 'v48';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -775,13 +775,14 @@ function rendreProchainsEpisodes(){
 
       let chip, classe, actions;
       const btnPlus = (visu ? '' : '<button class="cav-plus" data-cat="'+c+'" data-id="'+f.id+'" title="Marquer comme vu/lu">+1 '+unite+'</button>');
+      const btnReport = (visu ? '' : '<button class="cav-report" data-cat="'+c+'" data-id="'+f.id+'" title="Pas de sortie cette fois → passe au cycle suivant">⏱ Reporter</button>');
       if(enAttente >= 2){
         // plusieurs épisodes sortis non marqués → en retard, sans compter celui du jour
         chip = 'En retard · ' + (enAttente - 1) + ' ' + unite; classe = 'retard';
-        actions = (visu ? '' : btnPlus + '<button class="cav-report" data-cat="'+c+'" data-id="'+f.id+'" title="Je saute une sortie, avance le compteur">⏱ Reporter</button>');
+        actions = btnPlus + btnReport;
       } else if(enAttente === 1){
         // exactement l'épisode du jour (ou du dernier cycle) est dispo
-        chip = "Dispo !"; classe = 'auj'; actions = btnPlus;
+        chip = "Dispo !"; classe = 'auj'; actions = btnPlus + btnReport;
       } else {
         // rien de sorti encore
         chip = (jours === 1) ? 'Demain' : 'Dans ' + jours + ' j';
