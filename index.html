@@ -264,7 +264,7 @@
 
 <div id="topbar">
   <div class="tb-inner">
-    <div class="tb-gauche">
+    <div class="tb-gauche" id="tbAccueil" title="Retour à l'accueil" style="cursor:pointer">
       <img src="icon-192.png" class="tb-logo" alt="" onerror="this.style.display='none'">
       <span class="tb-nom">Ciné'Wawa</span>
     </div>
@@ -531,7 +531,7 @@
 </div>
 
 <script>
-const VERSION = 'v51';
+const VERSION = 'v53';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -822,13 +822,20 @@ function rendreProchainsEpisodes(){
       let chip, classe, actions;
       const btnPlus = (visu ? '' : '<button class="cav-plus" data-cat="'+c+'" data-id="'+f.id+'" title="Marquer comme vu/lu">+1 '+unite+'</button>');
       const btnReport = (visu ? '' : '<button class="cav-report" data-cat="'+c+'" data-id="'+f.id+'" title="Pas de sortie cette fois → passe au cycle suivant">⏱ Reporter</button>');
-      if(enAttente >= 2){
-        // plusieurs épisodes sortis non marqués → en retard, sans compter celui du jour
-        chip = 'En retard · ' + (enAttente - 1) + ' ' + unite; classe = 'retard';
+      // l'épisode sort-il exactement aujourd'hui ?
+      const sortAujourdhui = (jours === 0);
+      if(enAttente >= 1){
+        if(enAttente === 1 && sortAujourdhui){
+          // pile le jour de sortie, rien en retard → "Aujourd'hui !"
+          chip = "Aujourd'hui !"; classe = 'auj';
+        } else if(enAttente === 1){
+          // un épisode dispo mais le jour J est passé → "Dispo"
+          chip = "Dispo !"; classe = 'auj';
+        } else {
+          // plusieurs épisodes en attente
+          chip = 'Dispo · ' + (enAttente - 1) + ' en retard'; classe = 'retard';
+        }
         actions = btnPlus + btnReport;
-      } else if(enAttente === 1){
-        // exactement l'épisode du jour (ou du dernier cycle) est dispo
-        chip = "Dispo !"; classe = 'auj'; actions = btnPlus + btnReport;
       } else {
         // rien de sorti encore
         chip = (jours === 1) ? 'Demain' : 'Dans ' + jours + ' j';
@@ -1649,7 +1656,8 @@ function afficherRecap(login, d){
   section.className = 'cav-section';
   section.id = 'recapSection';
   section.innerHTML =
-    '<div class="recap-card">'
+    '<div class="cav-titre">📊 Profil de ' + echap(d.pseudo || login) + '</div>'
+    + '<div class="recap-card">'
     + '<div class="recap-head">'
     +   '<img class="recap-pp" src="https://github.com/'+encodeURIComponent(login)+'.png?size=120" alt="" onerror="this.style.visibility=\'hidden\'">'
     +   '<div class="recap-id"><div class="recap-nom">'+echap(d.pseudo || login)+'</div><div class="recap-login">@'+echap(login)+'</div></div>'
@@ -1661,10 +1669,10 @@ function afficherRecap(login, d){
     +   '<div class="recap-stat"><b>'+d.manga.length+'</b><span>manga</span></div>'
     +   (moyenne != null ? '<div class="recap-stat"><b>'+showNote(Math.round(moyenne*10)/10)+'</b><span>moy.</span></div>' : '')
     + '</div>'
-    + (barres ? '<div class="recap-titre">Activité par mois</div><div class="recap-graph">'+barres+'</div><div class="recap-legende">'+legende+'</div>' : '')
+    + (barres ? '<div class="recap-titre" style="margin-top:16px">Activité par mois</div><div class="recap-graph">'+barres+'</div><div class="recap-legende">'+legende+'</div>' : '')
     + '</div>';
-  const pageAcc = $('pageAccueil');
-  pageAcc.insertBefore(section, pageAcc.firstChild.nextSibling); // juste après le séparateur d'accueil
+  // en bas de l'accueil, après tout le reste (feed compris)
+  $('pageAccueil').appendChild(section);
 }
 function quitterVisu(){
   visu = null;
@@ -2040,6 +2048,7 @@ $('btnCloudFermer').addEventListener('click', fermerCloud);
 $('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayCloud')) fermerCloud(); });
 $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
 $('btnUsersTop').addEventListener('click', allerUtilisateurs);
+$('tbAccueil').addEventListener('click', () => { if(visu) quitterVisu(); else allerAccueil(); });
 const NIVEAUX_SOMBRE = ['', 'sombre1', 'sombre2'];
 const EMOJI_SOMBRE = ['🌙', '🌘', '🌑'];
 function appliquerSombre(n){
