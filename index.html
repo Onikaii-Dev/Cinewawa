@@ -23,7 +23,9 @@
   /* ---- collage de fond (éclairci) ---- */
   #collage{position:fixed;inset:0;z-index:0;overflow:hidden;will-change:transform;transform:translateZ(0)}
   #collage img{position:absolute;aspect-ratio:2/3;object-fit:cover;border-radius:6px;filter:saturate(.95)}
-  #voile{position:fixed;inset:0;z-index:0;transform:translateZ(0);background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%)}
+  #voile{position:fixed;inset:0;z-index:0;transform:translateZ(0);background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%);transition:background .3s ease}
+  body.sombre1 #voile{background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.72) 0%, rgba(10,10,13,.82) 45%, rgba(10,10,13,.92) 100%)}
+  body.sombre2 #voile{background:rgba(10,10,13,.95)}
 
   .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:28px 16px 80px}
 
@@ -232,8 +234,12 @@
   .recap-bar-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;height:100%;justify-content:flex-end}
   .recap-bar-val{font-size:12px;font-weight:800;color:#d5d5dc}
   .recap-bar-track{width:70%;max-width:34px;flex:1;background:#101014;border-radius:5px;display:flex;align-items:flex-end;overflow:hidden}
-  .recap-bar-fill{width:100%;background:linear-gradient(180deg,var(--gold),#e8833a);border-radius:5px;min-height:3px}
+  .recap-bar-stack{width:100%;display:flex;flex-direction:column;border-radius:5px;overflow:hidden;min-height:3px}
+  .recap-seg{width:100%;min-height:2px}
   .recap-bar-lab{font-size:11px;color:var(--muted)}
+  .recap-legende{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:14px}
+  .recap-leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
+  .recap-leg-pt{width:10px;height:10px;border-radius:3px;flex-shrink:0}
 
   /* ---- feed d'activité ---- */
   .feed-row{display:flex;align-items:center;gap:10px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:7px;font-size:13.5px;color:#d5d5dc}
@@ -264,6 +270,7 @@
     </div>
     <div id="tbDroite">
       <div class="tb-grp">
+        <button class="btn-mini" id="btnSombre" title="Assombrir le fond">🌙</button>
         <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
         <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
       </div>
@@ -524,7 +531,7 @@
 </div>
 
 <script>
-const VERSION = 'v50';
+const VERSION = 'v51';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1605,28 +1612,38 @@ function afficherRecap(login, d){
   ['films','series','anime','manga'].forEach(c => d[c].forEach(f => { if(f.note != null) notes.push(f.note); }));
   const moyenne = notes.length ? (notes.reduce((a,b)=>a+b,0)/notes.length) : null;
 
-  // activité des 6 derniers mois (films/séries/anime terminés + progression datée)
-  const parMois = {};
-  const ajoute = (dateISO) => {
+  // activité des 6 derniers mois, ventilée par catégorie
+  const parMois = {}; // { 'AAAA-MM': { films, series, anime, manga } }
+  const ajoute = (dateISO, cat) => {
     if(!dateISO || dateISO.length < 7) return;
     const mois = dateISO.slice(0,7);
-    parMois[mois] = (parMois[mois] || 0) + 1;
+    if(!parMois[mois]) parMois[mois] = { films:0, series:0, anime:0, manga:0 };
+    parMois[mois][cat]++;
   };
-  d.films.forEach(f => ajoute(f.date));
-  ['series','anime','manga'].forEach(c => d[c].forEach(f => { if(f.date) ajoute(f.date); }));
+  ['films','series','anime','manga'].forEach(c => d[c].forEach(f => { if(f.date) ajoute(f.date, c); }));
 
   const moisTries = Object.keys(parMois).sort().slice(-6);
-  const maxMois = Math.max(1, ...moisTries.map(m => parMois[m]));
+  const totalMois = m => { const v = parMois[m]; return v.films + v.series + v.anime + v.manga; };
+  const maxMois = Math.max(1, ...moisTries.map(totalMois));
   const nomMois = ['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+  const ordreCat = ['films','series','anime','manga'];
   const barres = moisTries.map(m => {
+    const v = parMois[m];
+    const tot = totalMois(m);
+    const segments = ordreCat.filter(c => v[c] > 0).map(c =>
+      '<div class="recap-seg" style="height:'+((v[c]/tot)*100)+'%;background:'+CATS[c].couleur+'" title="'+v[c]+' '+CATS[c].nom+'"></div>'
+    ).join('');
     const [an, mo] = m.split('-');
-    const h = Math.round((parMois[m] / maxMois) * 100);
-    return '<div class="recap-bar-col" title="'+parMois[m]+' en '+nomMois[parseInt(mo)-1]+' '+an+'">'
-      + '<div class="recap-bar-val">'+parMois[m]+'</div>'
-      + '<div class="recap-bar-track"><div class="recap-bar-fill" style="height:'+h+'%"></div></div>'
+    const hTot = Math.round((tot / maxMois) * 100);
+    return '<div class="recap-bar-col" title="'+tot+' au total en '+nomMois[parseInt(mo)-1]+' '+an+'">'
+      + '<div class="recap-bar-val">'+tot+'</div>'
+      + '<div class="recap-bar-track"><div class="recap-bar-stack" style="height:'+hTot+'%">'+segments+'</div></div>'
       + '<div class="recap-bar-lab">'+nomMois[parseInt(mo)-1]+'</div>'
       + '</div>';
   }).join('');
+  const legende = ordreCat.map(c =>
+    '<span class="recap-leg"><span class="recap-leg-pt" style="background:'+CATS[c].couleur+'"></span>'+CATS[c].nom+'</span>'
+  ).join('');
 
   const section = document.createElement('div');
   section.className = 'cav-section';
@@ -1644,7 +1661,7 @@ function afficherRecap(login, d){
     +   '<div class="recap-stat"><b>'+d.manga.length+'</b><span>manga</span></div>'
     +   (moyenne != null ? '<div class="recap-stat"><b>'+showNote(Math.round(moyenne*10)/10)+'</b><span>moy.</span></div>' : '')
     + '</div>'
-    + (barres ? '<div class="recap-titre">Activité par mois</div><div class="recap-graph">'+barres+'</div>' : '')
+    + (barres ? '<div class="recap-titre">Activité par mois</div><div class="recap-graph">'+barres+'</div><div class="recap-legende">'+legende+'</div>' : '')
     + '</div>';
   const pageAcc = $('pageAccueil');
   pageAcc.insertBefore(section, pageAcc.firstChild.nextSibling); // juste après le séparateur d'accueil
@@ -2023,6 +2040,20 @@ $('btnCloudFermer').addEventListener('click', fermerCloud);
 $('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayCloud')) fermerCloud(); });
 $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
 $('btnUsersTop').addEventListener('click', allerUtilisateurs);
+const NIVEAUX_SOMBRE = ['', 'sombre1', 'sombre2'];
+const EMOJI_SOMBRE = ['🌙', '🌘', '🌑'];
+function appliquerSombre(n){
+  document.body.classList.remove('sombre1','sombre2');
+  if(NIVEAUX_SOMBRE[n]) document.body.classList.add(NIVEAUX_SOMBRE[n]);
+  $('btnSombre').textContent = EMOJI_SOMBRE[n];
+  localStorage.setItem('cinewawa-sombre', n);
+}
+let niveauSombre = parseInt(localStorage.getItem('cinewawa-sombre') || '0');
+appliquerSombre(niveauSombre);
+$('btnSombre').addEventListener('click', () => {
+  niveauSombre = (niveauSombre + 1) % 3;
+  appliquerSombre(niveauSombre);
+});
 $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
 $('btnChercherAffiche').addEventListener('click', chercherAffiche);
