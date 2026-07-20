@@ -217,6 +217,24 @@
   .user-row.indispo{opacity:.55}
   .u-compat{font-size:12px;color:var(--gold);margin-top:2px;font-weight:700}
 
+  /* ---- carte récap d'un profil ---- */
+  .recap-card{background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:16px;padding:20px}
+  .recap-head{display:flex;align-items:center;gap:15px;margin-bottom:16px}
+  .recap-pp{width:60px;height:60px;border-radius:50%;flex-shrink:0;background:#101014;object-fit:cover;border:2px solid var(--border)}
+  .recap-nom{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.02em;line-height:1}
+  .recap-login{font-size:12px;color:var(--faint)}
+  .recap-stats{display:flex;gap:22px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
+  .recap-stat{display:flex;flex-direction:column;align-items:center}
+  .recap-stat b{font-size:22px;color:var(--gold);line-height:1}
+  .recap-stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
+  .recap-titre{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:16px 0 10px}
+  .recap-graph{display:flex;align-items:flex-end;justify-content:space-around;gap:8px;height:110px}
+  .recap-bar-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;height:100%;justify-content:flex-end}
+  .recap-bar-val{font-size:12px;font-weight:800;color:#d5d5dc}
+  .recap-bar-track{width:70%;max-width:34px;flex:1;background:#101014;border-radius:5px;display:flex;align-items:flex-end;overflow:hidden}
+  .recap-bar-fill{width:100%;background:linear-gradient(180deg,var(--gold),#e8833a);border-radius:5px;min-height:3px}
+  .recap-bar-lab{font-size:11px;color:var(--muted)}
+
   /* ---- feed d'activité ---- */
   .feed-row{display:flex;align-items:center;gap:10px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:7px;font-size:13.5px;color:#d5d5dc}
   .feed-row .f-ico{flex-shrink:0}
@@ -228,6 +246,8 @@
   .f-evol{font-size:13px;font-weight:800;flex-shrink:0;cursor:default}
   .f-evol.up{color:#3fb950;text-shadow:0 0 8px rgba(63,185,80,.4)}
   .f-evol.down{color:#e5484d;text-shadow:0 0 8px rgba(229,72,77,.4)}
+  .feed-x{background:transparent;border:none;color:#5a5a66;font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0;line-height:1;border-radius:5px}
+  .feed-x:hover{color:#e5484d;background:rgba(229,72,77,.12)}
   .feed-lock{background:rgba(23,23,29,.96);border:1px dashed #3a3a44;border-radius:12px;padding:26px 20px;text-align:center;color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:4px}
 </style>
 </head>
@@ -504,7 +524,7 @@
 </div>
 
 <script>
-const VERSION = 'v49';
+const VERSION = 'v50';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -667,6 +687,16 @@ function rendreSectionsAccueil(){
   rendreProchainsEpisodes();     // puis prochaines sorties, insérées juste au-dessus
 }
 
+// efface une entrée de MON feed (progression ou horodatage de note)
+function effacerEntreeFeed(c, fid, type){
+  const f = etat[c] && etat[c].find(x => x.id === fid);
+  if(!f) return;
+  if(type === 'prog') delete f.prog;
+  else { delete f.majNote; delete f.evol; delete f.notePrec; } // retire l'entrée "a noté" du feed (garde la note)
+  sauver();
+  rendreSectionsAccueil();
+}
+
 // ---- feed d'activité de la communauté ----
 function ilYA(t){
   const min = Math.floor((Date.now() - t) / 60000);
@@ -700,6 +730,7 @@ function rendreFeed(){
   section.id = 'feedSection';
   section.innerHTML = '<div class="cav-titre">📰 Activité de la communauté</div>'
     + feed.map(e => {
+      const croix = e.mien ? '<button class="feed-x" data-c="'+e.c+'" data-fid="'+e.fid+'" data-type="'+(e.prog?'prog':'note')+'" title="Retirer de mon activité">✕</button>' : '';
       if(e.prog){
         const unite = e.c === 'manga' ? ('chapitre' + (e.prog.n > 1 ? 's' : '')) : ('épisode' + (e.prog.n > 1 ? 's' : ''));
         const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
@@ -708,6 +739,7 @@ function rendreFeed(){
           + '<span class="f-ico">' + CATS[e.c].ico + '</span>'
           + '<span class="f-texte"><b>' + echap(e.p) + '</b> ' + verbe + ' <b>' + e.prog.n + ' ' + unite + '</b> de <b>' + echap(e.titre) + '</b> ' + quand + '</span>'
           + '<span class="f-quand">' + ilYA(e.t) + '</span>'
+          + croix
           + '</div>';
       }
       return '<div class="feed-row">'
@@ -716,9 +748,16 @@ function rendreFeed(){
         + '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '/10</span>'
         + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="' + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation') + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '')
         + '<span class="f-quand">' + ilYA(e.t) + '</span>'
+        + croix
         + '</div>';
     }).join('');
   $('pageAccueil').insertBefore(section, $('zoneUtilisateurs'));
+  section.querySelectorAll('.feed-x').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      effacerEntreeFeed(b.dataset.c, Number(b.dataset.fid), b.dataset.type);
+    });
+  });
   // sur petit écran : clic pour déplier une ligne tronquée
   section.querySelectorAll('.feed-row').forEach(r => {
     r.addEventListener('click', () => r.classList.toggle('ouvert'));
@@ -864,11 +903,11 @@ function mesNotes(){
     const k = cleTitre(c, f.titre);
     agg[k] = { s: f.note, n: 1 };
     const t = f.majNote || 0;
-    if(t) feed.push({ p: moiNom, login: '', titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec });
+    if(t) feed.push({ p: moiNom, login: '', titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec, mien: true, fid: f.id });
   }));
   // progression du jour (épisodes vus / chapitres lus)
   ['series','anime','manga'].forEach(c => etat[c].forEach(f => {
-    if(f.prog && f.prog.n > 0 && f.prog.t) feed.push({ p: moiNom, login: '', titre: f.titre, c, t: f.prog.t, prog: f.prog });
+    if(f.prog && f.prog.n > 0 && f.prog.t) feed.push({ p: moiNom, login: '', titre: f.titre, c, t: f.prog.t, prog: f.prog, mien: true, fid: f.id });
   }));
   return { agg, feed };
 }
@@ -1553,9 +1592,67 @@ function voirUtilisateur(login, d){
   $('zoneUtilisateurs').style.display = 'none';
   majCollage();               // le fond affiche les affiches de l'utilisateur visité !
   allerAccueil();
+  afficherRecap(login, d);
+}
+
+// carte récapitulative d'un profil (photo + activité par mois)
+function afficherRecap(login, d){
+  const ancien = document.getElementById('recapSection');
+  if(ancien) ancien.remove();
+
+  const total = d.films.length + d.series.length + d.anime.length + d.manga.length;
+  const notes = [];
+  ['films','series','anime','manga'].forEach(c => d[c].forEach(f => { if(f.note != null) notes.push(f.note); }));
+  const moyenne = notes.length ? (notes.reduce((a,b)=>a+b,0)/notes.length) : null;
+
+  // activité des 6 derniers mois (films/séries/anime terminés + progression datée)
+  const parMois = {};
+  const ajoute = (dateISO) => {
+    if(!dateISO || dateISO.length < 7) return;
+    const mois = dateISO.slice(0,7);
+    parMois[mois] = (parMois[mois] || 0) + 1;
+  };
+  d.films.forEach(f => ajoute(f.date));
+  ['series','anime','manga'].forEach(c => d[c].forEach(f => { if(f.date) ajoute(f.date); }));
+
+  const moisTries = Object.keys(parMois).sort().slice(-6);
+  const maxMois = Math.max(1, ...moisTries.map(m => parMois[m]));
+  const nomMois = ['jan','fév','mar','avr','mai','juin','juil','août','sep','oct','nov','déc'];
+  const barres = moisTries.map(m => {
+    const [an, mo] = m.split('-');
+    const h = Math.round((parMois[m] / maxMois) * 100);
+    return '<div class="recap-bar-col" title="'+parMois[m]+' en '+nomMois[parseInt(mo)-1]+' '+an+'">'
+      + '<div class="recap-bar-val">'+parMois[m]+'</div>'
+      + '<div class="recap-bar-track"><div class="recap-bar-fill" style="height:'+h+'%"></div></div>'
+      + '<div class="recap-bar-lab">'+nomMois[parseInt(mo)-1]+'</div>'
+      + '</div>';
+  }).join('');
+
+  const section = document.createElement('div');
+  section.className = 'cav-section';
+  section.id = 'recapSection';
+  section.innerHTML =
+    '<div class="recap-card">'
+    + '<div class="recap-head">'
+    +   '<img class="recap-pp" src="https://github.com/'+encodeURIComponent(login)+'.png?size=120" alt="" onerror="this.style.visibility=\'hidden\'">'
+    +   '<div class="recap-id"><div class="recap-nom">'+echap(d.pseudo || login)+'</div><div class="recap-login">@'+echap(login)+'</div></div>'
+    + '</div>'
+    + '<div class="recap-stats">'
+    +   '<div class="recap-stat"><b>'+d.films.length+'</b><span>films</span></div>'
+    +   '<div class="recap-stat"><b>'+d.series.length+'</b><span>séries</span></div>'
+    +   '<div class="recap-stat"><b>'+d.anime.length+'</b><span>anime</span></div>'
+    +   '<div class="recap-stat"><b>'+d.manga.length+'</b><span>manga</span></div>'
+    +   (moyenne != null ? '<div class="recap-stat"><b>'+showNote(Math.round(moyenne*10)/10)+'</b><span>moy.</span></div>' : '')
+    + '</div>'
+    + (barres ? '<div class="recap-titre">Activité par mois</div><div class="recap-graph">'+barres+'</div>' : '')
+    + '</div>';
+  const pageAcc = $('pageAccueil');
+  pageAcc.insertBefore(section, pageAcc.firstChild.nextSibling); // juste après le séparateur d'accueil
 }
 function quitterVisu(){
   visu = null;
+  const recap = document.getElementById('recapSection');
+  if(recap) recap.remove();
   $('bandeauVisu').classList.remove('on');
   $('tbDroite').style.display = '';
   $('zoneUtilisateurs').style.display = '';
