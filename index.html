@@ -531,7 +531,7 @@
 </div>
 
 <script>
-const VERSION = 'v53';
+const VERSION = 'v54';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -692,6 +692,17 @@ function rendreAccueil(){
 function rendreSectionsAccueil(){
   rendreFeed();                  // feed d'abord (crée #feedSection)
   rendreProchainsEpisodes();     // puis prochaines sorties, insérées juste au-dessus
+  if(!visu) afficherMonRecap();  // ma propre carte récap tout en bas
+}
+
+// carte récap de MON profil, sur mon accueil
+function afficherMonRecap(){
+  const login = (cloud && cloud.token && monLogin) ? monLogin : '';
+  afficherRecap(login, etat);
+  // si le login n'est pas encore connu, on le résout puis on rafraîchit pour afficher la photo
+  if(cloud && cloud.token && !monLogin){
+    obtenirMonLogin().then(l => { if(l && !visu) afficherRecap(l, etat); });
+  }
 }
 
 // efface une entrée de MON feed (progression ou horodatage de note)
@@ -1655,12 +1666,18 @@ function afficherRecap(login, d){
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'recapSection';
+  const estMoi = !visu;
+  const titreRecap = estMoi ? '📊 Mon profil' : '📊 Profil de ' + echap(d.pseudo || login);
+  const pseudoAff = d.pseudo || login || 'Moi';
+  const ppTag = login
+    ? '<img class="recap-pp" src="https://github.com/'+encodeURIComponent(login)+'.png?size=120" alt="" onerror="this.style.visibility=\'hidden\'">'
+    : '<div class="recap-pp" style="display:flex;align-items:center;justify-content:center;font-size:26px">🎬</div>';
   section.innerHTML =
-    '<div class="cav-titre">📊 Profil de ' + echap(d.pseudo || login) + '</div>'
+    '<div class="cav-titre">' + titreRecap + '</div>'
     + '<div class="recap-card">'
     + '<div class="recap-head">'
-    +   '<img class="recap-pp" src="https://github.com/'+encodeURIComponent(login)+'.png?size=120" alt="" onerror="this.style.visibility=\'hidden\'">'
-    +   '<div class="recap-id"><div class="recap-nom">'+echap(d.pseudo || login)+'</div><div class="recap-login">@'+echap(login)+'</div></div>'
+    +   ppTag
+    +   '<div class="recap-id"><div class="recap-nom">'+echap(pseudoAff)+'</div>'+(login?'<div class="recap-login">@'+echap(login)+'</div>':'')+'</div>'
     + '</div>'
     + '<div class="recap-stats">'
     +   '<div class="recap-stat"><b>'+d.films.length+'</b><span>films</span></div>'
