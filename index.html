@@ -504,7 +504,7 @@
 </div>
 
 <script>
-const VERSION = 'v48';
+const VERSION = 'v49';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1368,13 +1368,6 @@ function enregistrer(){
     if(precedent.evol) item.evol = precedent.evol;
     if(precedent.notePrec !== undefined) item.notePrec = precedent.notePrec;
   }
-  // progression du jour : uniquement sur un titre DÉJÀ présent (pas à la création)
-  if(precedent && c !== 'films'){
-    if(precedent.prog) item.prog = precedent.prog;
-    const avant = parseInt(precedent.p2) || 0;
-    const apres = parseInt(item.p2) || 0;
-    if(apres > avant) item.prog = cumulJour(precedent.prog, apres - avant);
-  }
   // note du public : le champ manuel fait foi
   const brutePub = $('fNotePub').value.trim();
   if(brutePub !== ''){
@@ -1390,6 +1383,13 @@ function enregistrer(){
     item.freq = $('fFreq').value;
     item.p1 = $('fP1').value.trim();
     item.p2 = $('fP2').value.trim();
+  }
+  // progression du jour : APRÈS que item.p2 soit défini, uniquement sur un titre DÉJÀ présent
+  if(precedent && c !== 'films'){
+    if(precedent.prog) item.prog = precedent.prog;
+    const avant = parseInt(precedent.p2) || 0;
+    const apres = parseInt(item.p2) || 0;
+    if(apres > avant) item.prog = cumulJour(precedent.prog, apres - avant);
   }
 
   if(enEdition){
@@ -1746,18 +1746,21 @@ function majCloudEtat(mode, e){
   else { p.classList.remove('ok'); t.textContent = 'Erreur — réessayer'; if(e) console.error(e); }
 }
 
+let pushEnAttente = false;
 function planifierPush(){
   if(!cloudActif()) return;
+  pushEnAttente = true;
   clearTimeout(pushTimer);
   pushTimer = setTimeout(pousserCloud, 1200);
 }
 async function pousserCloud(){
   if(!cloudActif()) return;
-  try{ majCloudEtat('sync'); await gistEcrire(); majCloudEtat('ok'); }
+  try{ majCloudEtat('sync'); await gistEcrire(); pushEnAttente = false; majCloudEtat('ok'); }
   catch(e){ majCloudEtat('err', e); }
 }
 async function tirerCloud(force){
   if(!cloudActif()) return;
+  if(pushEnAttente){ await pousserCloud(); return; } // une modif locale attend → on pousse au lieu de tirer
   if(!force && Date.now() - derniereSync < 20000) return; // pas plus d'une fois toutes les 20 s
   derniereSync = Date.now();
   try{
@@ -1765,7 +1768,7 @@ async function tirerCloud(force){
     const distant = await gistLire();
     const mDistant = (distant && distant.modif) || 0;
     const mLocal = etat.modif || 0;
-    if(distant && mDistant > mLocal){
+    if(distant && mDistant > mLocal && !pushEnAttente){
       appliquerDonnees(distant);            // le cloud est plus récent → on le prend
     } else if(mLocal > mDistant){
       await gistEcrire();                   // le local est plus récent → on pousse
