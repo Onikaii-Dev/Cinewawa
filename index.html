@@ -194,6 +194,9 @@
   .cav-chip.auj{background:var(--gold);color:#141414;box-shadow:0 0 12px rgba(246,183,60,.35)}
   .cav-chip.demain{background:transparent;color:var(--gold);border:1px solid var(--gold)}
   .cav-chip.plus-tard{background:#101014;color:var(--muted);border:1px solid var(--border)}
+  .cav-chip.retard{background:rgba(229,72,77,.16);color:#ff8f92;border:1px solid rgba(229,72,77,.55)}
+  .cav-report{background:#101014;border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:6px 11px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0}
+  .cav-report:hover{border-color:var(--border-h);color:var(--txt)}
   .cav-plus{background:#101014;border:1px solid var(--border);color:var(--gold);border-radius:8px;padding:6px 11px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:700;flex-shrink:0}
   .cav-plus:hover{border-color:var(--gold)}
 
@@ -225,6 +228,7 @@
   .f-evol{font-size:13px;font-weight:800;flex-shrink:0;cursor:default}
   .f-evol.up{color:#3fb950;text-shadow:0 0 8px rgba(63,185,80,.4)}
   .f-evol.down{color:#e5484d;text-shadow:0 0 8px rgba(229,72,77,.4)}
+  .feed-lock{background:rgba(23,23,29,.96);border:1px dashed #3a3a44;border-radius:12px;padding:26px 20px;text-align:center;color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:4px}
 </style>
 </head>
 <body>
@@ -500,7 +504,7 @@
 </div>
 
 <script>
-const VERSION = 'v35';
+const VERSION = 'v47';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -570,7 +574,10 @@ function parseNote(brut){
   return Math.min(10, Math.max(0, Math.round(n*10)/10));
 }
 const showNote = n => String(n).replace('.', ',');
-const aujourdhui = () => new Date().toISOString().slice(0,10);
+function isoLocal(d){ // 'YYYY-MM-DD' en heure LOCALE (évite le décalage UTC)
+  return d.getFullYear() + '-' + String(d.getMonth()+1).padStart(2,'0') + '-' + String(d.getDate()).padStart(2,'0');
+}
+const aujourdhui = () => isoLocal(new Date());
 const rnd = seed => { const x = Math.sin(seed*9301+49297)*233280; return x - Math.floor(x); };
 const echap = s => String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 function couleurNote(n){ return n>=8 ? '#3fb950' : n>=6 ? '#F6B73C' : n>=4 ? '#e8833a' : '#e5484d'; }
@@ -653,8 +660,11 @@ function rendreAccueil(){
   $('grilleCat').querySelectorAll('.cat').forEach(b => {
     b.addEventListener('click', () => allerCategorie(b.dataset.cat));
   });
-  rendreProchainsEpisodes();
-  rendreFeed();
+  rendreSectionsAccueil();
+}
+function rendreSectionsAccueil(){
+  rendreFeed();                  // feed d'abord (crée #feedSection)
+  rendreProchainsEpisodes();     // puis prochaines sorties, insérées juste au-dessus
 }
 
 // ---- feed d'activité de la communauté ----
@@ -670,8 +680,21 @@ function ilYA(t){
 function rendreFeed(){
   const ancien = document.getElementById('feedSection');
   if(ancien) ancien.remove();
+  if(visu) return;
+  // le feed communautaire n'est visible que si l'on est synchronisé au cloud
+  if(!cloudActif()){
+    const bloc = document.createElement('div');
+    bloc.className = 'cav-section'; bloc.id = 'feedSection';
+    bloc.innerHTML = '<div class="cav-titre">📰 Activité de la communauté</div>'
+      + '<div class="feed-lock">🔒 Connecte-toi au cloud pour voir l\'activité de la communauté'
+      + '<button class="btn-mini principal" id="feedLockBtn" style="margin-top:12px">☁️ Configurer le cloud</button></div>';
+    $('pageAccueil').insertBefore(bloc, $('zoneUtilisateurs'));
+    const b = document.getElementById('feedLockBtn');
+    if(b) b.addEventListener('click', ouvrirCloud);
+    return;
+  }
   const feed = feedFusion();
-  if(visu || !feed.length) return;
+  if(!feed.length) return;
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'feedSection';
@@ -722,42 +745,66 @@ function rendreProchainsEpisodes(){
   const ancien = document.getElementById('cavSection');
   if(ancien) ancien.remove();
   if(!items.length) return;
-  items.sort((a,b) => a.sortie - b.sortie);
+  // f.date = jour de sortie du dernier épisode marqué. Épisodes en attente = sorties écoulées depuis (f.date+pas).
+  items.forEach(it => {
+    const joursDepuis = Math.floor((auj - new Date(it.f.date + 'T00:00:00')) / 864e5);
+    it.enAttente = Math.max(0, Math.floor(joursDepuis / it.pas)); // nb d'épisodes sortis et non marqués
+    it.sortie = prochaineSortie(it.f.date, it.pas);
+  });
+  items.sort((a,b) => {
+    const ar = a.enAttente >= 1, br = b.enAttente >= 1;
+    if(ar && br) return b.enAttente - a.enAttente;  // le plus d'épisodes en attente → en haut
+    if(ar) return -1;
+    if(br) return 1;
+    return a.sortie - b.sortie;
+  });
 
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'cavSection';
   section.innerHTML = '<div class="cav-titre">⏳ Prochaines sorties</div>'
-    + items.map(({c, f, sortie}) => {
+    + items.map(({c, f, pas, sortie, enAttente}) => {
       const jours = Math.round((sortie - auj) / 864e5);
-      let chip, classe;
-      if(jours <= 0){ chip = "Aujourd'hui !"; classe = 'auj'; }
-      else if(jours === 1){ chip = 'Demain'; classe = 'demain'; }
-      else { chip = 'Dans ' + jours + ' j'; classe = 'plus-tard'; }
       const unite = c === 'manga' ? 'chap.' : 'ép.';
+      const uniteLong = c === 'manga' ? 'chapitre' : 'épisode';
+      const verbe = c === 'manga' ? 'À lire' : 'À voir';
       const actuel = parseInt(f.p2) || 0;
-      const sous = (f.p1 ? (c==='manga' ? 'T'+f.p1+' · ' : 'S'+f.p1+' · ') : '')
-        + (actuel ? 'dernier : '+unite+' '+actuel+' → prochain : '+unite+' '+(actuel+1) : (c==='manga'?'chapitre suivant':'épisode suivant'));
+      const prochainNum = actuel + 1;
+      const saisonTxt = f.p1 ? (c==='manga' ? 'Tome '+f.p1+' · ' : 'Saison '+f.p1+' · ') : '';
+      const sous = saisonTxt + verbe + ' : ' + uniteLong + ' ' + prochainNum;
+
+      let chip, classe, actions;
+      const btnPlus = (visu ? '' : '<button class="cav-plus" data-cat="'+c+'" data-id="'+f.id+'" title="Marquer comme vu/lu">+1 '+unite+'</button>');
+      if(enAttente >= 2){
+        // plusieurs épisodes sortis non marqués → en retard, sans compter celui du jour
+        chip = 'En retard · ' + (enAttente - 1) + ' ' + unite; classe = 'retard';
+        actions = (visu ? '' : btnPlus + '<button class="cav-report" data-cat="'+c+'" data-id="'+f.id+'" title="Je saute une sortie, avance le compteur">⏱ Reporter</button>');
+      } else if(enAttente === 1){
+        // exactement l'épisode du jour (ou du dernier cycle) est dispo
+        chip = "Dispo !"; classe = 'auj'; actions = btnPlus;
+      } else {
+        // rien de sorti encore
+        chip = (jours === 1) ? 'Demain' : 'Dans ' + jours + ' j';
+        classe = (jours === 1) ? 'demain' : 'plus-tard';
+        actions = '';
+      }
       return '<div class="cav-row" data-cat="'+c+'" data-id="'+f.id+'">'
         + '<span class="cav-ico">'+CATS[c].ico+'</span>'
         + '<span class="cav-info"><div class="cav-nom">'+echap(f.titre)+'</div><div class="cav-sub">'+sous+'</div></span>'
         + '<span class="cav-chip '+classe+'">'+chip+'</span>'
-        + (visu ? '' : '<button class="cav-plus" data-cat="'+c+'" data-id="'+f.id+'" title="Marquer comme vu/lu">+1 '+unite+'</button>')
+        + actions
         + '</div>';
     }).join('');
-  $('pageAccueil').insertBefore(section, $('zoneUtilisateurs'));
+  $('pageAccueil').insertBefore(section, $('feedSection') || $('zoneUtilisateurs'));
 
   section.querySelectorAll('.cav-plus').forEach(b => {
-    b.addEventListener('click', e => {
-      e.stopPropagation();
-      plusUnEpisode(b.dataset.cat, Number(b.dataset.id));
-    });
+    b.addEventListener('click', e => { e.stopPropagation(); plusUnEpisode(b.dataset.cat, Number(b.dataset.id)); });
+  });
+  section.querySelectorAll('.cav-report').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); reporterEpisode(b.dataset.cat, Number(b.dataset.id)); });
   });
   section.querySelectorAll('.cav-row').forEach(r => {
-    r.addEventListener('click', () => {
-      catCourante = r.dataset.cat;          // contexte pour la modale, sans quitter l'accueil
-      ouvrirModale(Number(r.dataset.id));
-    });
+    r.addEventListener('click', () => { catCourante = r.dataset.cat; ouvrirModale(Number(r.dataset.id)); });
   });
 }
 // ================= notes du public (MAL — anime & manga) =================
@@ -840,11 +887,14 @@ function feedFusion(){
   const { feed } = mesNotes();
   return [...(feedAutres || []), ...feed].sort((a,b) => b.t - a.t).slice(0, 10);
 }
-async function chargerNotesCommu(){
+let chargementCommu = false;
+async function chargerNotesCommu(force){
+  if(chargementCommu) return;
   try{
     const cache = JSON.parse(localStorage.getItem('cinewawa-commu') || 'null');
-    if(cache && Date.now() - cache.ts < 60e3){ notesAutres = cache.data; feedAutres = cache.feed || []; rafraichir(); return; }
+    if(!force && cache && Date.now() - cache.ts < 60e3){ notesAutres = cache.data; feedAutres = cache.feed || []; rafraichir(); return; }
   }catch(e){}
+  chargementCommu = true;
   try{
     const r = await fetch('utilisateurs.json', { cache: 'no-store' });
     if(!r.ok) return;
@@ -877,9 +927,10 @@ async function chargerNotesCommu(){
     feed.sort((a,b) => b.t - a.t);
     notesAutres = agg;
     feedAutres = feed.slice(0, 12);
-    localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres }));
+    try{ localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres })); }catch(e){}
     rafraichir();
   }catch(e){}
+  finally{ chargementCommu = false; }
 }
 
 // ---- récupération en masse pour toute la section (anime / manga) ----
@@ -1082,13 +1133,29 @@ function cumulJour(prog, n){
 function plusUnEpisode(c, id){
   if(visu) return;
   const f = etat[c].find(x => x.id === id);
-  if(!f) return;
+  if(!f || !f.date) return;
+  const pas = parseInt(f.freq === undefined ? '7' : f.freq);
   f.p2 = String((parseInt(f.p2) || 0) + 1);
-  f.date = aujourdhui();                    // le décompte repart d'aujourd'hui
+  // la date est le JOUR DE SORTIE : on avance toujours d'un cycle exact → le jour de la semaine reste identique
+  const ref = new Date(f.date + 'T00:00:00');
+  ref.setDate(ref.getDate() + pas);
+  f.date = isoLocal(ref);
   f.prog = cumulJour(f.prog, 1);
   sauver();
-  rendreProchainsEpisodes();
-  rendreFeed();
+  rendreSectionsAccueil();
+}
+
+// reporter : je saute une sortie manquée → la date (= jour de sortie) avance d'un cycle exact
+function reporterEpisode(c, id){
+  if(visu) return;
+  const f = etat[c].find(x => x.id === id);
+  if(!f || !f.date) return;
+  const pas = parseInt(f.freq === undefined ? '7' : f.freq);
+  const ref = new Date(f.date + 'T00:00:00');
+  ref.setDate(ref.getDate() + pas);
+  f.date = isoLocal(ref);
+  sauver();
+  rendreSectionsAccueil();
 }
 
 // ================= étoiles =================
