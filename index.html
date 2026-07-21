@@ -553,7 +553,7 @@
 </div>
 
 <script>
-const VERSION = 'v62';
+const VERSION = 'v63';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1074,9 +1074,21 @@ function notesCommuFusion(){
   [autresRemappes(), agg].forEach(src => {
     Object.entries(src).forEach(([k, v]) => {
       total[k] = total[k] || { s: 0, n: 0, d: [] };
-      total[k].s += v.s; total[k].n += v.n;
       (v.d || []).forEach(x => total[k].d.push(x));
     });
+  });
+  // un même utilisateur qui a noté plusieurs saisons/tomes d'une œuvre = UNE seule note (sa moyenne)
+  Object.values(total).forEach(t => {
+    const parUtil = new Map();
+    (t.d || []).forEach(x => {
+      const cle = String(x.p || '').trim().toLowerCase();
+      const g = parUtil.get(cle) || { p: x.p, s: 0, n: 0 };
+      g.s += x.note; g.n++;
+      parUtil.set(cle, g);
+    });
+    t.d = [...parUtil.values()].map(g => ({ p: g.p, note: Math.round(g.s / g.n * 10) / 10 }));
+    t.s = t.d.reduce((a, x) => a + x.note, 0);
+    t.n = t.d.length;
   });
   return total;
 }
