@@ -72,6 +72,7 @@
   .badge{color:#101014;font-weight:800;font-size:13px;border-radius:7px;padding:3px 9px}
   .badge.statut{color:#fff;font-weight:700}
   .badge.badge-pub{background:#22222b;color:#c9c9d4;border:1px solid #34343f;font-weight:700}
+  .badge.badge-commu-hot{background:rgba(229,72,77,.22);color:#ff9296;border:1px solid #e5484d;font-weight:800}
   .date,.progression{color:var(--muted);font-size:13px}
   .avis{margin-top:8px;color:#b8b8c2;font-size:13px;font-style:italic}
 
@@ -240,6 +241,20 @@
   .recap-legende{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:14px}
   .recap-leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
   .recap-leg-pt{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+  /* ---- Top 5 par catégorie (bas de la carte récap) ---- */
+  .top5-cat{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+  .top5-grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
+  .top5-tuile{width:72px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .top5-poster{width:72px;height:108px;border-radius:8px;overflow:hidden;background:linear-gradient(160deg,#1c1c24,#101014);border:2px solid var(--border);position:relative}
+  .top5-poster img{width:100%;height:100%;object-fit:cover;display:block}
+  .top5-vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;color:var(--muted);padding:4px;overflow:hidden}
+  .top5-tuile.rang-1 .top5-poster{border-color:#F6B73C;box-shadow:0 0 8px rgba(246,183,60,.35)}
+  .top5-tuile.rang-2 .top5-poster{border-color:#c8c8d2}
+  .top5-tuile.rang-3 .top5-poster{border-color:#cd7f32}
+  .top5-note{font-size:12px;font-weight:800;color:#d5d5dc}
+  .top5-tuile.rang-1 .top5-note{color:#F6B73C}
+  .top5-tuile.rang-2 .top5-note{color:#c8c8d2}
+  .top5-tuile.rang-3 .top5-note{color:#cd7f32}
 
   /* ---- feed d'activité ---- */
   .feed-row{display:flex;align-items:center;gap:10px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:7px;font-size:13.5px;color:#d5d5dc}
@@ -415,7 +430,7 @@
     </div>
 
     <div class="champ" id="blocNotePub">
-      <label>Note du public /10 (modifiable à la main)</label>
+      <label>Note du public /10 (MAL ou IMDb, modifiable à la main)</label>
       <div style="display:flex;gap:8px">
         <input id="fNotePub" placeholder="8,6" inputmode="decimal" style="flex:1">
         <button class="btn-mini" id="btnNotePub" style="white-space:nowrap">📊 Auto (MAL)</button>
@@ -531,7 +546,7 @@
 </div>
 
 <script>
-const VERSION = 'v54';
+const VERSION = 'v56';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -663,16 +678,36 @@ function allerCategorie(c){
   $('filtreStatut').value = '';
   $('filtreStatut').classList.toggle('cache', c === 'films');
   $('btnAjouter').style.display = visu ? 'none' : '';
-  $('btnNotesTout').style.display = (!visu && (c === 'anime' || c === 'manga')) ? '' : 'none';
+  $('btnNotesTout').style.display = visu ? 'none' : '';
+  $('btnNotesTout').textContent = (c === 'anime' || c === 'manga') ? '📊 Notes MAL partout' : '📊 Notes IMDb partout';
   $('btnAffichesTout').style.display = visu ? 'none' : '';
   document.title = "Ciné'Wawa — " + conf.nom;
   rendreListe();
 }
 
+// titre "de base" : retire les suffixes de saison pour regrouper (séries & anime uniquement)
+// ex : "Dr Stone Saison 2", "Dr Stone S3", "Dr Stone Final Season" → "dr stone"
+function titreBase(t){
+  let s = String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g, '');
+  s = s.replace(/\s*\(\d{4}\)\s*/g, ' ');                       // années entre parenthèses
+  s = s.replace(/\b(the\s+)?final\s+season\b/g, ' ');           // Final Season
+  s = s.replace(/\b(saison|season|part|partie)\s*\d+\b/g, ' '); // Saison 2 / Season 2 / Part 2 / Partie 2
+  s = s.replace(/\b\d+\s*(e|eme|ere|re|nde)?\s*(saison|season|partie)\b/g, ' '); // 2ème saison
+  s = s.replace(/\bs\d+\b/g, ' ');                              // S2
+  s = s.replace(/[^a-z0-9]+/g, ' ').trim();                     // ponctuation restante (—, :, etc.)
+  return s || String(t).toLowerCase().trim(); // garde-fou si tout a été retiré
+}
+// nombre d'œuvres affiché : regroupé pour séries & anime, brut pour films & manga
+function nbOeuvres(c){
+  const items = dact()[c];
+  if(c !== 'series' && c !== 'anime') return items.length;
+  return new Set(items.map(f => titreBase(f.titre))).size;
+}
+
 function rendreAccueil(){
   document.title = "Ciné'Wawa";
   $('grilleCat').innerHTML = Object.entries(CATS).map(([c,conf]) => {
-    const n = dact()[c].length;
+    const n = nbOeuvres(c);
     const enCours = dact()[c].filter(f => f.statut === 'encours').length;
     const sousTexte = c === 'films'
       ? n + ' film' + (n>1?'s':'') + ' vu' + (n>1?'s':'')
@@ -872,8 +907,28 @@ function rendreProchainsEpisodes(){
     r.addEventListener('click', () => { catCourante = r.dataset.cat; ouvrirModale(Number(r.dataset.id)); });
   });
 }
-// ================= notes du public (MAL — anime & manga) =================
+// ================= notes du public (MAL pour anime/manga, IMDb* pour films/séries) =================
+// *techniquement la note vient de TMDB (vote_average), affichée sous le nom IMDb (pas d'API IMDb gratuite)
 let notePubTemp = null; // {note, src, nom} en cours dans la modale
+
+// note publique films/séries via TMDB — préfère un résultat avec ≥10 votes (évite les scores bidons)
+async function noteTMDB(titre, type){
+  const variantes = [titre.replace(/\s*\(\d{4}\)\s*$/, '')];
+  const sansArticle = variantes[0].replace(/^(le|la|les|l')\s*/i, '').replace(/^(the|un|une|a|an)\s+/i, '');
+  if(sansArticle && sansArticle !== variantes[0]) variantes.push(sansArticle);
+  for(const v of variantes){
+    const r = await fetch('https://api.themoviedb.org/3/search/' + type + '?api_key=' + TMDB_KEY
+      + '&query=' + encodeURIComponent(v) + '&language=fr-FR&include_adult=false');
+    if(!r.ok) continue;
+    const res = ((await r.json()).results || []).filter(x => x.vote_average > 0);
+    const x = res.find(x => (x.vote_count || 0) >= 10) || res[0];
+    if(x) return {
+      note: Math.round(x.vote_average * 10) / 10, src: 'IMDb',
+      nom: (x.title || x.name) + ((x.release_date || x.first_air_date) ? ' (' + (x.release_date || x.first_air_date).slice(0,4) + ')' : ''),
+    };
+  }
+  return null;
+}
 
 async function recupererNotePub(){
   const titre = $('fTitre').value.trim();
@@ -882,6 +937,10 @@ async function recupererNotePub(){
   info.textContent = 'Recherche…';
   try{
     let res = null;
+    if(catCourante === 'films' || catCourante === 'series'){
+      res = await noteTMDB(titre, catCourante === 'films' ? 'movie' : 'tv');
+      if(!res){ info.textContent = 'Pas de note trouvée — vérifie l\'orthographe du titre.'; return; }
+    } else {
     // score MyAnimeList via Jikan, secours AniList (anime & manga uniquement)
     const type = catCourante === 'anime' ? 'anime' : 'manga';
     try{
@@ -904,6 +963,7 @@ async function recupererNotePub(){
       if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList', nom: m.title.romaji };
     }
     if(!res){ info.textContent = 'Pas de note trouvée — essaie le titre original (anglais/romaji).'; return; }
+    }
     notePubTemp = res;
     $('fNotePub').value = showNote(res.note);
     info.innerHTML = '✓ <b style="color:#c9c9d4">' + res.src + ' ' + showNote(res.note) + '/10</b> — ' + echap(res.nom) + ' <span style="color:#6f6f7c">(enregistrée à la sauvegarde)</span>';
@@ -998,16 +1058,19 @@ async function chargerNotesCommu(force){
   finally{ chargementCommu = false; }
 }
 
-// ---- récupération en masse pour toute la section (anime / manga) ----
+// ---- récupération en masse des notes publiques pour toute la section ----
 let notesEnCours = false;
 async function notesToutes(){
   if(notesEnCours){ notesEnCours = false; return; } // re-clic = stop
   const c = catCourante;
-  if(c !== 'anime' && c !== 'manga') return;
+  const estAM = (c === 'anime' || c === 'manga'); // sinon films/séries → TMDB (affiché IMDb)
+  const labelBtn = estAM ? '📊 Notes MAL partout' : '📊 Notes IMDb partout';
   const manquants = etat[c].filter(f => !f.notePub);
   const btn = $('btnNotesTout');
   if(!manquants.length){ alert('Tous les titres de cette section ont déjà leur note publique ✓'); return; }
-  if(!confirm(manquants.length + ' titre(s) sans note publique.\nLa récupération prend ~1 seconde par titre (limites des services gratuits).\nTu peux continuer à naviguer, ou re-cliquer le bouton pour arrêter.\n\nLancer ?')) return;
+  if(!confirm(manquants.length + ' titre(s) sans note publique.\n'
+    + (estAM ? 'La récupération prend ~1 seconde par titre (limites des services gratuits).' : 'La récupération est rapide (~2 titres par seconde).')
+    + '\nTu peux continuer à naviguer, ou re-cliquer le bouton pour arrêter.\n\nLancer ?')) return;
   notesEnCours = true;
   let ok = 0;
   for(let i = 0; i < manquants.length; i++){
@@ -1016,6 +1079,9 @@ async function notesToutes(){
     btn.textContent = '⏳ ' + (i+1) + '/' + manquants.length + ' — stop';
     try{
       let res = null;
+      if(!estAM){
+        res = await noteTMDB(f.titre, c === 'films' ? 'movie' : 'tv');
+      } else {
       try{
         const r = await fetch('https://api.jikan.moe/v4/' + c + '?q=' + encodeURIComponent(f.titre) + '&limit=1');
         if(r.ok){
@@ -1035,16 +1101,17 @@ async function notesToutes(){
         const m = j.data && j.data.Media;
         if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList' };
       }
+      }
       if(res){ f.notePub = res.note; f.notePubSrc = res.src; ok++; }
     }catch(e){}
     if(i % 8 === 7){ sauver(); if(catCourante === c && !visu) rendreListe(); }
-    await new Promise(r => setTimeout(r, 1200)); // respecte les limites de Jikan/AniList
+    await new Promise(r => setTimeout(r, estAM ? 1200 : 400)); // respecte les limites de Jikan/AniList ; TMDB tolère bien plus
   }
   notesEnCours = false;
   sauver();
   if(catCourante === c && !visu) rendreListe();
-  btn.textContent = '📊 Notes MAL partout';
-  alert(ok + ' note(s) récupérée(s) ✓' + (manquants.length - ok ? '\n' + (manquants.length - ok) + ' titre(s) sans résultat — réessaie fiche par fiche avec le titre original.' : ''));
+  btn.textContent = labelBtn;
+  alert(ok + ' note(s) récupérée(s) ✓' + (manquants.length - ok ? '\n' + (manquants.length - ok) + ' titre(s) sans résultat — réessaie fiche par fiche' + (estAM ? ' avec le titre original.' : '.') : ''));
 }
 
 // ================= recherche automatique d'affiche =================
@@ -1317,8 +1384,9 @@ function rendreListe(){
     const k = cleTitre(c, f.titre);
     const cm = notesFusionnees && notesFusionnees[k];
     if(cm && cm.n > 0){
+      const chaud = cm.n >= 2; // rouge dès que quelqu'un d'autre que moi a noté → repérable au scroll
       cellules.push('<span class="note-cell" title="Note moyenne des utilisateurs du site ('+cm.n+' note'+(cm.n>1?'s':'')+')"><span class="note-lab">Communauté Wawa</span>'
-        + '<span class="badge badge-pub">👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</span></span>');
+        + '<span class="badge '+(chaud ? 'badge-commu-hot' : 'badge-pub')+'">👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</span></span>');
     }
     const barreNotes = '<div class="notes-bar">' + cellules.join('<span class="note-sep"></span>') + '</div>';
     const st = (c !== 'films' && f.statut && STATUTS[f.statut])
@@ -1381,8 +1449,8 @@ function ouvrirModale(id){
   notePubTemp = (f && f.notePub) ? { note: f.notePub, src: f.notePubSrc || 'Public', nom: f.titre } : null;
   $('fNotePub').value = (f && f.notePub) ? showNote(f.notePub) : '';
   $('infoNotePub').innerHTML = notePubTemp ? 'Source actuelle : ' + notePubTemp.src : '';
-  const notesDispo = (c === 'anime' || c === 'manga');
-  $('btnNotePub').style.display = (ro || !notesDispo) ? 'none' : '';
+  $('btnNotePub').textContent = (c === 'anime' || c === 'manga') ? '📊 Auto (MAL)' : '📊 Auto (IMDb)';
+  $('btnNotePub').style.display = ro ? 'none' : '';
   $('erreur').style.display = 'none';
   majApercu();
   $('overlay').classList.add('on');
@@ -1663,6 +1731,24 @@ function afficherRecap(login, d){
     '<span class="recap-leg"><span class="recap-leg-pt" style="background:'+CATS[c].couleur+'"></span>'+CATS[c].nom+'</span>'
   ).join('');
 
+  // Top 5 par catégorie : classé sur la note perso (décroissant), titres notés uniquement
+  const top5HTML = ordreCat.map(c => {
+    const tops = d[c].filter(f => f.note !== null && f.note !== undefined)
+      .slice().sort((a,b) => b.note - a.note).slice(0, 5);
+    if(!tops.length) return ''; // 0 titre noté → pas de bloc pour cette catégorie
+    const tuiles = tops.map((f, i) => {
+      const img = f.affiche
+        ? '<img src="'+echap(f.affiche)+'" loading="lazy" alt="" onerror="this.remove()">'
+        : '';
+      return '<div class="top5-tuile rang-'+(i+1)+'" title="'+echap(f.titre)+' — '+showNote(f.note)+'/10">'
+        + '<div class="top5-poster"><div class="top5-vide">'+echap(f.titre)+'</div>'+img+'</div>'
+        + '<div class="top5-note">'+showNote(f.note)+'</div>'
+        + '</div>';
+    }).join('');
+    return '<div class="top5-cat" style="color:'+CATS[c].couleur+'">'+CATS[c].ico+' '+CATS[c].nom+'</div>'
+      + '<div class="top5-grid">'+tuiles+'</div>';
+  }).join('');
+
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'recapSection';
@@ -1687,6 +1773,7 @@ function afficherRecap(login, d){
     +   (moyenne != null ? '<div class="recap-stat"><b>'+showNote(Math.round(moyenne*10)/10)+'</b><span>moy.</span></div>' : '')
     + '</div>'
     + (barres ? '<div class="recap-titre" style="margin-top:16px">Activité par mois</div><div class="recap-graph">'+barres+'</div><div class="recap-legende">'+legende+'</div>' : '')
+    + (top5HTML ? '<div class="recap-titre" style="margin-top:22px;text-align:center">🏆 Top 5</div>' + top5HTML : '')
     + '</div>';
   // en bas de l'accueil, après tout le reste (feed compris)
   $('pageAccueil').appendChild(section);
