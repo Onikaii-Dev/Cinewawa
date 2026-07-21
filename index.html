@@ -530,7 +530,7 @@
         <li>Va sur <b>github.com/settings/tokens</b> → « Generate new token <b>(classic)</b> ».</li>
         <li>Donne un nom (ex : cinewawa), expiration « <b>No expiration</b> », et coche <b>UNIQUEMENT la case « gist »</b>.</li>
         <li>Clique « Generate token » et <b>copie le code ghp_…</b> (montré une seule fois : garde-le dans tes notes).</li>
-        <li>Colle-le ci-dessous, choisis un pseudo, puis « <b>Activer</b> » — ta sauvegarde cloud est créée.</li>
+        <li>Colle-le ci-dessous, puis « <b>Activer</b> » — ta sauvegarde cloud est créée. (Le pseudo se règle ensuite dans 🔒 Confidentialité.)</li>
         <li>Sur ton téléphone : ouvre ce même site → ☁️ → colle <b>le même token</b> → Activer. Tout se retrouve !</li>
       </ol>
     </details>
@@ -553,7 +553,7 @@
 </div>
 
 <script>
-const VERSION = 'v58';
+const VERSION = 'v60';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1005,10 +1005,65 @@ function mesNotes(){
   return { agg, feed };
 }
 // vue fusionnée utilisée par l'affichage
+// ---- correspondance « floue » de titres ----
+// tolère sous-titres et variantes : « Chainsaw Man – The Movie: Reze Arc » ≡ « Chainsaw Man : Reze »
+// règles de prudence : un seul mot significatif → égalité stricte uniquement (« Dune » ≠ « Dune 2 »),
+// et le titre court doit couvrir ≥ 60 % du long (« Spider-Man » ≠ « Spider-Man: No Way Home »)
+const MOTS_VIDES = new Set(['the','a','an','of','and','or','le','la','les','l','un','une','des','de','du','d','et','ou','movie','film','arc','edition','version','saga','vol','volume']);
+function jetonsCle(k){
+  const i = k.indexOf('|');
+  const mots = k.slice(i+1).split(' ').filter(Boolean);
+  let j = mots.filter(m => !MOTS_VIDES.has(m) && !/^(19|20)\d\d$/.test(m)); // ignore mots vides et années
+  if(!j.length) j = mots; // garde-fou : titre entièrement fait de mots vides
+  return { c: k.slice(0, i), j };
+}
+function clesCorrespondent(a, b){
+  if(a.c !== b.c) return false;
+  const [p, g] = a.j.length <= b.j.length ? [a.j, b.j] : [b.j, a.j]; // petit, grand
+  if(p.length !== g.length){
+    if(p.length < 2) return false;
+    if(p.length / g.length < 0.6) return false;
+  } else if(p.length === 1) return p[0] === g[0];
+  const sg = new Set(g), sp = new Set(p);
+  if(!p.every(m => sg.has(m))) return false; // tous les mots du court doivent être dans le long
+  const extras = g.filter(m => !sp.has(m));
+  if(extras.length && extras.every(m => /^\d+$/.test(m))) return false; // seul écart = un numéro → suite/saison, autre œuvre
+  return true;
+}
+// toutes mes clés de titres (notés ou non) → cibles du rapprochement
+function mesClesToutes(){
+  const out = [];
+  ['films','series','anime','manga'].forEach(c => etat[c].forEach(f => out.push(cleTitre(c, f.titre))));
+  return out;
+}
+// remappe les clés des autres utilisateurs vers MES clés quand les titres correspondent
+// (coûteux avec de grosses listes → mis en cache tant que rien n'a changé)
+let fusionAutresCache = null;
+function autresRemappes(){
+  if(fusionAutresCache && fusionAutresCache.src === notesAutres && fusionAutresCache.modif === etat.modif)
+    return fusionAutresCache.remap;
+  const remap = {};
+  const mesCles = mesClesToutes();
+  const mesSet = new Set(mesCles);
+  const mes = mesCles.map(k => ({ k, j: jetonsCle(k) }));
+  Object.entries(notesAutres || {}).forEach(([k, v]) => {
+    let cible = k;
+    if(!mesSet.has(k)){
+      const jk = jetonsCle(k);
+      const m = mes.find(x => clesCorrespondent(x.j, jk));
+      if(m) cible = m.k;
+    }
+    remap[cible] = remap[cible] || { s: 0, n: 0 };
+    remap[cible].s += v.s; remap[cible].n += v.n;
+  });
+  fusionAutresCache = { src: notesAutres, modif: etat.modif, remap };
+  return remap;
+}
+
 function notesCommuFusion(){
   const { agg } = mesNotes();
   const total = {};
-  [notesAutres || {}, agg].forEach(src => {
+  [autresRemappes(), agg].forEach(src => {
     Object.entries(src).forEach(([k, v]) => {
       total[k] = total[k] || { s: 0, n: 0 };
       total[k].s += v.s; total[k].n += v.n;
@@ -1638,10 +1693,18 @@ async function chargerProfilPublic(login){
 function compatibilite(a, b){
   const diffs = [];
   ['films','series','anime','manga'].forEach(c => {
-    const mb = new Map(b[c].filter(f => f.note !== null && f.note !== undefined).map(f => [cleTitre(c, f.titre), f.note]));
+    const lb = b[c].filter(f => f.note !== null && f.note !== undefined)
+      .map(f => { const k = cleTitre(c, f.titre); return { k, j: jetonsCle(k), note: f.note }; });
+    const mb = new Map(lb.map(x => [x.k, x.note]));
     a[c].forEach(f => {
       if(f.note === null || f.note === undefined) return;
-      const n = mb.get(cleTitre(c, f.titre));
+      const k = cleTitre(c, f.titre);
+      let n = mb.get(k);
+      if(n === undefined){ // pas de clé identique → correspondance floue (sous-titres, variantes…)
+        const j = jetonsCle(k);
+        const x = lb.find(y => clesCorrespondent(j, y.j));
+        if(x) n = x.note;
+      }
       if(n !== undefined) diffs.push(Math.abs(f.note - n));
     });
   });
