@@ -242,16 +242,16 @@
   .recap-leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
   .recap-leg-pt{width:10px;height:10px;border-radius:3px;flex-shrink:0}
   /* ---- Top 5 par catégorie (bas de la carte récap) ---- */
-  .top5-cat{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:18px 0 10px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
-  .top5-grid{display:flex;gap:12px;flex-wrap:wrap;justify-content:center}
-  .top5-tuile{width:72px;display:flex;flex-direction:column;align-items:center;gap:4px}
-  .top5-poster{width:72px;height:108px;border-radius:8px;overflow:hidden;background:linear-gradient(160deg,#1c1c24,#101014);border:2px solid var(--border);position:relative}
-  .top5-poster img{width:100%;height:100%;object-fit:cover;display:block}
-  .top5-vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:10px;color:var(--muted);padding:4px;overflow:hidden}
-  .top5-tuile.rang-1 .top5-poster{border-color:#F6B73C;box-shadow:0 0 8px rgba(246,183,60,.35)}
-  .top5-tuile.rang-2 .top5-poster{border-color:#c8c8d2}
-  .top5-tuile.rang-3 .top5-poster{border-color:#cd7f32}
-  .top5-note{font-size:12px;font-weight:800;color:#d5d5dc}
+  .top5-cat{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:20px 0 12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+  .top5-grid{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
+  .top5-tuile{width:104px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  .top5-poster{width:104px;height:156px;border-radius:10px;overflow:hidden;background:#17171d;border:2px solid var(--border);position:relative;box-shadow:0 4px 14px rgba(0,0,0,.35)}
+  .top5-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
+  .top5-vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#b8b8c2;padding:8px;overflow:hidden;background:linear-gradient(160deg,#1f1f28,#101014)}
+  .top5-tuile.rang-1 .top5-poster{border-color:#F6B73C;box-shadow:0 0 14px rgba(246,183,60,.4)}
+  .top5-tuile.rang-2 .top5-poster{border-color:#c8c8d2;box-shadow:0 0 10px rgba(200,200,210,.22)}
+  .top5-tuile.rang-3 .top5-poster{border-color:#cd7f32;box-shadow:0 0 10px rgba(205,127,50,.28)}
+  .top5-note{font-size:13px;font-weight:800;color:#d5d5dc}
   .top5-tuile.rang-1 .top5-note{color:#F6B73C}
   .top5-tuile.rang-2 .top5-note{color:#c8c8d2}
   .top5-tuile.rang-3 .top5-note{color:#cd7f32}
@@ -546,7 +546,7 @@
 </div>
 
 <script>
-const VERSION = 'v56';
+const VERSION = 'v57';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -697,12 +697,13 @@ function titreBase(t){
   s = s.replace(/[^a-z0-9]+/g, ' ').trim();                     // ponctuation restante (—, :, etc.)
   return s || String(t).toLowerCase().trim(); // garde-fou si tout a été retiré
 }
-// nombre d'œuvres affiché : regroupé pour séries & anime, brut pour films & manga
-function nbOeuvres(c){
-  const items = dact()[c];
+// nombre d'œuvres d'une liste : regroupé pour séries & anime, brut pour films & manga
+function nbGroupe(items, c){
   if(c !== 'series' && c !== 'anime') return items.length;
   return new Set(items.map(f => titreBase(f.titre))).size;
 }
+// version pour les données actives (accueil)
+function nbOeuvres(c){ return nbGroupe(dact()[c], c); }
 
 function rendreAccueil(){
   document.title = "Ciné'Wawa";
@@ -1655,7 +1656,7 @@ async function allerUtilisateurs(){
       }
       const enCours = d.anime.filter(f=>f.statut==='encours').length + d.series.filter(f=>f.statut==='encours').length;
       row.querySelector('.u-stats').textContent =
-        d.films.length + ' films · ' + d.series.length + ' séries · ' + d.anime.length + ' anime · ' + d.manga.length + ' manga/manhwa' + (enCours ? ' · ' + enCours + ' en cours' : '');
+        d.films.length + ' films · ' + nbGroupe(d.series,'series') + ' séries · ' + nbGroupe(d.anime,'anime') + ' anime · ' + d.manga.length + ' manga/manhwa' + (enCours ? ' · ' + enCours + ' en cours' : '');
       if(!estMoi){
         const comp = compatibilite(etat, d);
         if(comp){
@@ -1767,8 +1768,8 @@ function afficherRecap(login, d){
     + '</div>'
     + '<div class="recap-stats">'
     +   '<div class="recap-stat"><b>'+d.films.length+'</b><span>films</span></div>'
-    +   '<div class="recap-stat"><b>'+d.series.length+'</b><span>séries</span></div>'
-    +   '<div class="recap-stat"><b>'+d.anime.length+'</b><span>anime</span></div>'
+    +   '<div class="recap-stat"><b>'+nbGroupe(d.series,'series')+'</b><span>séries</span></div>'
+    +   '<div class="recap-stat"><b>'+nbGroupe(d.anime,'anime')+'</b><span>anime</span></div>'
     +   '<div class="recap-stat"><b>'+d.manga.length+'</b><span>manga</span></div>'
     +   (moyenne != null ? '<div class="recap-stat"><b>'+showNote(Math.round(moyenne*10)/10)+'</b><span>moy.</span></div>' : '')
     + '</div>'
