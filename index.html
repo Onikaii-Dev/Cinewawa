@@ -553,7 +553,7 @@
 </div>
 
 <script>
-const VERSION = 'v60';
+const VERSION = 'v61';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -931,7 +931,7 @@ async function noteTMDB(titre, type){
     const res = ((await r.json()).results || []).filter(x => x.vote_average > 0);
     const x = res.find(x => (x.vote_count || 0) >= 10) || res[0];
     if(x) return {
-      note: Math.round(x.vote_average * 10) / 10, src: 'IMDb',
+      note: Math.round(x.vote_average * 10) / 10, src: 'IMDb', ref: 'tmdb:' + x.id,
       nom: (x.title || x.name) + ((x.release_date || x.first_air_date) ? ' (' + (x.release_date || x.first_air_date).slice(0,4) + ')' : ''),
     };
   }
@@ -956,19 +956,19 @@ async function recupererNotePub(){
       if(r.ok){
         const j = await r.json();
         const a = (j.data || [])[0];
-        if(a && a.score) res = { note: Math.round(a.score*10)/10, src: 'MAL', nom: a.title };
+        if(a && a.score) res = { note: Math.round(a.score*10)/10, src: 'MAL', nom: a.title, ref: a.mal_id ? 'mal:' + a.mal_id : undefined };
       }
     }catch(e){}
     if(!res){
       const j = await (await fetch('https://graphql.anilist.co', {
         method: 'POST', headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
-          query: 'query($s:String,$t:MediaType){Media(search:$s,type:$t){title{romaji}averageScore}}',
+          query: 'query($s:String,$t:MediaType){Media(search:$s,type:$t){id idMal title{romaji}averageScore}}',
           variables: { s: titre, t: type.toUpperCase() },
         }),
       })).json();
       const m = j.data && j.data.Media;
-      if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList', nom: m.title.romaji };
+      if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList', nom: m.title.romaji, ref: m.idMal ? 'mal:' + m.idMal : 'al:' + m.id };
     }
     if(!res){ info.textContent = 'Pas de note trouvée — essaie le titre original (anglais/romaji).'; return; }
     }
@@ -994,7 +994,7 @@ function mesNotes(){
   ['films','series','anime','manga'].forEach(c => etat[c].forEach(f => {
     if(f.note === null || f.note === undefined) return;
     const k = cleTitre(c, f.titre);
-    agg[k] = { s: f.note, n: 1 };
+    agg[k] = { s: f.note, n: 1, d: [{ p: moiNom, note: f.note }] };
     const t = f.majNote || 0;
     if(t) feed.push({ p: moiNom, login: '', titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec, mien: true, fid: f.id });
   }));
@@ -1046,15 +1046,23 @@ function autresRemappes(){
   const mesCles = mesClesToutes();
   const mesSet = new Set(mesCles);
   const mes = mesCles.map(k => ({ k, j: jetonsCle(k) }));
+  // mes références TMDB/MAL → ma clé (rapprochement fiable même si les titres sont écrits
+  // dans des langues différentes, ex. « L'Attaque des clones » ≡ « Attack of the Clones »)
+  const refMap = {};
+  ['films','series','anime','manga'].forEach(c => etat[c].forEach(f => { if(f.ref) refMap[c + '|' + f.ref] = cleTitre(c, f.titre); }));
   Object.entries(notesAutres || {}).forEach(([k, v]) => {
     let cible = k;
-    if(!mesSet.has(k)){
+    const cat = k.slice(0, k.indexOf('|'));
+    const parRef = (v.r || []).map(r => refMap[cat + '|' + r]).find(Boolean);
+    if(parRef) cible = parRef;
+    else if(!mesSet.has(k)){
       const jk = jetonsCle(k);
       const m = mes.find(x => clesCorrespondent(x.j, jk));
       if(m) cible = m.k;
     }
-    remap[cible] = remap[cible] || { s: 0, n: 0 };
+    remap[cible] = remap[cible] || { s: 0, n: 0, d: [] };
     remap[cible].s += v.s; remap[cible].n += v.n;
+    (v.d || []).forEach(x => remap[cible].d.push(x));
   });
   fusionAutresCache = { src: notesAutres, modif: etat.modif, remap };
   return remap;
@@ -1065,8 +1073,9 @@ function notesCommuFusion(){
   const total = {};
   [autresRemappes(), agg].forEach(src => {
     Object.entries(src).forEach(([k, v]) => {
-      total[k] = total[k] || { s: 0, n: 0 };
+      total[k] = total[k] || { s: 0, n: 0, d: [] };
       total[k].s += v.s; total[k].n += v.n;
+      (v.d || []).forEach(x => total[k].d.push(x));
     });
   });
   return total;
@@ -1152,8 +1161,10 @@ async function chargerNotesCommu(force){
         ['films','series','anime','manga'].forEach(c => d[c].forEach(f => {
           if(f.note === null || f.note === undefined) return;
           const k = cleTitre(c, f.titre);
-          agg[k] = agg[k] || { s: 0, n: 0 };
+          agg[k] = agg[k] || { s: 0, n: 0, d: [], r: [] };
           agg[k].s += f.note; agg[k].n++;
+          agg[k].d.push({ p: d.pseudo || login, note: f.note });
+          if(f.ref && !agg[k].r.includes(f.ref)) agg[k].r.push(f.ref);
           const t = f.majNote || (f.ajout > 1e12 ? f.ajout : 0);
           if(t) feed.push({ p: d.pseudo || login, login, titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec });
         }));
@@ -1178,10 +1189,12 @@ async function notesToutes(){
   const c = catCourante;
   const estAM = (c === 'anime' || c === 'manga'); // sinon films/séries → TMDB (affiché IMDb)
   const labelBtn = estAM ? '📊 Notes MAL partout' : '📊 Notes IMDb partout';
-  const manquants = etat[c].filter(f => !f.notePub);
+  // on complète aussi les titres qui ont déjà une note mais pas encore de référence TMDB/MAL
+  // (la référence sert à reconnaître un même titre écrit différemment entre utilisateurs)
+  const manquants = etat[c].filter(f => !f.notePub || !f.ref);
   const btn = $('btnNotesTout');
-  if(!manquants.length){ alert('Tous les titres de cette section ont déjà leur note publique ✓'); return; }
-  if(!confirm(manquants.length + ' titre(s) sans note publique.\n'
+  if(!manquants.length){ alert('Tous les titres de cette section sont déjà complets ✓'); return; }
+  if(!confirm(manquants.length + ' titre(s) à compléter (note publique et/ou référence pour la note communauté).\n'
     + (estAM ? 'La récupération prend ~1 seconde par titre (limites des services gratuits).' : 'La récupération est rapide (~2 titres par seconde).')
     + '\nTu peux continuer à naviguer, ou re-cliquer le bouton pour arrêter.\n\nLancer ?')) return;
   notesEnCours = true;
@@ -1200,22 +1213,22 @@ async function notesToutes(){
         if(r.ok){
           const j = await r.json();
           const a = (j.data || [])[0];
-          if(a && a.score) res = { note: Math.round(a.score*10)/10, src: 'MAL' };
+          if(a && a.score) res = { note: Math.round(a.score*10)/10, src: 'MAL', ref: a.mal_id ? 'mal:' + a.mal_id : undefined };
         }
       }catch(e){}
       if(!res){
         const j = await (await fetch('https://graphql.anilist.co', {
           method: 'POST', headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify({
-            query: 'query($s:String,$t:MediaType){Media(search:$s,type:$t){averageScore}}',
+            query: 'query($s:String,$t:MediaType){Media(search:$s,type:$t){id idMal averageScore}}',
             variables: { s: f.titre, t: c.toUpperCase() },
           }),
         })).json();
         const m = j.data && j.data.Media;
-        if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList' };
+        if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList', ref: m.idMal ? 'mal:' + m.idMal : 'al:' + m.id };
       }
       }
-      if(res){ f.notePub = res.note; f.notePubSrc = res.src; ok++; }
+      if(res){ f.notePub = res.note; f.notePubSrc = res.src; if(res.ref) f.ref = res.ref; ok++; }
     }catch(e){}
     if(i % 8 === 7){ sauver(); if(catCourante === c && !visu) rendreListe(); }
     await new Promise(r => setTimeout(r, estAM ? 1200 : 400)); // respecte les limites de Jikan/AniList ; TMDB tolère bien plus
@@ -1498,7 +1511,8 @@ function rendreListe(){
     const cm = notesFusionnees && notesFusionnees[k];
     if(cm && cm.n > 0){
       const chaud = cm.n >= 2; // rouge dès que quelqu'un d'autre que moi a noté → repérable au scroll
-      cellules.push('<span class="note-cell" title="Note moyenne des utilisateurs du site ('+cm.n+' note'+(cm.n>1?'s':'')+')"><span class="note-lab">Communauté Wawa</span>'
+      const detailCommu = (cm.d || []).map(x => x.p + ' : ' + showNote(x.note)).join('  ·  ');
+      cellules.push('<span class="note-cell" title="'+echap('Moyenne de '+cm.n+' note'+(cm.n>1?'s':'')+(detailCommu ? ' — ' + detailCommu : ''))+'"><span class="note-lab">Communauté Wawa</span>'
         + '<span class="badge '+(chaud ? 'badge-commu-hot' : 'badge-pub')+'">👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</span></span>');
     }
     const barreNotes = '<div class="notes-bar">' + cellules.join('<span class="note-sep"></span>') + '</div>';
@@ -1613,6 +1627,8 @@ function enregistrer(){
     if(precedent.evol) item.evol = precedent.evol;
     if(precedent.notePrec !== undefined) item.notePrec = precedent.notePrec;
   }
+  // référence TMDB/MAL (identifie l'œuvre quel que soit le libellé du titre) : on la conserve
+  if(precedent && precedent.ref) item.ref = precedent.ref;
   // note du public : le champ manuel fait foi
   const brutePub = $('fNotePub').value.trim();
   if(brutePub !== ''){
@@ -1622,6 +1638,7 @@ function enregistrer(){
     item.notePubSrc = (notePubTemp && notePubTemp.note === nPub) ? notePubTemp.src
       : (precedent && precedent.notePub === nPub) ? (precedent.notePubSrc || 'MAL')
       : ((c === 'anime' || c === 'manga') ? 'MAL' : 'IMDb');
+    if(notePubTemp && notePubTemp.note === nPub && notePubTemp.ref) item.ref = notePubTemp.ref;
   }
   if(c !== 'films'){
     item.statut = $('fStatut').value;
