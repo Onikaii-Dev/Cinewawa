@@ -553,7 +553,7 @@
 </div>
 
 <script>
-const VERSION = 'v61';
+const VERSION = 'v62';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1707,27 +1707,36 @@ async function chargerProfilPublic(login){
 }
 
 // ---- % de compatibilité entre deux listes ----
+// deux niveaux : les TITRES EN COMMUN (vus par les deux, même sans note),
+// et le % d'accord des notes quand au moins 2 titres sont notés des deux côtés.
+// la correspondance passe par la référence TMDB/MAL (fiable, FR/EN), puis la clé exacte, puis le flou.
 function compatibilite(a, b){
   const diffs = [];
+  let commun = 0;
   ['films','series','anime','manga'].forEach(c => {
-    const lb = b[c].filter(f => f.note !== null && f.note !== undefined)
-      .map(f => { const k = cleTitre(c, f.titre); return { k, j: jetonsCle(k), note: f.note }; });
-    const mb = new Map(lb.map(x => [x.k, x.note]));
+    const lb = b[c].map(f => { const k = cleTitre(c, f.titre); return { k, j: jetonsCle(k), note: f.note, ref: f.ref }; });
+    const mb = new Map(lb.map(x => [x.k, x]));
+    const rb = new Map(lb.filter(x => x.ref).map(x => [x.ref, x]));
     a[c].forEach(f => {
-      if(f.note === null || f.note === undefined) return;
       const k = cleTitre(c, f.titre);
-      let n = mb.get(k);
-      if(n === undefined){ // pas de clé identique → correspondance floue (sous-titres, variantes…)
+      let x = (f.ref && rb.get(f.ref)) || mb.get(k);
+      if(!x){ // pas de référence ni de clé identique → correspondance floue (sous-titres, variantes…)
         const j = jetonsCle(k);
-        const x = lb.find(y => clesCorrespondent(j, y.j));
-        if(x) n = x.note;
+        x = lb.find(y => clesCorrespondent(j, y.j));
       }
-      if(n !== undefined) diffs.push(Math.abs(f.note - n));
+      if(!x) return;
+      commun++;
+      if(f.note !== null && f.note !== undefined && x.note !== null && x.note !== undefined)
+        diffs.push(Math.abs(f.note - x.note));
     });
   });
-  if(diffs.length < 2) return null; // pas assez de titres en commun
-  const moy = diffs.reduce((x,y) => x+y, 0) / diffs.length;
-  return { pct: Math.max(0, Math.round(100 - moy * 10)), n: diffs.length };
+  if(!commun) return null; // vraiment rien en commun
+  const res = { commun, n: diffs.length };
+  if(diffs.length >= 2){
+    const moy = diffs.reduce((x,y) => x+y, 0) / diffs.length;
+    res.pct = Math.max(0, Math.round(100 - moy * 10));
+  }
+  return res;
 }
 
 let monLogin = null; // pseudo GitHub du visiteur (via son token), pour la visibilité "amis"
@@ -1794,7 +1803,9 @@ async function allerUtilisateurs(){
         if(comp){
           const ligne = document.createElement('div');
           ligne.className = 'u-compat';
-          ligne.textContent = '🤝 ' + comp.pct + ' % compatible (' + comp.n + ' titres notés en commun)';
+          ligne.textContent = comp.pct !== undefined
+            ? '🤝 ' + comp.pct + ' % compatible (' + comp.n + ' notés · ' + comp.commun + ' titre' + (comp.commun>1?'s':'') + ' en commun)'
+            : '🎬 ' + comp.commun + ' titre' + (comp.commun>1?'s':'') + ' en commun — pas encore assez de notes pour un %';
           row.querySelector('.u-info').appendChild(ligne);
         }
       }
