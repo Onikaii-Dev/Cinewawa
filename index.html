@@ -484,6 +484,12 @@
 <div id="overlayConf" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
   <div class="modale">
     <h2>🔒 Confidentialité &amp; profil</h2>
+    <div id="confVerrou" style="display:none;font-size:14px;color:var(--muted);line-height:1.6;background:#17171d;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
+      🔒 <b style="color:#e8e8ee">Pas accessible pour l'instant.</b><br>
+      Connecte-toi d'abord au cloud (bouton ☁️ Cloud) pour configurer ton pseudo et la visibilité de ta liste — sans cloud, ton profil n'apparaît pas dans l'annuaire.
+      <button class="btn-mini" id="btnConfVersCloud" style="display:block;margin-top:12px;width:100%">☁️ Ouvrir la fenêtre Cloud</button>
+    </div>
+    <div id="confChamps">
     <div class="champ">
       <label>Pseudo affiché (annuaire des utilisateurs)</label>
       <input id="cPseudo" placeholder="Ex : Wawa" maxlength="24" autocomplete="off">
@@ -500,6 +506,7 @@
       <label>Mes amis (pseudos GitHub, séparés par des virgules)</label>
       <input id="cAmis" placeholder="pote1, pote2, pote3" autocomplete="off">
       <div class="aide">Un ami doit avoir configuré son cloud pour que le site le reconnaisse quand il visite l'annuaire.</div>
+    </div>
     </div>
     <div id="cMessage2" style="font-size:13px;margin-bottom:12px;display:none"></div>
     <div class="actions">
@@ -546,7 +553,7 @@
 </div>
 
 <script>
-const VERSION = 'v57';
+const VERSION = 'v58';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1013,6 +1020,57 @@ function feedFusion(){
   const { feed } = mesNotes();
   return [...(feedAutres || []), ...feed].sort((a,b) => b.t - a.t).slice(0, 10);
 }
+// ---- annuaire automatique : gist public dont les commentaires servent d'inscriptions ----
+// chaque utilisateur synchronisé poste (une fois) un commentaire ; l'auteur du commentaire
+// est vérifié par GitHub → impossible de s'inscrire sous un faux nom.
+const ANNUAIRE_GIST = 'c5813c308faaa60aaa0b1d13ed47fbee';
+
+// liste complète des membres : utilisateurs.json (liste manuelle) + inscrits automatiques
+async function loginsAnnuaire(){
+  const vus = new Set(), logins = [];
+  const ajoute = l => { if(l && !vus.has(l.toLowerCase())){ vus.add(l.toLowerCase()); logins.push(l); } };
+  try{
+    const r = await fetch('utilisateurs.json', { cache: 'no-store' });
+    if(r.ok) ((await r.json()).utilisateurs || []).forEach(ajoute);
+  }catch(e){}
+  try{
+    let noms = null;
+    const cache = JSON.parse(localStorage.getItem('cinewawa-annuaire-gist') || 'null');
+    if(cache && Date.now() - cache.ts < 5*60e3) noms = cache.noms; // cache 5 min (limites API GitHub)
+    if(!noms){
+      const r = await fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments?per_page=100', { headers: enTetes(), cache: 'no-store' });
+      if(r.ok){
+        noms = (await r.json()).map(x => x.user && x.user.login).filter(Boolean);
+        try{ localStorage.setItem('cinewawa-annuaire-gist', JSON.stringify({ ts: Date.now(), noms })); }catch(e){}
+      } else if(cache) noms = cache.noms; // API indisponible → on ressort le vieux cache
+    }
+    (noms || []).forEach(ajoute);
+  }catch(e){}
+  return logins;
+}
+
+// inscription automatique à l'annuaire (silencieuse, une seule fois par compte)
+async function inscrireAnnuaire(){
+  if(!cloudActif()) return;
+  try{
+    const login = await obtenirMonLogin();
+    if(!login) return;
+    if(localStorage.getItem('cinewawa-annuaire-inscrit') === login) return;
+    // déjà inscrit (autre appareil) ? on vérifie avant de poster
+    const r = await fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments?per_page=100', { headers: enTetes(), cache: 'no-store' });
+    const deja = r.ok && (await r.json()).some(x => x.user && x.user.login && x.user.login.toLowerCase() === login.toLowerCase());
+    if(!deja){
+      const rc = await fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments', {
+        method: 'POST', headers: enTetes(),
+        body: JSON.stringify({ body: "📇 Inscription automatique à l'annuaire Ciné'Wawa" }),
+      });
+      if(!rc.ok) return; // on retentera à la prochaine visite
+      localStorage.removeItem('cinewawa-annuaire-gist'); // pour que l'annuaire se rafraîchisse
+    }
+    localStorage.setItem('cinewawa-annuaire-inscrit', login);
+  }catch(e){}
+}
+
 let chargementCommu = false;
 async function chargerNotesCommu(force){
   if(chargementCommu) return;
@@ -1022,9 +1080,8 @@ async function chargerNotesCommu(force){
   }catch(e){}
   chargementCommu = true;
   try{
-    const r = await fetch('utilisateurs.json', { cache: 'no-store' });
-    if(!r.ok) return;
-    const logins = (await r.json()).utilisateurs || [];
+    const logins = await loginsAnnuaire();
+    if(!logins.length){ chargementCommu = false; return; }
     const agg = {};
     const feed = [];
     const moi = (await obtenirMonLogin()).toLowerCase();
@@ -1615,15 +1672,10 @@ async function allerUtilisateurs(){
 
   let logins = [];
   try{
-    const r = await fetch('utilisateurs.json', { cache: 'no-store' });
-    if(!r.ok) throw new Error();
-    logins = (await r.json()).utilisateurs || [];
-  }catch(e){
-    zone.innerHTML = '<div class="vide-msg">Annuaire introuvable — il faut que le fichier <b>utilisateurs.json</b> soit présent à côté du site (et que le site soit ouvert en ligne).</div>';
-    return;
-  }
+    logins = await loginsAnnuaire();
+  }catch(e){}
   if(!logins.length){
-    zone.innerHTML = '<div class="vide-msg">L\'annuaire est vide pour l\'instant.</div>';
+    zone.innerHTML = '<div class="vide-msg">L\'annuaire est vide pour l\'instant — les utilisateurs qui activent le cloud s\'y inscrivent automatiquement.</div>';
     return;
   }
 
@@ -2013,10 +2065,13 @@ function ouvrirCloud(){
   $('overlayCloud').style.display = 'flex';
 }
 function ouvrirConf(){
+  const actif = cloudActif();
+  $('confVerrou').style.display = actif ? 'none' : 'block';
+  $('confChamps').style.display = actif ? '' : 'none';
   $('cPseudo').value = etat.pseudo || '';
   $('cVisibilite').value = etat.visibilite || 'public';
   $('cAmis').value = (etat.amis || []).join(', ');
-  $('blocAmis').style.display = (etat.visibilite === 'amis') ? '' : 'none';
+  $('blocAmis').style.display = (actif && etat.visibilite === 'amis') ? '' : 'none';
   msgConf('');
   $('overlayConf').style.display = 'flex';
 }
@@ -2077,6 +2132,8 @@ async function activerCloud(){
     $('cGist').value = cloud.gistId;
     $('btnCloudOff').style.display = 'block';
     majCloudEtat('ok');
+    inscrireAnnuaire();   // inscription automatique à l'annuaire des utilisateurs
+    chargerNotesCommu(true);
   }catch(e){
     cloud = { token: '', gistId: '' };
     msgCloud('Échec : ' + e.message + ' — vérifie le token (permission « gist » cochée ?).', true);
@@ -2201,7 +2258,9 @@ rendreAccueil();
 majEtatSauvegarde();
 if(cloudActif()){
   tirerCloud(true);            // au démarrage : on récupère la dernière version du cloud
+  inscrireAnnuaire();          // et on s'assure d'être inscrit à l'annuaire (une seule fois)
 }
+$('btnConfVersCloud').addEventListener('click', () => { $('overlayConf').style.display = 'none'; ouvrirCloud(); });
 chargerNotesCommu();           // notes 👥 des autres utilisateurs (cache 60 s ; les miennes sont en direct)
 setInterval(chargerNotesCommu, 120000);  // et rafraîchissement régulier en arrière-plan
 </script>
