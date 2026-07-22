@@ -553,7 +553,7 @@
 </div>
 
 <script>
-const VERSION = 'v63';
+const VERSION = 'v64';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1790,8 +1790,12 @@ async function allerUtilisateurs(){
     zone.appendChild(row);
     chargerProfilPublic(login).then(d => {
       if(!d){
-        row.classList.add('indispo');
-        row.querySelector('.u-stats').textContent = 'Liste privée ou introuvable';
+        // pas de gist public trouvé → sûrement une liste privée : on garde le profil normal (avatar + pseudo)
+        row.querySelector('.u-stats').remove();
+        const badge = document.createElement('button');
+        badge.className = 'btn-prive';
+        badge.textContent = '🔒 Privé';
+        row.appendChild(badge);
         return;
       }
       row.querySelector('.u-pseudo').textContent = d.pseudo || login;
