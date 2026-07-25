@@ -34,7 +34,7 @@
   body[data-fond="uni"] #collage{display:none}
   body[data-fond="uni"] #voile{background:radial-gradient(ellipse at 50% 0%, #15151f 0%, #0f0f17 45%, #0b0b11 100%)}
 
-  .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:28px 16px 80px}
+  .wrap{position:relative;z-index:1;max-width:1180px;margin:0 auto;padding:28px 16px 80px}
 
   /* ---- entête ---- */
   header{display:flex;align-items:center;gap:14px;margin-bottom:22px}
@@ -45,14 +45,44 @@
   .compteur{margin-left:auto;color:var(--muted);font-size:14px;white-space:nowrap}
 
   /* ---- accueil : cartes catégories ---- */
-  .grille-cat{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:26px}
-  @media (max-width:520px){.grille-cat{grid-template-columns:1fr}}
-  .cat{position:relative;overflow:hidden;background:var(--card);border:1px solid var(--border);border-radius:16px;padding:26px 22px;cursor:pointer;transition:transform .15s ease,border-color .15s ease;text-align:left;color:var(--txt);font-family:inherit}
-  .cat:hover{transform:translateY(-3px);border-color:var(--border-h)}
-  .cat .ico{font-size:34px;margin-bottom:10px}
-  .cat .nom{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.03em}
-  .cat .nb{color:var(--muted);font-size:13px;margin-top:4px}
-  .cat .barre{position:absolute;left:0;top:0;bottom:0;width:4px}
+  .grille-cat{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin-top:22px}
+  @media (max-width:520px){.grille-cat{grid-template-columns:1fr;gap:14px}}
+  .cat{position:relative;overflow:hidden;isolation:isolate;
+    background:linear-gradient(150deg,rgba(32,32,44,.94) 0%,rgba(19,19,27,.95) 52%,rgba(12,12,18,.96) 100%);
+    border:1px solid rgba(255,255,255,.07);border-radius:18px;padding:22px 22px 20px;cursor:pointer;
+    transition:transform .22s cubic-bezier(.2,.7,.3,1),border-color .22s ease,box-shadow .22s ease;
+    text-align:left;color:var(--txt);font-family:inherit;box-shadow:0 6px 22px rgba(0,0,0,.34)}
+  /* halo coloré diffus (couleur de la catégorie via --cc) */
+  .cat::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(105% 78% at 0% 0%,var(--cc,#fff) 0%,transparent 62%);
+    opacity:.14;transition:opacity .25s ease}
+  /* trame technique très discrète, fondue vers le bas */
+  .cat::after{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background-image:linear-gradient(rgba(255,255,255,.035) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.035) 1px,transparent 1px);
+    background-size:26px 26px;
+    -webkit-mask-image:linear-gradient(205deg,#000 0%,transparent 68%);
+    mask-image:linear-gradient(205deg,#000 0%,transparent 68%)}
+  .cat:hover{transform:translateY(-4px);border-color:rgba(255,255,255,.15);
+    box-shadow:0 14px 34px rgba(0,0,0,.46),0 0 0 1px var(--ccg,transparent)}
+  .cat:hover::before{opacity:.3}
+  .cat .barre{position:absolute;left:0;top:0;bottom:0;width:3px;
+    -webkit-mask-image:linear-gradient(180deg,transparent 0%,#000 16%,#000 84%,transparent 100%);
+    mask-image:linear-gradient(180deg,transparent 0%,#000 16%,#000 84%,transparent 100%)}
+  .cat .lueur{position:absolute;left:0;top:14%;bottom:14%;width:1px;background:var(--cc,#fff);
+    box-shadow:0 0 16px 3px var(--cc,#fff);opacity:.5;transition:opacity .25s ease}
+  .cat:hover .lueur{opacity:.95}
+  .cat .ico{display:flex;align-items:center;justify-content:center;width:50px;height:50px;font-size:26px;
+    border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(255,255,255,.09);
+    margin-bottom:14px;transition:transform .22s ease,border-color .22s ease}
+  .cat:hover .ico{transform:translateY(-2px) scale(1.04);border-color:var(--ccg,rgba(255,255,255,.09))}
+  .cat .nom{font-family:'Bebas Neue',sans-serif;font-size:31px;letter-spacing:.055em;line-height:1;padding-right:46px}
+  .cat .nb{color:var(--muted);font-size:13px;margin-top:7px;letter-spacing:.01em;padding-right:46px}
+  .cat .nb b{color:var(--cc,#fff);font-weight:800}
+  .cat .go{position:absolute;right:18px;bottom:18px;width:32px;height:32px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:15px;color:var(--cc,#fff);
+    border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.04);
+    opacity:.4;transition:opacity .22s ease,transform .22s ease}
+  .cat:hover .go{opacity:1;transform:translateX(3px)}
   .accueil-sous{color:var(--muted);text-align:center;font-size:14px;margin-top:6px}
 
   /* ---- barre d'outils ---- */
@@ -189,6 +219,27 @@
     font-weight:700;font-size:14px;transition:border-color .15s ease,box-shadow .15s ease;white-space:nowrap}
   .profil-btn:hover{border-color:var(--gold);box-shadow:0 0 17px rgba(246,183,60,.26)}
   .profil-pp{width:33px;height:33px;border-radius:50%;object-fit:cover;background:#101014;flex-shrink:0;display:block;border:1px solid var(--border)}
+  .profil-ava{position:relative;display:flex;flex-shrink:0}
+  .notif-pt{position:absolute;top:-3px;right:-4px;min-width:17px;height:17px;border-radius:99px;
+    background:#e5484d;color:#fff;font-size:10px;font-weight:800;padding:0 4px;
+    display:none;align-items:center;justify-content:center;border:2px solid #0b0b11;
+    box-shadow:0 0 10px rgba(229,72,77,.9);animation:pulseNotif 1.15s ease-in-out infinite}
+  .notif-pt.on{display:flex}
+  @keyframes pulseNotif{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
+  @media (prefers-reduced-motion: reduce){.notif-pt{animation:none}}
+
+  /* liste des réactions reçues (dans Mon Profil) */
+  .notif-row{display:flex;align-items:center;gap:10px;background:rgba(20,20,29,.85);
+    border:1px solid rgba(255,255,255,.06);border-radius:11px;padding:9px 11px;margin-bottom:6px;font-size:13px;color:#cfcfda}
+  .notif-row:has(.notif-msg){align-items:flex-start}
+  .notif-msg{display:block;margin-top:4px;font-style:italic;color:#a9a9b8;font-size:12.5px;line-height:1.4}
+  .notif-row.neuf{border-color:rgba(229,72,77,.45);background:rgba(229,72,77,.08)}
+  .notif-pp{width:26px;height:26px;border-radius:50%;flex-shrink:0;object-fit:cover;background:#101014}
+  .notif-txt{flex:1;min-width:0;line-height:1.4}
+  .notif-em{font-size:19px;flex-shrink:0}
+  .notif-neuf-pt{width:7px;height:7px;border-radius:50%;background:#e5484d;flex-shrink:0;box-shadow:0 0 8px rgba(229,72,77,.8)}
+  .notif-vide{font-size:12.5px;color:var(--faint);font-style:italic;padding:6px 2px}
+
   .profil-vide{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,#F6B73C,#e5484d);
     display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
 
@@ -248,11 +299,15 @@
   .res-affiches .res-info{width:100%;font-size:12px;color:var(--faint)}
 
   /* ---- sections de l'accueil : séparateurs et apparition ---- */
-  .cav-section{margin-top:34px;animation:montee .45s ease both}
-  .cav-titre{display:flex;align-items:center;gap:16px;font-family:'Bebas Neue',sans-serif;font-size:21px;color:#ececf2;text-transform:uppercase;letter-spacing:.1em;margin-bottom:14px;white-space:nowrap;text-shadow:0 2px 8px rgba(0,0,0,.6)}
-  .cav-titre::before,.cav-titre::after{content:'';flex:1;height:2px;border-radius:2px}
-  .cav-titre::before{background:linear-gradient(90deg,transparent,var(--gold))}
-  .cav-titre::after{background:linear-gradient(90deg,var(--gold),transparent)}
+  .cav-section{margin-top:54px;animation:montee .45s ease both}
+  .cav-titre{display:flex;align-items:center;gap:9px;position:relative;padding-left:15px;
+    font-family:'Bebas Neue',sans-serif;font-size:24px;color:#f0f0f6;text-transform:uppercase;
+    letter-spacing:.13em;margin-bottom:15px;white-space:nowrap}
+  .cav-titre::before{content:'';position:absolute;left:0;top:50%;transform:translateY(-50%);
+    width:4px;height:23px;border-radius:4px;background:linear-gradient(180deg,var(--gold),#e5484d);
+    box-shadow:0 0 14px rgba(246,183,60,.55)}
+  .cav-titre::after{content:'';flex:1;height:1px;min-width:20px;
+    background:linear-gradient(90deg,rgba(255,255,255,.09),transparent)}
   @keyframes montee{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .grille-cat .cat{animation:montee .45s ease both}
   .grille-cat .cat:nth-child(1){animation-delay:.02s}
@@ -284,43 +339,46 @@
   #bandeauVisu.on{display:flex}
   #btnQuitterVisu{background:#2d6cdf;color:#fff;border:none;border-radius:8px;padding:7px 14px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit}
 
-  /* ---- page utilisateurs ---- */
-  .user-row{display:flex;align-items:center;gap:13px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:13px;padding:13px 16px;margin-bottom:10px}
-  .user-row .avatar-gh{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:#101014;object-fit:cover}
-  .user-row .u-info{flex:1;min-width:0}
-  .user-row .u-pseudo{font-weight:800;font-size:16px}
-  .user-row .u-login{font-size:12px;color:var(--faint)}
-  .user-row .u-stats{font-size:12px;color:var(--muted);margin-top:2px}
-  .user-row .btn-voir{background:var(--gold);color:#141414;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;flex-shrink:0}
-  .user-row .btn-prive{background:#e5484d;color:#fff;border:none;border-radius:9px;padding:9px 16px;font-size:13px;font-weight:800;cursor:default;font-family:inherit;flex-shrink:0;opacity:.9}
-  .user-row.indispo{opacity:.55}
-  .u-compat{font-size:12px;color:var(--gold);margin-top:2px;font-weight:700}
 
   /* ---- carte récap d'un profil ---- */
-  .recap-card{background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:16px;padding:20px}
-  .recap-head{display:flex;align-items:center;gap:15px;margin-bottom:16px}
-  .recap-pp{width:60px;height:60px;border-radius:50%;flex-shrink:0;background:#101014;object-fit:cover;border:2px solid var(--border)}
-  .recap-nom{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.02em;line-height:1}
-  .recap-login{font-size:12px;color:var(--faint)}
-  .recap-stats{display:flex;gap:22px;flex-wrap:wrap;padding:14px 0;border-top:1px solid var(--border);border-bottom:1px solid var(--border)}
-  .recap-stat{display:flex;flex-direction:column;align-items:center}
-  .recap-stat b{font-size:22px;color:var(--gold);line-height:1}
-  .recap-stat span{font-size:11px;color:var(--muted);text-transform:uppercase;letter-spacing:.06em;margin-top:3px}
-  .recap-titre{font-size:12px;color:var(--muted);text-transform:uppercase;letter-spacing:.1em;margin:16px 0 10px}
-  .recap-graph{display:flex;align-items:flex-end;justify-content:space-around;gap:8px;height:110px}
+  .recap-card{background:linear-gradient(180deg,rgba(20,20,29,.96),rgba(12,12,19,.96));
+    border:1px solid var(--neon-soft);border-radius:20px;padding:24px;
+    box-shadow:inset 0 0 60px rgba(122,162,255,.04),0 14px 40px rgba(0,0,0,.4)}
+  .recap-head{display:flex;align-items:center;gap:16px;margin-bottom:20px}
+  .recap-pp{width:64px;height:64px;border-radius:50%;flex-shrink:0;background:#101014;object-fit:cover;
+    border:2px solid rgba(246,183,60,.4);box-shadow:0 0 22px rgba(246,183,60,.16)}
+  .recap-nom{font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.03em;line-height:1}
+  .recap-login{font-size:12px;color:var(--faint);font-family:ui-monospace,'SF Mono',Menlo,monospace;margin-top:2px}
+  .recap-bio{font-size:13px;color:#a9a9b8;font-style:italic;line-height:1.45;margin-top:7px;max-width:520px}
+  .recap-stats{display:grid;grid-template-columns:repeat(auto-fit,minmax(94px,1fr));gap:10px;padding:0}
+  .recap-stat{display:flex;flex-direction:column;align-items:center;gap:4px;
+    background:rgba(15,15,23,.85);border:1px solid rgba(255,255,255,.06);border-radius:14px;padding:14px 8px}
+  .recap-stat b{font-size:26px;color:var(--gold);line-height:1;font-weight:800}
+  .recap-stat span{font-size:10px;color:var(--muted);text-transform:uppercase;letter-spacing:.11em}
+  .recap-titre{font-size:10px;color:var(--faint);text-transform:uppercase;letter-spacing:.16em;margin:16px 0 12px;font-weight:800}
+  .recap-graph{display:flex;align-items:flex-end;justify-content:space-around;gap:8px;height:120px;
+    background:rgba(15,15,23,.6);border:1px solid rgba(255,255,255,.05);border-radius:14px;padding:12px 10px}
   .recap-bar-col{display:flex;flex-direction:column;align-items:center;gap:5px;flex:1;height:100%;justify-content:flex-end}
   .recap-bar-val{font-size:12px;font-weight:800;color:#d5d5dc}
-  .recap-bar-track{width:70%;max-width:34px;flex:1;background:#101014;border-radius:5px;display:flex;align-items:flex-end;overflow:hidden}
-  .recap-bar-stack{width:100%;display:flex;flex-direction:column;border-radius:5px;overflow:hidden;min-height:3px}
+  .recap-bar-track{width:70%;max-width:34px;flex:1;background:rgba(255,255,255,.04);border-radius:6px;display:flex;align-items:flex-end;overflow:hidden}
+  .recap-bar-stack{width:100%;display:flex;flex-direction:column;border-radius:6px;overflow:hidden;min-height:3px}
   .recap-seg{width:100%;min-height:2px}
   .recap-bar-lab{font-size:11px;color:var(--muted)}
   .recap-legende{display:flex;flex-wrap:wrap;gap:14px;justify-content:center;margin-top:14px}
   .recap-leg{display:flex;align-items:center;gap:6px;font-size:12px;color:var(--muted)}
   .recap-leg-pt{width:10px;height:10px;border-radius:3px;flex-shrink:0}
+  @media (max-width:560px){
+    .recap-card{padding:17px}
+    .recap-head{gap:12px}
+    .recap-pp{width:52px;height:52px}
+    .recap-nom{font-size:26px}
+    .recap-stat b{font-size:21px}
+  }
   /* ---- Top 5 par catégorie (bas de la carte récap) ---- */
-  .top5-cat{font-size:12px;text-transform:uppercase;letter-spacing:.08em;margin:20px 0 12px;font-weight:700;display:flex;align-items:center;justify-content:center;gap:6px;text-align:center}
+  .top5-cat{font-size:11px;text-transform:uppercase;letter-spacing:.14em;margin:22px 0 12px;font-weight:800;display:flex;align-items:center;justify-content:center;gap:7px;text-align:center}
   .top5-grid{display:flex;gap:14px;flex-wrap:wrap;justify-content:center}
   .top5-tuile{width:104px;display:flex;flex-direction:column;align-items:center;gap:6px}
+  @media (max-width:520px){.top5-tuile{width:88px}.top5-poster{width:88px !important;height:132px !important}}
   .top5-poster{width:104px;height:156px;border-radius:10px;overflow:hidden;background:#17171d;border:2px solid var(--border);position:relative;box-shadow:0 4px 14px rgba(0,0,0,.35)}
   .top5-poster img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover}
   .top5-vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;text-align:center;font-size:12px;font-weight:700;color:#b8b8c2;padding:8px;overflow:hidden;background:linear-gradient(160deg,#1f1f28,#101014)}
@@ -332,29 +390,73 @@
   .top5-tuile.rang-2 .top5-note{color:#c8c8d2}
   .top5-tuile.rang-3 .top5-note{color:#cd7f32}
 
+  /* ---- page utilisateurs : cartes compactes ---- */
+  .users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:13px}
+  .user-card{display:flex;flex-direction:column;gap:10px;
+    background:linear-gradient(180deg,rgba(22,22,32,.95),rgba(13,13,20,.95));
+    border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:15px 16px;
+    transition:border-color .15s ease,box-shadow .15s ease}
+  .user-card:hover{border-color:rgba(122,162,255,.35);box-shadow:0 0 22px rgba(122,162,255,.12)}
+  .user-card.indispo{opacity:.55}
+  .uc-head{display:flex;align-items:center;gap:12px;min-width:0}
+  .uc-pp{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:#101014;object-fit:cover;border:1px solid var(--border)}
+  .uc-id{min-width:0}
+  .uc-pseudo{font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .uc-login{font-size:11.5px;color:var(--faint);font-family:ui-monospace,'SF Mono',Menlo,monospace}
+  .uc-bio{display:none;font-size:12.5px;color:#a9a9b8;font-style:italic;line-height:1.45;
+    border-left:2px solid var(--neon-soft);padding-left:9px}
+  .uc-bio.on{display:block}
+  .uc-stats{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted);
+    padding-top:11px;border-top:1px solid rgba(255,255,255,.06)}
+  .uc-stats.uc-muet{color:var(--faint);font-style:italic}
+  .uc-stat{display:flex;align-items:baseline;gap:4px;background:rgba(16,16,24,.75);border:1px solid rgba(255,255,255,.05);
+    border-radius:8px;padding:5px 9px;font-size:11px;color:var(--muted)}
+  .uc-stat b{font-size:14px;font-weight:800}
+  .uc-pied{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  .uc-encours{font-size:11.5px;color:#7ee2a0}
+  .uc-voir{margin-left:auto;background:var(--gold);color:#141414;border:none;border-radius:9px;
+    padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+  .uc-voir:hover{filter:brightness(1.08)}
+  .uc-badge{margin-left:auto;font-size:12px;font-weight:800;border-radius:9px;padding:8px 14px;white-space:nowrap}
+  .uc-badge.prive{background:rgba(229,72,77,.16);color:#ff9296;border:1px solid rgba(229,72,77,.45)}
+
+  /* ---- accueil : sorties et activité côte à côte ---- */
+  .duo-accueil{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:20px;align-items:start}
+  .duo-accueil .cav-section{margin-top:48px;min-width:0}
+  @media (max-width:900px){
+    .duo-accueil{grid-template-columns:1fr;gap:10px}
+    .duo-accueil .cav-section{margin-top:34px}
+  }
+  #cavPanel{max-height:440px;overflow-y:auto;overscroll-behavior:contain;
+    background:linear-gradient(180deg,rgba(18,18,26,.95),rgba(11,11,17,.95));
+    border:1px solid var(--neon-soft);border-radius:18px;padding:9px 10px 11px;
+    box-shadow:inset 0 0 44px rgba(122,162,255,.045),0 12px 36px rgba(0,0,0,.4)}
+  #cavPanel::-webkit-scrollbar,#feedPanel::-webkit-scrollbar{width:8px}
+  #cavPanel::-webkit-scrollbar-thumb,#feedPanel::-webkit-scrollbar-thumb{background:#2c2c3a;border-radius:8px}
+  #cavPanel::-webkit-scrollbar-thumb:hover,#feedPanel::-webkit-scrollbar-thumb:hover{background:#3d3d50}
+  #cavPanel::-webkit-scrollbar-track,#feedPanel::-webkit-scrollbar-track{background:transparent}
+  #cavPanel .cav-row:last-child{margin-bottom:0}
+
   /* ---- feed d'activité : panneau « console » scrollable ---- */
   #feedPanel{position:relative;max-height:440px;overflow-y:auto;overscroll-behavior:contain;
     background:linear-gradient(180deg,rgba(18,18,26,.95),rgba(11,11,17,.95));
     border:1px solid var(--neon-soft);border-radius:18px;padding:9px 10px 11px;
     box-shadow:inset 0 0 44px rgba(122,162,255,.045),0 12px 36px rgba(0,0,0,.4)}
-  #feedPanel::-webkit-scrollbar{width:8px}
-  #feedPanel::-webkit-scrollbar-thumb{background:#2c2c3a;border-radius:8px}
-  #feedPanel::-webkit-scrollbar-thumb:hover{background:#3d3d50}
-  #feedPanel::-webkit-scrollbar-track{background:transparent}
   .feed-jour{display:flex;align-items:center;gap:11px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
     color:var(--faint);font-weight:800;margin:14px 3px 8px}
   .feed-jour:first-child{margin-top:2px}
   .feed-jour::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(122,162,255,.3),transparent)}
-  .feed-row{position:relative;display:flex;align-items:center;gap:9px;
+  .feed-row{position:relative;display:flex;flex-direction:column;gap:0;
     background:rgba(26,26,36,.62);border:1px solid rgba(255,255,255,.045);border-left:3px solid var(--cc,#3a3a48);
-    border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:13.5px;color:#d5d5dc;cursor:pointer;
+    border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:13.5px;color:#d5d5dc;
     transition:background .14s ease,border-color .14s ease}
   .feed-row:hover{background:rgba(38,38,52,.8);border-color:rgba(122,162,255,.3);border-left-color:var(--cc,#3a3a48)}
   .feed-row:last-child{margin-bottom:0}
+  .fr-main{display:flex;align-items:center;gap:9px;cursor:pointer;min-width:0}
   .feed-row .f-ico{flex-shrink:0;font-size:14px;opacity:.9}
   .f-pp{width:24px;height:24px;border-radius:50%;flex-shrink:0;object-fit:cover;background:#101014;border:1px solid rgba(255,255,255,.08)}
   .feed-row .f-texte{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
-  .feed-row.ouvert{align-items:flex-start}
+  .feed-row.ouvert .fr-main{align-items:flex-start}
   .feed-row.ouvert .f-texte{white-space:normal;overflow:visible;line-height:1.45}
   .feed-row .f-quand{color:var(--faint);font-size:11px;flex-shrink:0;font-variant-numeric:tabular-nums}
   .f-evol{font-size:13px;font-weight:800;flex-shrink:0;cursor:default}
@@ -364,12 +466,53 @@
   .feed-x:hover{color:#e5484d;background:rgba(229,72,77,.12)}
   .feed-lock{background:rgba(23,23,29,.96);border:1px dashed #3a3a44;border-radius:16px;padding:26px 20px;text-align:center;color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:4px}
 
+  /* ---- réactions emoji ---- */
+  .fr-reacs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px;padding-left:23px}
+  .reac-puce{display:flex;align-items:center;gap:4px;background:rgba(122,162,255,.1);border:1px solid rgba(122,162,255,.25);
+    border-radius:99px;padding:2px 8px 2px 3px;font-size:13px;line-height:1.5;font-family:inherit;color:inherit;
+    cursor:default;transition:border-color .14s ease,background .14s ease,transform .12s ease}
+  .reac-puce.mienne{background:rgba(246,183,60,.14);border-color:rgba(246,183,60,.45)}
+  .reac-puce.avec-mot{cursor:pointer;padding-right:5px}
+  .reac-puce.avec-mot:hover{transform:translateY(-1px);border-color:var(--gold);background:rgba(246,183,60,.16)}
+  .reac-puce.avec-mot.ouverte{border-color:var(--gold);background:rgba(246,183,60,.2)}
+  .reac-pp{width:17px;height:17px;border-radius:50%;object-fit:cover;background:#101014;flex-shrink:0}
+  .reac-em{font-size:13px}
+  .reac-mot{font-size:9px;opacity:.85;margin-left:1px}
+  .reac-add{display:flex;align-items:center;gap:1px;background:transparent;border:1px dashed #3a3a48;color:#6f6f7c;
+    border-radius:99px;padding:3px 9px;font-size:12px;cursor:pointer;font-family:inherit;line-height:1.4;
+    opacity:.5;transition:opacity .14s ease,border-color .14s ease,color .14s ease}
+  .reac-add span{font-size:11px;font-weight:800}
+  .feed-row:hover .reac-add{opacity:1}
+  .reac-add:hover{border-color:var(--gold);color:var(--gold);opacity:1}
+  @media (hover:none){.reac-add{opacity:.85}}
+  /* bulle du message attaché à une réaction */
+  .fr-bulles{padding-left:23px}
+  .reac-bulle{display:none;position:relative;margin-top:7px;background:rgba(246,183,60,.07);
+    border:1px solid rgba(246,183,60,.28);border-left:3px solid var(--gold);border-radius:4px 12px 12px 4px;
+    padding:9px 13px;font-size:13px;color:#e2e2ea;line-height:1.45;white-space:normal;
+    animation:bulleIn .18s ease both}
+  .reac-bulle.on{display:block}
+  @keyframes bulleIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:none}}
+  .rb-qui{display:block;font-size:10px;text-transform:uppercase;letter-spacing:.13em;color:var(--gold);font-weight:800;margin-bottom:4px}
+  .reac-modale{width:100%;max-width:380px;max-height:90vh;overflow-y:auto;background:#15151f;
+    border:1px solid rgba(122,162,255,.25);border-radius:20px;padding:20px;box-shadow:0 24px 60px rgba(0,0,0,.7)}
+  .reac-titre{font-family:'Bebas Neue',sans-serif;font-size:26px;letter-spacing:.05em;margin-bottom:14px;text-align:center}
+  .reac-grille{display:grid;grid-template-columns:repeat(5,1fr);gap:8px}
+  .reac-choix{background:#0f0f17;border:1px solid var(--border);border-radius:13px;font-size:23px;padding:10px 0;
+    cursor:pointer;font-family:inherit;line-height:1;transition:transform .12s ease,border-color .12s ease,background .12s ease}
+  .reac-choix:hover{transform:scale(1.12);border-color:var(--gold);background:rgba(246,183,60,.1)}
+  .reac-choix.on{border-color:var(--gold);background:rgba(246,183,60,.18);box-shadow:0 0 14px rgba(246,183,60,.3);transform:scale(1.08)}
+  #reacEnvoyer:disabled{opacity:.4;cursor:not-allowed;filter:none}
+  #reacMsg{min-height:52px}
+  @media (max-width:420px){.reac-grille{grid-template-columns:repeat(5,1fr);gap:6px}.reac-choix{font-size:20px;padding:9px 0}}
+
   /* ---- modale profil ---- */
   .prof-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)}
   .prof-pp{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#101014;flex-shrink:0;border:2px solid var(--border)}
   .prof-pp-vide{display:flex;align-items:center;justify-content:center;font-size:24px;background:linear-gradient(135deg,#F6B73C,#e5484d);border:none}
   .prof-nom{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.02em;line-height:1.05}
-  .prof-login{font-size:12px;color:var(--faint)}
+  .prof-login{font-size:12px;color:var(--faint);font-family:ui-monospace,'SF Mono',Menlo,monospace}
+  .prof-bio{font-size:12.5px;color:#a9a9b8;font-style:italic;line-height:1.4;margin-top:5px}
   .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
   .chip{display:flex;align-items:center;gap:7px;background:#101018;border:1px solid var(--border);border-radius:99px;
     padding:5px 8px 5px 12px;font-size:13px;color:#d5d5dc}
@@ -454,8 +597,11 @@
       <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
 
       <button class="profil-btn" id="btnProfil" title="Mon profil">
-        <img class="profil-pp" id="profilPP" alt="" style="display:none">
-        <span class="profil-vide" id="profilVide">🎬</span>
+        <span class="profil-ava">
+          <img class="profil-pp" id="profilPP" alt="" style="display:none">
+          <span class="profil-vide" id="profilVide">🎬</span>
+          <span class="notif-pt" id="notifPt"></span>
+        </span>
         <span id="profilNom">Mon Profil</span>
       </button>
     </div>
@@ -473,6 +619,7 @@
   <div id="pageAccueil">
     <div class="cav-titre" style="margin-top:4px;margin-bottom:16px">🍿 Que veux-tu consulter ?</div>
     <div class="grille-cat" id="grilleCat"></div>
+    <div class="duo-accueil" id="duoAccueil"></div>
     <div id="zoneUtilisateurs"></div>
   </div>
 
@@ -648,6 +795,7 @@
       <div style="min-width:0">
         <div class="prof-nom" id="pNom">Moi</div>
         <div class="prof-login" id="pLogin"></div>
+        <div class="prof-bio" id="pBio"></div>
       </div>
     </div>
     <div id="confVerrou" style="display:none;font-size:14px;color:var(--muted);line-height:1.6;background:#17171d;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
@@ -656,9 +804,17 @@
       <button class="btn-mini" id="btnConfVersCloud" style="display:block;margin-top:12px;width:100%">☁️ Ouvrir la fenêtre Cloud</button>
     </div>
     <div id="confChamps">
+    <div class="champ" id="blocNotifs" style="display:none">
+      <label>🔔 Réactions reçues</label>
+      <div id="listeNotifs"></div>
+    </div>
     <div class="champ">
       <label>Pseudo affiché</label>
       <input id="cPseudo" placeholder="Ex : Wawa" maxlength="24" autocomplete="off">
+    </div>
+    <div class="champ">
+      <label>Bio <span id="cBioCompteur" style="text-transform:none;letter-spacing:0;float:right;color:var(--faint)"></span></label>
+      <textarea id="cBio" maxlength="160" placeholder="Deux mots sur toi… (visible par la communauté)"></textarea>
     </div>
     <div class="champ">
       <label>Qui peut voir ma liste</label>
@@ -669,13 +825,14 @@
       </select>
       <div class="aide">« Personne » retire ta liste de l'annuaire. « Mes amis » est une règle d'affichage : ta sauvegarde reste un gist public, donc techniquement lisible par qui connaît son adresse.</div>
     </div>
-    <div class="champ" id="blocAmis" style="display:none">
+    <div class="champ" id="blocAmis">
       <label>👥 Mes amis (pseudos GitHub)</label>
       <div style="display:flex;gap:8px">
         <input id="cAmiNouveau" placeholder="pseudo GitHub" autocomplete="off" style="flex:1">
         <button class="btn-mini" id="btnAmiAdd" style="width:46px;font-size:19px;color:var(--txt)">+</button>
       </div>
       <div class="chips" id="listeAmis"></div>
+      <div class="aide">Ta liste d'amis est conservée quel que soit ton réglage de visibilité — elle ne sert que si tu choisis « Mes amis seulement ».</div>
     </div>
     </div>
     <div id="cMessage2" style="font-size:13px;margin-bottom:12px;display:none"></div>
@@ -683,6 +840,23 @@
       <button class="btn-gold" id="btnProfilSave" style="flex:1">Enregistrer mon profil</button>
       <button class="btn-ghost" id="btnConfFermer">Fermer</button>
     </div>
+  </div>
+</div>
+
+<!-- ======== CHOIX D'UNE RÉACTION ======== -->
+<div id="overlayReac" style="display:none;position:fixed;inset:0;z-index:70;background:rgba(5,5,8,.7);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
+  <div class="reac-modale">
+    <div class="reac-titre">Réagir</div>
+    <div class="reac-grille" id="reacGrille"></div>
+    <div class="champ" style="margin:16px 0 12px">
+      <label>Un mot ? <span style="text-transform:none;letter-spacing:0;float:right;color:var(--faint)" id="reacCompteur"></span></label>
+      <textarea id="reacMsg" maxlength="150" placeholder="Optionnel — visible en cliquant sur ta réaction"></textarea>
+    </div>
+    <div class="actions">
+      <button class="btn-gold" id="reacEnvoyer" style="flex:1">Choisis un emoji</button>
+      <button class="btn-ghost" id="reacFermer">Annuler</button>
+    </div>
+    <button class="btn-ghost" id="reacRetirer" style="width:100%;margin-top:9px;color:#ff8f92;border-color:#5a2a2a">Retirer ma réaction</button>
   </div>
 </div>
 
@@ -730,7 +904,7 @@
 </div>
 
 <script>
-const VERSION = 'v65';
+const VERSION = 'v69';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -750,17 +924,18 @@ const STATUTS = {
 
 // ================= état =================
 const CLE = 'cinewawa-v1';
-let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [], pseudo: '' };
+let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {} };
 let catCourante = null;   // null = accueil
 let enEdition = null;
 let visu = null;          // { login, pseudo, data } quand on consulte la liste de quelqu'un (lecture seule)
 const dact = () => visu ? visu.data : etat;   // données actives à afficher
 
+const BIO_MAX = 160;
 function normaliser(d){
   if(!d || typeof d !== 'object') return null;
   // ancien format (filmothèque seule) → migration
   if(Array.isArray(d.films) && !d.series && !d.anime && !d.manga){
-    return { titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [], pseudo: '' };
+    return { titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {} };
   }
   if(Array.isArray(d.films) || Array.isArray(d.series) || Array.isArray(d.anime) || Array.isArray(d.manga)){
     return {
@@ -770,6 +945,8 @@ function normaliser(d){
       anime:  d.anime  || [],
       manga:  d.manga  || [],
       pseudo: d.pseudo || '',
+      bio: (typeof d.bio === 'string' ? d.bio : '').slice(0, BIO_MAX),
+      reactions: (d.reactions && typeof d.reactions === 'object' && !Array.isArray(d.reactions)) ? d.reactions : {},
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
       amis: Array.isArray(d.amis) ? d.amis : [],
       modif:  d.modif  || 0,
@@ -889,19 +1066,30 @@ function nbGroupe(items, c){
 // version pour les données actives (accueil)
 function nbOeuvres(c){ return nbGroupe(dact()[c], c); }
 
+// hex (#rrggbb) -> rgba(...) : sert aux lueurs colorees des cartes de categorie
+function hexRgba(hex, a){
+  const h = String(hex).replace('#','');
+  const v = h.length === 3 ? h.split('').map(x => x + x).join('') : h;
+  const n = parseInt(v, 16);
+  if (isNaN(n)) return 'rgba(255,255,255,' + a + ')';
+  return 'rgba(' + ((n>>16)&255) + ',' + ((n>>8)&255) + ',' + (n&255) + ',' + a + ')';
+}
+
 function rendreAccueil(){
   document.title = "Ciné'Wawa";
   $('grilleCat').innerHTML = Object.entries(CATS).map(([c,conf]) => {
     const n = nbOeuvres(c);
     const enCours = dact()[c].filter(f => f.statut === 'encours').length;
     const sousTexte = c === 'films'
-      ? n + ' film' + (n>1?'s':'') + ' vu' + (n>1?'s':'')
-      : n + ' titre' + (n>1?'s':'') + (enCours ? ' · ' + enCours + ' en cours' : '');
-    return '<button class="cat" data-cat="'+c+'">'
+      ? '<b>' + n + '</b> film' + (n>1?'s':'') + ' vu' + (n>1?'s':'')
+      : '<b>' + n + '</b> titre' + (n>1?'s':'') + (enCours ? ' · <b>' + enCours + '</b> en cours' : '');
+    return '<button class="cat" data-cat="'+c+'" style="--cc:'+conf.couleur+';--ccg:'+hexRgba(conf.couleur,.42)+'">'
       + '<span class="barre" style="background:'+conf.couleur+'"></span>'
+      + '<span class="lueur"></span>'
       + '<div class="ico">'+conf.ico+'</div>'
       + '<div class="nom">'+conf.nom+'</div>'
       + '<div class="nb">'+sousTexte+'</div>'
+      + '<span class="go">&#8594;</span>'
       + '</button>';
   }).join('');
   $('grilleCat').querySelectorAll('.cat').forEach(b => {
@@ -910,9 +1098,9 @@ function rendreAccueil(){
   rendreSectionsAccueil();
 }
 function rendreSectionsAccueil(){
-  rendreFeed();                  // feed d'abord (crée #feedSection)
-  rendreProchainsEpisodes();     // puis prochaines sorties, insérées juste au-dessus
-  if(!visu) afficherMonRecap();  // ma propre carte récap tout en bas
+  rendreProchainsEpisodes();     // colonne de gauche
+  rendreFeed();                  // colonne de droite
+  if(!visu) afficherMonRecap();  // ma carte récap tout en bas, pleine largeur
 }
 
 // carte récap de MON profil, sur mon accueil
@@ -943,6 +1131,164 @@ function effacerEntreeFeed(c, fid, type, jour){
 }
 
 // ---- feed d'activité de la communauté ----
+// ================= réactions emoji sur le feed =================
+const EMOJIS_REAC = ['😂','❤️','🔥','👍','👎','😮','😠','😢','💀','🤝'];
+const REAC_MSG_MAX = 150;
+let reactionsAutres = {};   // { cleEntree: [ {login, pseudo, emoji, msg} ] } — venant des autres utilisateurs
+let compteurBulle = 0;      // identifiants uniques des bulles de message
+
+// une réaction est soit un emoji seul (format court, compatible v66), soit { e: emoji, m: message }
+function normReac(v){
+  if(!v) return null;
+  if(typeof v === 'string') return { e: v, m: '' };
+  if(typeof v === 'object' && typeof v.e === 'string' && v.e) return { e: v.e, m: String(v.m || '').slice(0, REAC_MSG_MAX) };
+  return null;
+}
+
+// clé stable d'une entrée du feed, identique chez tout le monde
+function slugTitre(t){
+  return String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
+}
+function cleReac(e){
+  const qui = (e.login || monLogin || 'moi').toLowerCase();
+  return qui + '#' + e.c + '#' + slugTitre(e.titre) + '#' + (e.prog ? 'p' + e.prog.j : 'n');
+}
+
+// ---- réactions REÇUES : pastille rouge + journal dans Mon Profil ----
+const CLE_REACS_VUES = 'cinewawa-reacs-vues';
+let reacsVues = [];
+try{ reacsVues = JSON.parse(localStorage.getItem(CLE_REACS_VUES) || '[]'); }catch(e){ reacsVues = []; }
+const sigReac = (cle, r) => cle + '|' + (r.login || '') + '|' + r.emoji;
+
+// toutes les réactions posées par d'AUTRES sur MON activité, les plus récentes d'abord
+function reactionsRecues(){
+  const moi = (monLogin || '').toLowerCase();
+  if(!moi) return [];
+  const out = [];
+  Object.keys(reactionsAutres || {}).forEach(cle => {
+    if(cle.split('#')[0] !== moi) return;
+    (reactionsAutres[cle] || []).forEach(r => {
+      const sig = sigReac(cle, r);
+      out.push({ cle, login: r.login, pseudo: r.pseudo, emoji: r.emoji, msg: r.msg || '', sig, neuf: !reacsVues.includes(sig) });
+    });
+  });
+  return out.sort((a, b) => (a.neuf === b.neuf) ? 0 : (a.neuf ? -1 : 1));
+}
+function nbReacsNouvelles(){ return reactionsRecues().filter(r => r.neuf).length; }
+function marquerReacsVues(){
+  reacsVues = reactionsRecues().map(r => r.sig).slice(-300);
+  try{ localStorage.setItem(CLE_REACS_VUES, JSON.stringify(reacsVues)); }catch(e){}
+}
+// retrouve le vrai titre (et ce qui a été visé) à partir d'une clé de réaction
+function cibleReac(cle){
+  const p = cle.split('#');
+  const c = p[1], slug = p[2] || '', suf = p[3] || 'n';
+  let titre = slug.replace(/-/g, ' ');
+  if(CATS[c]){
+    const f = (etat[c] || []).find(x => slugTitre(x.titre) === slug);
+    if(f) titre = f.titre;
+  }
+  const quoi = suf.charAt(0) === 'p'
+    ? (c === 'manga' ? 'ta lecture de' : 'ton visionnage de')
+    : 'ta note sur';
+  return { titre, quoi, c: CATS[c] ? c : 'films' };
+}
+function rendreNotifs(){
+  const liste = reactionsRecues();
+  const zone = $('listeNotifs');
+  const bloc = $('blocNotifs');
+  if(!liste.length){
+    bloc.style.display = cloudActif() ? '' : 'none';
+    zone.innerHTML = '<div class="notif-vide">Personne n\'a encore réagi à ton activité.</div>';
+    return;
+  }
+  bloc.style.display = '';
+  zone.innerHTML = liste.slice(0, 25).map(r => {
+    const cible = cibleReac(r.cle);
+    const pp = r.login
+      ? '<img class="notif-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=48" alt="" onerror="this.remove()">'
+      : '';
+    return '<div class="notif-row' + (r.neuf ? ' neuf' : '') + '">'
+      + (r.neuf ? '<span class="notif-neuf-pt"></span>' : '')
+      + pp
+      + '<span class="notif-txt"><b>' + echap(r.pseudo || r.login) + '</b> a réagi à ' + cible.quoi + ' <b>' + echap(cible.titre) + '</b>'
+      + (r.msg ? '<span class="notif-msg">« ' + echap(r.msg) + ' »</span>' : '') + '</span>'
+      + '<span class="notif-em">' + r.emoji + '</span>'
+      + '</div>';
+  }).join('');
+}
+// toutes les réactions d'une entrée : celles des autres + la mienne
+function reactionsDe(cle){
+  const l = (reactionsAutres[cle] || []).slice();
+  const mienne = normReac(etat.reactions && etat.reactions[cle]);
+  if(mienne) l.push({ login: monLogin || '', pseudo: etat.pseudo || 'Moi', emoji: mienne.e, msg: mienne.m, mien: true });
+  return l;
+}
+// pose, change ou retire ma réaction
+function poserReaction(cle, emoji, msg){
+  if(visu) return;
+  if(!etat.reactions || typeof etat.reactions !== 'object') etat.reactions = {};
+  if(!emoji) delete etat.reactions[cle];
+  // sans message on garde le format court (une simple chaîne) : lisible par les anciennes versions
+  else etat.reactions[cle] = msg ? { e: emoji, m: msg.slice(0, REAC_MSG_MAX) } : emoji;
+  sauver();
+  rendreSectionsAccueil();
+}
+// petite fenêtre de choix d'emoji + mot (fonctionne bien au doigt sur mobile)
+let reacEnCours = { cle: '', emoji: '' };
+function majEtatChoixReac(){
+  $('reacGrille').querySelectorAll('.reac-choix').forEach(b => b.classList.toggle('on', b.dataset.em === reacEnCours.emoji));
+  $('reacEnvoyer').disabled = !reacEnCours.emoji;
+  $('reacEnvoyer').textContent = reacEnCours.emoji ? 'Réagir ' + reacEnCours.emoji : 'Choisis un emoji';
+}
+function majCompteurReac(){
+  const n = $('reacMsg').value.length;
+  $('reacCompteur').textContent = n + '/' + REAC_MSG_MAX;
+  $('reacCompteur').style.color = n >= REAC_MSG_MAX ? '#e8833a' : 'var(--faint)';
+}
+function ouvrirChoixReac(cle){
+  const actuelle = normReac((etat.reactions || {})[cle]);
+  reacEnCours = { cle, emoji: actuelle ? actuelle.e : '' };
+  $('reacGrille').innerHTML = EMOJIS_REAC.map(em =>
+    '<button class="reac-choix" data-em="' + em + '">' + em + '</button>'
+  ).join('');
+  $('reacGrille').querySelectorAll('.reac-choix').forEach(b => {
+    b.addEventListener('click', () => {
+      reacEnCours.emoji = (reacEnCours.emoji === b.dataset.em) ? '' : b.dataset.em;
+      majEtatChoixReac();
+    });
+  });
+  $('reacMsg').value = actuelle ? actuelle.m : '';
+  majCompteurReac();
+  majEtatChoixReac();
+  $('reacRetirer').style.display = actuelle ? '' : 'none';
+  $('overlayReac').style.display = 'flex';
+}
+// bande de réactions affichée sous une ligne du feed
+function bandeReac(cle){
+  const l = reactionsDe(cle);
+  const bulles = [];
+  const puces = l.map(r => {
+    const pp = r.login
+      ? '<img class="reac-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=32" alt="" onerror="this.remove()">'
+      : '';
+    let attr = '', marque = '';
+    if(r.msg){
+      const bid = 'rb' + (++compteurBulle);
+      bulles.push('<div class="reac-bulle" id="' + bid + '"><span class="rb-qui">' + echap(r.pseudo || '?') + '</span>' + echap(r.msg) + '</div>');
+      attr = ' data-bulle="' + bid + '"';
+      marque = '<span class="reac-mot">💬</span>';
+    }
+    return '<button class="reac-puce' + (r.mien ? ' mienne' : '') + (r.msg ? ' avec-mot' : '') + '"' + attr
+      + ' title="' + echap(r.pseudo || '') + (r.msg ? ' — clique pour lire son message' : '') + '">'
+      + pp + '<span class="reac-em">' + r.emoji + '</span>' + marque + '</button>';
+  }).join('');
+  const bouton = visu ? '' : '<button class="reac-add" data-cle="' + echap(cle) + '" title="Réagir">☺<span>+</span></button>';
+  if(!puces && !bouton) return '';
+  return '<div class="fr-reacs">' + puces + bouton + '</div>'
+    + (bulles.length ? '<div class="fr-bulles">' + bulles.join('') + '</div>' : '');
+}
+
 // libellé d'un séparateur de jour dans le feed
 function libelleJour(iso){
   if(iso === aujourdhui()) return "Aujourd'hui";
@@ -966,10 +1312,10 @@ function rendreFeed(){
   if(!cloudActif()){
     const bloc = document.createElement('div');
     bloc.className = 'cav-section'; bloc.id = 'feedSection';
-    bloc.innerHTML = '<div class="cav-titre">📰 Activité de la communauté</div>'
+    bloc.innerHTML = '<div class="cav-titre">📡 Activité de la communauté</div>'
       + '<div class="feed-lock">🔒 Connecte-toi au cloud pour voir l\'activité de la communauté'
       + '<button class="btn-mini principal" id="feedLockBtn" style="margin-top:12px">☁️ Configurer le cloud</button></div>';
-    $('pageAccueil').insertBefore(bloc, $('zoneUtilisateurs'));
+    $('duoAccueil').appendChild(bloc);
     const b = document.getElementById('feedLockBtn');
     if(b) b.addEventListener('click', ouvrirCloud);
     return;
@@ -985,6 +1331,7 @@ function rendreFeed(){
     let sep = '';
     if(jour !== jourPrec){ sep = '<div class="feed-jour">' + libelleJour(jour) + '</div>'; jourPrec = jour; }
     const coul = CATS[e.c].couleur;
+    const cle = cleReac(e);
     const pp = e.login
       ? '<img class="f-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(e.login) + '.png?size=48" alt="" onerror="this.remove()">'
       : '';
@@ -994,34 +1341,45 @@ function rendreFeed(){
     if(e.prog){
       const unite = e.c === 'manga' ? ('chapitre' + (e.prog.n > 1 ? 's' : '')) : ('épisode' + (e.prog.n > 1 ? 's' : ''));
       const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
-      return sep + '<div class="feed-row" style="--cc:' + coul + '">'
+      return sep + '<div class="feed-row" style="--cc:' + coul + '"><div class="fr-main">'
         + '<span class="f-ico">' + CATS[e.c].ico + '</span>' + pp
         + '<span class="f-texte"><b>' + echap(e.p) + '</b> ' + verbe + ' <b>' + e.prog.n + ' ' + unite + '</b> de <b>' + echap(e.titre) + '</b></span>'
         + '<span class="f-quand">' + ilYA(e.t) + '</span>'
         + croix
-        + '</div>';
+        + '</div>' + bandeReac(cle) + '</div>';
     }
-    return sep + '<div class="feed-row" style="--cc:' + coul + '">'
+    return sep + '<div class="feed-row" style="--cc:' + coul + '"><div class="fr-main">'
       + '<span class="f-ico">' + CATS[e.c].ico + '</span>' + pp
       + '<span class="f-texte"><b>' + echap(e.p) + '</b> a noté <b>' + echap(e.titre) + '</b></span>'
       + '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '/10</span>'
       + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="' + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation') + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '')
       + '<span class="f-quand">' + ilYA(e.t) + '</span>'
       + croix
-      + '</div>';
+      + '</div>' + bandeReac(cle) + '</div>';
   }).join('');
   section.innerHTML = '<div class="cav-titre">📡 Activité de la communauté</div>'
     + '<div id="feedPanel">' + lignes + '</div>';
-  $('pageAccueil').insertBefore(section, $('zoneUtilisateurs'));
+  $('duoAccueil').appendChild(section);
   section.querySelectorAll('.feed-x').forEach(b => {
     b.addEventListener('click', e => {
       e.stopPropagation();
       effacerEntreeFeed(b.dataset.c, Number(b.dataset.fid), b.dataset.type, b.dataset.jour);
     });
   });
+  section.querySelectorAll('.reac-add').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); ouvrirChoixReac(b.dataset.cle); });
+  });
+  // une réaction accompagnée d'un mot : clic = afficher / masquer la bulle
+  section.querySelectorAll('.reac-puce[data-bulle]').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      const bulle = document.getElementById(b.dataset.bulle);
+      if(bulle){ bulle.classList.toggle('on'); b.classList.toggle('ouverte'); }
+    });
+  });
   // sur petit écran : clic pour déplier une ligne tronquée
-  section.querySelectorAll('.feed-row').forEach(r => {
-    r.addEventListener('click', () => r.classList.toggle('ouvert'));
+  section.querySelectorAll('.fr-main').forEach(r => {
+    r.addEventListener('click', () => r.parentElement.classList.toggle('ouvert'));
   });
 }
 
@@ -1062,7 +1420,7 @@ function rendreProchainsEpisodes(){
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'cavSection';
-  section.innerHTML = '<div class="cav-titre">⏳ Prochaines sorties</div>'
+  section.innerHTML = '<div class="cav-titre">⏳ Prochaines sorties</div><div id="cavPanel">'
     + items.map(({c, f, pas, sortie, enAttente}) => {
       const jours = Math.round((sortie - auj) / 864e5);
       const unite = c === 'manga' ? 'chap.' : 'ép.';
@@ -1102,8 +1460,8 @@ function rendreProchainsEpisodes(){
         + '<span class="cav-chip '+classe+'">'+chip+'</span>'
         + actions
         + '</div>';
-    }).join('');
-  $('pageAccueil').insertBefore(section, $('feedSection') || $('zoneUtilisateurs'));
+    }).join('') + '</div>';
+  $('duoAccueil').appendChild(section);
 
   section.querySelectorAll('.cav-plus').forEach(b => {
     b.addEventListener('click', e => { e.stopPropagation(); plusUnEpisode(b.dataset.cat, Number(b.dataset.id)); });
@@ -1352,7 +1710,7 @@ async function chargerNotesCommu(force){
   if(chargementCommu) return;
   try{
     const cache = JSON.parse(localStorage.getItem('cinewawa-commu') || 'null');
-    if(!force && cache && Date.now() - cache.ts < 60e3){ notesAutres = cache.data; feedAutres = cache.feed || []; rafraichir(); return; }
+    if(!force && cache && Date.now() - cache.ts < 60e3){ notesAutres = cache.data; feedAutres = cache.feed || []; reactionsAutres = cache.reacs || {}; rafraichir(); return; }
   }catch(e){}
   chargementCommu = true;
   try{
@@ -1360,12 +1718,21 @@ async function chargerNotesCommu(force){
     if(!logins.length){ chargementCommu = false; return; }
     const agg = {};
     const feed = [];
+    const reacs = {};
     const moi = (await obtenirMonLogin()).toLowerCase();
     for(const login of logins){
       try{
         if(moi && login.toLowerCase() === moi) continue; // mes notes sont calculées en direct
         const d = await chargerProfilPublic(login);
         if(!d) continue;
+        // les réactions sont publiques : on les récupère même si la liste ne m'est pas visible
+        if(d.reactions){
+          Object.keys(d.reactions).forEach(k => {
+            const r = normReac(d.reactions[k]);
+            if(!r) return;
+            (reacs[k] = reacs[k] || []).push({ login, pseudo: d.pseudo || login, emoji: r.e, msg: r.m });
+          });
+        }
         // une liste compte si elle m'est visible : publique, ou amis dont je fais partie
         const vis = d.visibilite || 'public';
         const visible = vis === 'public' || (vis === 'amis' && moi && (d.amis || []).some(a => a.toLowerCase() === moi));
@@ -1388,7 +1755,8 @@ async function chargerNotesCommu(force){
     feed.sort((a,b) => b.t - a.t);
     notesAutres = agg;
     feedAutres = feed.slice(0, 40);
-    try{ localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres })); }catch(e){}
+    reactionsAutres = reacs;
+    try{ localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres, reacs })); }catch(e){}
     rafraichir();
   }catch(e){}
   finally{ chargementCommu = false; }
@@ -1913,6 +2281,7 @@ function majEtatSauvegarde(){
 }
 
 function rafraichir(){
+  majBoutonProfil();
   if($('pageAccueil').classList.contains('cache')) rendreListe();
   else rendreAccueil();
 }
@@ -2005,59 +2374,63 @@ async function allerUtilisateurs(){
     return;
   }
 
-  zone.innerHTML = '';
+  zone.innerHTML = '<div class="users-grid" id="usersGrid"></div>';
+  const grille = $('usersGrid');
   const moi = (await obtenirMonLogin()).toLowerCase();
   for(const login of logins){
-    const row = document.createElement('div');
-    row.className = 'user-row';
-    row.innerHTML = '<img class="avatar-gh" src="https://github.com/' + encodeURIComponent(login) + '.png?size=88" alt="">'
-      + '<span class="u-info"><div class="u-pseudo">' + echap(login) + '</div><div class="u-login">@' + echap(login) + '</div><div class="u-stats">Chargement…</div></span>';
-    zone.appendChild(row);
+    const carte = document.createElement('div');
+    carte.className = 'user-card';
+    carte.innerHTML = '<div class="uc-head">'
+      + '<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">'
+      + '<div class="uc-id"><div class="uc-pseudo">' + echap(login) + '</div><div class="uc-login">@' + echap(login) + '</div></div>'
+      + '</div>'
+      + '<div class="uc-bio"></div>'
+      + '<div class="uc-stats">Chargement…</div>'
+      + '<div class="uc-pied"></div>';
+    grille.appendChild(carte);
+    const bio = carte.querySelector('.uc-bio');
+    const stats = carte.querySelector('.uc-stats');
+    const pied = carte.querySelector('.uc-pied');
+
     chargerProfilPublic(login).then(d => {
       if(!d){
-        // pas de gist public trouvé → sûrement une liste privée : on garde le profil normal (avatar + pseudo)
-        row.querySelector('.u-stats').remove();
-        const badge = document.createElement('button');
-        badge.className = 'btn-prive';
-        badge.textContent = '🔒 Privé';
-        row.appendChild(badge);
+        stats.className = 'uc-stats uc-muet';
+        stats.textContent = 'Pas de liste publique';
+        pied.innerHTML = '<span class="uc-badge prive">🔒 Privé</span>';
         return;
       }
-      row.querySelector('.u-pseudo').textContent = d.pseudo || login;
+      carte.querySelector('.uc-pseudo').textContent = d.pseudo || login;
+      if(d.bio){ bio.textContent = d.bio; bio.classList.add('on'); }
       const vis = d.visibilite || 'public';
       const estMoi = moi && login.toLowerCase() === moi;
       const estAmi = moi && (d.amis || []).some(a => a.toLowerCase() === moi);
       const peutVoir = estMoi || vis === 'public' || (vis === 'amis' && estAmi);
       if(!peutVoir){
-        row.querySelector('.u-stats').textContent = vis === 'amis' ? 'Liste réservée à ses amis' : 'Ce profil est privé';
-        const badge = document.createElement('button');
-        badge.className = 'btn-prive';
-        badge.textContent = vis === 'amis' ? '👥 Amis only' : '🔒 Privé';
-        row.appendChild(badge);
+        stats.className = 'uc-stats uc-muet';
+        stats.textContent = vis === 'amis' ? 'Liste réservée à ses amis' : 'Ce profil est privé';
+        pied.innerHTML = '<span class="uc-badge prive">' + (vis === 'amis' ? '👥 Amis only' : '🔒 Privé') + '</span>';
         return;
       }
+      const nb = { films: d.films.length, series: nbGroupe(d.series,'series'), anime: nbGroupe(d.anime,'anime'), manga: d.manga.length };
+      stats.innerHTML = ['films','series','anime','manga'].map(c =>
+        '<span class="uc-stat"><b style="color:' + CATS[c].couleur + '">' + nb[c] + '</b>' + (c === 'manga' ? 'manga' : CATS[c].nom.toLowerCase()) + '</span>'
+      ).join('');
       const enCours = d.anime.filter(f=>f.statut==='encours').length + d.series.filter(f=>f.statut==='encours').length;
-      row.querySelector('.u-stats').textContent =
-        d.films.length + ' films · ' + nbGroupe(d.series,'series') + ' séries · ' + nbGroupe(d.anime,'anime') + ' anime · ' + d.manga.length + ' manga/manhwa' + (enCours ? ' · ' + enCours + ' en cours' : '');
-      if(!estMoi){
-        const comp = compatibilite(etat, d);
-        if(comp){
-          const ligne = document.createElement('div');
-          ligne.className = 'u-compat';
-          ligne.textContent = comp.pct !== undefined
-            ? '🤝 ' + comp.pct + ' % compatible (' + comp.n + ' notés · ' + comp.commun + ' titre' + (comp.commun>1?'s':'') + ' en commun)'
-            : '🎬 ' + comp.commun + ' titre' + (comp.commun>1?'s':'') + ' en commun — pas encore assez de notes pour un %';
-          row.querySelector('.u-info').appendChild(ligne);
-        }
-      }
       const btn = document.createElement('button');
-      btn.className = 'btn-voir';
-      btn.textContent = 'Voir';
+      btn.className = 'uc-voir';
+      btn.textContent = estMoi ? 'Ma liste' : 'Voir sa liste';
       btn.addEventListener('click', () => voirUtilisateur(login, d));
-      row.appendChild(btn);
+      if(enCours){
+        const e = document.createElement('span');
+        e.className = 'uc-encours';
+        e.textContent = '▶ ' + enCours + ' en cours';
+        pied.appendChild(e);
+      }
+      pied.appendChild(btn);
     }).catch(() => {
-      row.classList.add('indispo');
-      row.querySelector('.u-stats').textContent = 'Erreur de chargement';
+      carte.classList.add('indispo');
+      stats.className = 'uc-stats uc-muet';
+      stats.textContent = 'Erreur de chargement';
     });
   }
 }
@@ -2148,17 +2521,20 @@ function afficherRecap(login, d){
     + '<div class="recap-card">'
     + '<div class="recap-head">'
     +   ppTag
-    +   '<div class="recap-id"><div class="recap-nom">'+echap(pseudoAff)+'</div>'+(login?'<div class="recap-login">@'+echap(login)+'</div>':'')+'</div>'
+    +   '<div class="recap-id"><div class="recap-nom">'+echap(pseudoAff)+'</div>'
+    +     (login?'<div class="recap-login">@'+echap(login)+'</div>':'')
+    +     (d.bio?'<div class="recap-bio">'+echap(d.bio)+'</div>':'')
+    +   '</div>'
     + '</div>'
     + '<div class="recap-stats">'
-    +   '<div class="recap-stat"><b>'+d.films.length+'</b><span>films</span></div>'
-    +   '<div class="recap-stat"><b>'+nbGroupe(d.series,'series')+'</b><span>séries</span></div>'
-    +   '<div class="recap-stat"><b>'+nbGroupe(d.anime,'anime')+'</b><span>anime</span></div>'
-    +   '<div class="recap-stat"><b>'+d.manga.length+'</b><span>manga</span></div>'
-    +   (moyenne != null ? '<div class="recap-stat"><b>'+showNote(Math.round(moyenne*10)/10)+'</b><span>moy.</span></div>' : '')
+    +   '<div class="recap-stat"><b style="color:'+CATS.films.couleur+'">'+d.films.length+'</b><span>films</span></div>'
+    +   '<div class="recap-stat"><b style="color:'+CATS.series.couleur+'">'+nbGroupe(d.series,'series')+'</b><span>séries</span></div>'
+    +   '<div class="recap-stat"><b style="color:'+CATS.anime.couleur+'">'+nbGroupe(d.anime,'anime')+'</b><span>anime</span></div>'
+    +   '<div class="recap-stat"><b style="color:'+CATS.manga.couleur+'">'+d.manga.length+'</b><span>manga</span></div>'
+    +   (moyenne != null ? '<div class="recap-stat"><b>'+showNote(Math.round(moyenne*10)/10)+'</b><span>moyenne</span></div>' : '')
     + '</div>'
-    + (barres ? '<div class="recap-titre" style="margin-top:16px">Activité par mois</div><div class="recap-graph">'+barres+'</div><div class="recap-legende">'+legende+'</div>' : '')
-    + (top5HTML ? '<div class="recap-titre" style="margin-top:22px;text-align:center">🏆 Top 5</div>' + top5HTML : '')
+    + (barres ? '<div class="recap-titre" style="margin-top:20px">Activité par mois</div><div class="recap-graph">'+barres+'</div><div class="recap-legende">'+legende+'</div>' : '')
+    + (top5HTML ? '<div class="recap-titre" style="margin-top:24px;text-align:center">🏆 Top 5</div>' + top5HTML : '')
     + '</div>';
   // en bas de l'accueil, après tout le reste (feed compris)
   $('pageAccueil').appendChild(section);
@@ -2396,18 +2772,29 @@ function ouvrirCloud(){
   msgCloud('');
   $('overlayCloud').style.display = 'flex';
 }
+function majCompteurBio(){
+  const v = $('cBio').value;
+  $('cBioCompteur').textContent = v.length + '/' + BIO_MAX;
+  $('cBioCompteur').style.color = v.length >= BIO_MAX ? '#e8833a' : 'var(--faint)';
+}
 function ouvrirConf(){
   const actif = cloudActif();
   $('confVerrou').style.display = actif ? 'none' : 'block';
   $('confChamps').style.display = actif ? '' : 'none';
   $('cPseudo').value = etat.pseudo || '';
+  $('cBio').value = etat.bio || '';
+  majCompteurBio();
   $('cVisibilite').value = etat.visibilite || 'public';
-  $('blocAmis').style.display = (actif && etat.visibilite === 'amis') ? '' : 'none';
   $('btnProfilSave').style.display = actif ? '' : 'none';
   rendreAmis();
-  // en-tête : photo GitHub + pseudo
+  rendreNotifs();
+  // ouvrir le profil = prendre connaissance des réactions → la pastille s'éteint
+  marquerReacsVues();
+  majBoutonProfil();
+  // en-tête : photo GitHub + pseudo + bio
   $('pNom').textContent = etat.pseudo || 'Moi';
   $('pLogin').textContent = monLogin ? '@' + monLogin : '';
+  $('pBio').textContent = etat.bio || '';
   const img = $('pPP'), vide = $('pPPVide');
   if(monLogin){
     img.src = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=120';
@@ -2606,6 +2993,14 @@ appliquerFond();
 function majBoutonProfil(){
   const nom = $('profilNom');
   if(nom) nom.textContent = etat.pseudo || 'Mon Profil';
+  // pastille rouge clignotante : réactions reçues pas encore consultées
+  const pt = $('notifPt');
+  if(pt){
+    const n = nbReacsNouvelles();
+    pt.classList.toggle('on', n > 0);
+    pt.textContent = n > 9 ? '9+' : (n || '');
+    $('btnProfil').title = n ? n + ' nouvelle' + (n > 1 ? 's' : '') + ' réaction' + (n > 1 ? 's' : '') : 'Mon profil';
+  }
   const img = $('profilPP'), vide = $('profilVide');
   if(!img || !vide) return;
   if(monLogin){
@@ -2623,15 +3018,30 @@ $('btnConfFermer').addEventListener('click', () => { $('overlayConf').style.disp
 $('overlayConf').addEventListener('click', e => { if(e.target === $('overlayConf')) $('overlayConf').style.display = 'none'; });
 $('btnProfilSave').addEventListener('click', () => {
   etat.pseudo = $('cPseudo').value.trim();
+  etat.bio = $('cBio').value.trim().slice(0, BIO_MAX);
   etat.visibilite = $('cVisibilite').value;
   sauver();
+  $('pNom').textContent = etat.pseudo || 'Moi';
+  $('pBio').textContent = etat.bio || '';
   majBoutonProfil();
   rafraichir();
   msgConf('Profil enregistré ✓');
 });
+$('cBio').addEventListener('input', majCompteurBio);
+$('reacFermer').addEventListener('click', () => { $('overlayReac').style.display = 'none'; });
+$('overlayReac').addEventListener('click', e => { if(e.target === $('overlayReac')) $('overlayReac').style.display = 'none'; });
+$('reacMsg').addEventListener('input', majCompteurReac);
+$('reacEnvoyer').addEventListener('click', () => {
+  if(!reacEnCours.emoji) return;
+  $('overlayReac').style.display = 'none';
+  poserReaction(reacEnCours.cle, reacEnCours.emoji, $('reacMsg').value.trim());
+});
+$('reacRetirer').addEventListener('click', () => {
+  $('overlayReac').style.display = 'none';
+  poserReaction(reacEnCours.cle, '', '');
+});
 $('cVisibilite').addEventListener('change', () => {
   etat.visibilite = $('cVisibilite').value;
-  $('blocAmis').style.display = (etat.visibilite === 'amis') ? '' : 'none';
   sauver();
   msgConf({ public:'🌍 Liste visible par tout le monde.', amis:'👥 Liste réservée à tes amis — ajoute leurs pseudos GitHub en dessous.', prive:'🔒 Liste privée.' }[etat.visibilite]);
 });
