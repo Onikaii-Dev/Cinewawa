@@ -16,16 +16,23 @@
   :root{
     --bg:#0a0a0d; --card:rgba(23,23,29,.92); --border:#2c2c36; --border-h:#4a4a58;
     --txt:#f2f2f5; --muted:#9a9aa6; --faint:#6f6f7c; --gold:#F6B73C;
+    --neon:#7aa2ff; --neon-soft:rgba(122,162,255,.16);
   }
   *{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
   body{margin:0;min-height:100vh;background:var(--bg);color:var(--txt);font-family:'Inter',system-ui,sans-serif}
 
-  /* ---- collage de fond (éclairci) ---- */
+  /* ---- fond : collage d'affiches (3 niveaux de luminosité) ou fond uni ----
+     IMPORTANT : les 3 niveaux sont TOUS des dégradés radiaux et le réglage passe par
+     un attribut data-* (changement atomique) → plus de flash lumineux au basculement. */
   #collage{position:fixed;inset:0;z-index:0;overflow:hidden;will-change:transform;transform:translateZ(0)}
   #collage img{position:absolute;aspect-ratio:2/3;object-fit:cover;border-radius:6px;filter:saturate(.95)}
-  #voile{position:fixed;inset:0;z-index:0;transform:translateZ(0);background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%);transition:background .3s ease}
-  body.sombre1 #voile{background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.72) 0%, rgba(10,10,13,.82) 45%, rgba(10,10,13,.92) 100%)}
-  body.sombre2 #voile{background:rgba(10,10,13,.95)}
+  #voile{position:fixed;inset:0;z-index:0;transform:translateZ(0);background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.5) 0%, rgba(10,10,13,.62) 45%, rgba(10,10,13,.78) 100%);transition:background .25s ease}
+  body[data-lum="1"] #voile{background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.74) 0%, rgba(10,10,13,.84) 45%, rgba(10,10,13,.93) 100%)}
+  body[data-lum="2"] #voile{background:radial-gradient(ellipse at 50% 30%, rgba(10,10,13,.945) 0%, rgba(10,10,13,.965) 45%, rgba(10,10,13,.985) 100%)}
+  /* fond uni : pas noir pur, un anthracite bleuté très discret */
+  body[data-fond="uni"]{background:#0d0d14}
+  body[data-fond="uni"] #collage{display:none}
+  body[data-fond="uni"] #voile{background:radial-gradient(ellipse at 50% 0%, #15151f 0%, #0f0f17 45%, #0b0b11 100%)}
 
   .wrap{position:relative;z-index:1;max-width:960px;margin:0 auto;padding:28px 16px 80px}
 
@@ -123,19 +130,86 @@
   .tuto b{color:#e8e8ee}
   .cache{display:none !important}
 
-  /* ---- header du site : barre pleine largeur ---- */
-  #topbar{position:relative;z-index:10;width:100%;background:linear-gradient(180deg,#0c0c10 0%,#0c0c10 72%,rgba(12,12,16,.94) 100%);border-bottom:1px solid rgba(58,58,68,.55);padding:12px 26px}
-  .tb-inner{display:flex;align-items:center;justify-content:space-between;gap:20px;flex-wrap:wrap;max-width:1400px;margin:0 auto}
-  #tbDroite{display:contents}
-  .tb-grp{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  @media (max-width:640px){#topbar{padding:10px 14px}}
-  .tb-gauche{display:flex;align-items:center;gap:11px;flex-shrink:0}
-  .tb-logo{width:38px;height:38px;border-radius:10px;display:block}
-  .tb-nom{font-family:'Bebas Neue',sans-serif;font-size:30px;letter-spacing:.03em;line-height:1}
-  .pill-sync{display:flex;align-items:center;gap:7px;font-size:12px;color:var(--muted);background:rgba(16,16,20,.65);border:1px solid var(--border);border-radius:99px;padding:6px 12px;cursor:pointer;white-space:nowrap}
+  /* ================= HEADER : 3 zones (FGL · marque · actions) ================= */
+  #topbar{position:sticky;top:0;z-index:30;width:100%;
+    background:linear-gradient(180deg,rgba(9,9,14,.97) 0%,rgba(9,9,14,.92) 68%,rgba(9,9,14,.7) 100%);
+    -webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);
+    border-bottom:1px solid var(--neon-soft);padding:10px 22px}
+  #topbar::after{content:'';position:absolute;left:0;right:0;bottom:-1px;height:1px;
+    background:linear-gradient(90deg,transparent,rgba(122,162,255,.45),rgba(246,183,60,.45),transparent)}
+  .tb-inner{display:grid;grid-template-columns:1fr auto 1fr;align-items:center;gap:14px;max-width:1500px;margin:0 auto}
+  .tb-z-g{justify-self:start;display:flex;align-items:center;gap:8px}
+  .tb-z-c{justify-self:center;display:flex;align-items:center;gap:12px;cursor:pointer}
+  .tb-z-d{justify-self:end;display:flex;align-items:center;gap:8px}
+
+  .tb-logo{width:42px;height:42px;border-radius:12px;display:block;box-shadow:0 0 0 1px rgba(246,183,60,.28),0 0 20px rgba(246,183,60,.16)}
+  .tb-nom{font-family:'Bebas Neue',sans-serif;font-size:40px;letter-spacing:.1em;line-height:1;
+    background:linear-gradient(180deg,#ffffff 25%,var(--gold) 125%);-webkit-background-clip:text;background-clip:text;
+    color:transparent;filter:drop-shadow(0 0 14px rgba(246,183,60,.22));white-space:nowrap}
+
+  /* bouton vers le site du pote */
+  .fgl-btn{display:flex;align-items:center;gap:9px;text-decoration:none;
+    background:linear-gradient(135deg,rgba(120,90,220,.24),rgba(18,16,26,.92));
+    border:1px solid rgba(140,110,240,.42);border-radius:12px;padding:7px 13px;
+    transition:box-shadow .15s ease,border-color .15s ease}
+  .fgl-btn:hover{border-color:#9d7bff;box-shadow:0 0 18px rgba(140,110,240,.4)}
+  .fgl-mark{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.14em;color:#ddd3ff;line-height:1}
+  .fgl-mark i{font-style:normal;color:#a98bff;filter:drop-shadow(0 0 8px rgba(169,139,255,.6))}
+  .fgl-sub{font-size:9px;letter-spacing:.16em;text-transform:uppercase;color:#8879b8;line-height:1;margin-top:3px}
+  .fgl-txt{display:flex;flex-direction:column}
+
+  /* boutons icône */
+  .ico-btn{position:relative;background:rgba(20,20,28,.75);border:1px solid var(--border);color:var(--txt);
+    border-radius:12px;width:41px;height:41px;font-size:17px;cursor:pointer;font-family:inherit;
+    display:flex;align-items:center;justify-content:center;transition:border-color .15s ease,box-shadow .15s ease,background .15s ease}
+  .ico-btn:hover{border-color:var(--neon);box-shadow:0 0 15px rgba(122,162,255,.3)}
+  .ico-btn.actif{border-color:var(--neon);background:rgba(122,162,255,.15);box-shadow:0 0 15px rgba(122,162,255,.25)}
+
+  /* menus déroulants */
+  .menu-wrap{position:relative}
+  .menu-pop{display:none;position:absolute;right:0;top:calc(100% + 9px);min-width:224px;z-index:45;
+    background:#12121b;border:1px solid rgba(122,162,255,.24);border-radius:15px;padding:8px;
+    box-shadow:0 20px 50px rgba(0,0,0,.65)}
+  .menu-pop.on{display:block;animation:popIn .16s ease both}
+  @keyframes popIn{from{opacity:0;transform:translateY(-7px)}to{opacity:1;transform:none}}
+  .menu-titre{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--faint);padding:7px 10px 5px;font-weight:800}
+  .menu-item{display:flex;align-items:center;gap:11px;width:100%;background:transparent;border:none;color:var(--txt);
+    font-family:inherit;font-size:14px;text-align:left;padding:10px;border-radius:10px;cursor:pointer}
+  .menu-item:hover{background:rgba(122,162,255,.13)}
+  .menu-sep{height:1px;background:var(--border);margin:6px 4px}
+  .seg{display:flex;gap:6px;padding:2px 4px 6px}
+  .seg button{flex:1;background:#0f0f17;border:1px solid var(--border);color:var(--muted);border-radius:10px;
+    padding:9px 0;font-size:13px;cursor:pointer;font-family:inherit;font-weight:700;transition:all .14s ease}
+  .seg button.on{background:rgba(122,162,255,.16);border-color:var(--neon);color:#dce7ff}
+  .menu-aide{font-size:11px;color:var(--faint);padding:2px 10px 6px;line-height:1.45}
+
+  /* bouton profil */
+  .profil-btn{display:flex;align-items:center;gap:9px;background:rgba(20,20,28,.75);border:1px solid var(--border);
+    border-radius:99px;padding:4px 16px 4px 4px;cursor:pointer;font-family:inherit;color:var(--txt);
+    font-weight:700;font-size:14px;transition:border-color .15s ease,box-shadow .15s ease;white-space:nowrap}
+  .profil-btn:hover{border-color:var(--gold);box-shadow:0 0 17px rgba(246,183,60,.26)}
+  .profil-pp{width:33px;height:33px;border-radius:50%;object-fit:cover;background:#101014;flex-shrink:0;display:block;border:1px solid var(--border)}
+  .profil-vide{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,#F6B73C,#e5484d);
+    display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
+
+  .pill-sync{display:flex;align-items:center;gap:7px;font-size:11.5px;color:var(--muted);background:rgba(16,16,22,.7);
+    border:1px solid var(--border);border-radius:99px;padding:7px 13px;cursor:pointer;white-space:nowrap}
   .pill-sync:hover{border-color:var(--border-h)}
-  .btn-users-top{background:linear-gradient(135deg,rgba(45,108,223,.4),rgba(23,23,29,.9));border:1px solid rgba(45,108,223,.65);color:#cfe0ff;font-weight:700;border-radius:8px;padding:7px 14px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap;transition:box-shadow .15s ease,border-color .15s ease}
-  .btn-users-top:hover{border-color:#2d6cdf;box-shadow:0 0 14px rgba(45,108,223,.35)}
+
+  @media (max-width:900px){
+    #topbar{padding:9px 12px}
+    .tb-inner{display:flex;flex-wrap:wrap;justify-content:center;gap:9px}
+    .tb-z-c{order:1;flex-basis:100%;justify-content:center}
+    .tb-z-g{order:2}
+    .tb-z-d{order:3;flex-wrap:wrap;justify-content:center}
+    .tb-nom{font-size:33px}
+    .tb-logo{width:34px;height:34px}
+    .profil-btn span{display:none}
+    .profil-btn{padding:4px}
+    #etatTexte{display:none}
+    .pill-sync{padding:9px 11px}
+  }
+
   .btn-mini{background:#101014;color:var(--muted);border:1px solid var(--border);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;white-space:nowrap}
   .btn-mini:hover{border-color:var(--border-h);color:var(--txt)}
   .btn-mini.principal{background:var(--gold);color:#141414;border-color:var(--gold);font-weight:700}
@@ -187,8 +261,10 @@
   .grille-cat .cat:nth-child(4){animation-delay:.2s}
   @media (prefers-reduced-motion: reduce){.cav-section,.grille-cat .cat{animation:none}}
 
-  .cav-row{display:flex;align-items:center;gap:12px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:12px;padding:11px 14px;margin-bottom:8px;cursor:pointer;transition:border-color .15s ease}
-  .cav-row:hover{border-color:var(--border-h)}
+  .cav-row{display:flex;align-items:center;gap:12px;background:rgba(22,22,31,.94);border:1px solid rgba(255,255,255,.05);
+    border-left:3px solid var(--cc,#3a3a48);border-radius:12px;padding:11px 14px;margin-bottom:7px;cursor:pointer;
+    transition:background .15s ease,border-color .15s ease}
+  .cav-row:hover{background:rgba(34,34,48,.95);border-color:rgba(122,162,255,.28);border-left-color:var(--cc,#3a3a48)}
   .cav-ico{font-size:18px;flex-shrink:0}
   .cav-info{flex:1;min-width:0}
   .cav-nom{font-weight:700;font-size:15px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -256,20 +332,62 @@
   .top5-tuile.rang-2 .top5-note{color:#c8c8d2}
   .top5-tuile.rang-3 .top5-note{color:#cd7f32}
 
-  /* ---- feed d'activité ---- */
-  .feed-row{display:flex;align-items:center;gap:10px;background:rgba(23,23,29,.96);border:1px solid var(--border);border-radius:11px;padding:9px 13px;margin-bottom:7px;font-size:13.5px;color:#d5d5dc}
-  .feed-row .f-ico{flex-shrink:0}
-  .feed-row{cursor:pointer}
+  /* ---- feed d'activité : panneau « console » scrollable ---- */
+  #feedPanel{position:relative;max-height:440px;overflow-y:auto;overscroll-behavior:contain;
+    background:linear-gradient(180deg,rgba(18,18,26,.95),rgba(11,11,17,.95));
+    border:1px solid var(--neon-soft);border-radius:18px;padding:9px 10px 11px;
+    box-shadow:inset 0 0 44px rgba(122,162,255,.045),0 12px 36px rgba(0,0,0,.4)}
+  #feedPanel::-webkit-scrollbar{width:8px}
+  #feedPanel::-webkit-scrollbar-thumb{background:#2c2c3a;border-radius:8px}
+  #feedPanel::-webkit-scrollbar-thumb:hover{background:#3d3d50}
+  #feedPanel::-webkit-scrollbar-track{background:transparent}
+  .feed-jour{display:flex;align-items:center;gap:11px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
+    color:var(--faint);font-weight:800;margin:14px 3px 8px}
+  .feed-jour:first-child{margin-top:2px}
+  .feed-jour::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(122,162,255,.3),transparent)}
+  .feed-row{position:relative;display:flex;align-items:center;gap:9px;
+    background:rgba(26,26,36,.62);border:1px solid rgba(255,255,255,.045);border-left:3px solid var(--cc,#3a3a48);
+    border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:13.5px;color:#d5d5dc;cursor:pointer;
+    transition:background .14s ease,border-color .14s ease}
+  .feed-row:hover{background:rgba(38,38,52,.8);border-color:rgba(122,162,255,.3);border-left-color:var(--cc,#3a3a48)}
+  .feed-row:last-child{margin-bottom:0}
+  .feed-row .f-ico{flex-shrink:0;font-size:14px;opacity:.9}
+  .f-pp{width:24px;height:24px;border-radius:50%;flex-shrink:0;object-fit:cover;background:#101014;border:1px solid rgba(255,255,255,.08)}
   .feed-row .f-texte{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
   .feed-row.ouvert{align-items:flex-start}
   .feed-row.ouvert .f-texte{white-space:normal;overflow:visible;line-height:1.45}
-  .feed-row .f-quand{color:var(--faint);font-size:12px;flex-shrink:0}
+  .feed-row .f-quand{color:var(--faint);font-size:11px;flex-shrink:0;font-variant-numeric:tabular-nums}
   .f-evol{font-size:13px;font-weight:800;flex-shrink:0;cursor:default}
   .f-evol.up{color:#3fb950;text-shadow:0 0 8px rgba(63,185,80,.4)}
   .f-evol.down{color:#e5484d;text-shadow:0 0 8px rgba(229,72,77,.4)}
-  .feed-x{background:transparent;border:none;color:#5a5a66;font-size:15px;cursor:pointer;padding:2px 4px;flex-shrink:0;line-height:1;border-radius:5px}
+  .feed-x{background:transparent;border:none;color:#4e4e5c;font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0;line-height:1;border-radius:5px}
   .feed-x:hover{color:#e5484d;background:rgba(229,72,77,.12)}
-  .feed-lock{background:rgba(23,23,29,.96);border:1px dashed #3a3a44;border-radius:12px;padding:26px 20px;text-align:center;color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:4px}
+  .feed-lock{background:rgba(23,23,29,.96);border:1px dashed #3a3a44;border-radius:16px;padding:26px 20px;text-align:center;color:var(--muted);font-size:14px;display:flex;flex-direction:column;align-items:center;gap:4px}
+
+  /* ---- modale profil ---- */
+  .prof-head{display:flex;align-items:center;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--border)}
+  .prof-pp{width:56px;height:56px;border-radius:50%;object-fit:cover;background:#101014;flex-shrink:0;border:2px solid var(--border)}
+  .prof-pp-vide{display:flex;align-items:center;justify-content:center;font-size:24px;background:linear-gradient(135deg,#F6B73C,#e5484d);border:none}
+  .prof-nom{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.02em;line-height:1.05}
+  .prof-login{font-size:12px;color:var(--faint)}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:10px}
+  .chip{display:flex;align-items:center;gap:7px;background:#101018;border:1px solid var(--border);border-radius:99px;
+    padding:5px 8px 5px 12px;font-size:13px;color:#d5d5dc}
+  .chip button{background:transparent;border:none;color:#5a5a66;cursor:pointer;font-size:14px;line-height:1;padding:1px 3px;border-radius:50%}
+  .chip button:hover{color:#e5484d}
+  .chips-vide{font-size:12px;color:var(--faint);margin-top:10px}
+
+  /* ---- lien direct création de token GitHub ---- */
+  .lien-token{display:flex;align-items:center;gap:12px;text-decoration:none;margin-bottom:14px;
+    background:linear-gradient(135deg,rgba(122,162,255,.16),rgba(18,18,26,.9));
+    border:1px solid rgba(122,162,255,.42);border-radius:13px;padding:13px 15px;color:var(--txt);
+    transition:border-color .15s ease,box-shadow .15s ease}
+  .lien-token:hover{border-color:var(--neon);box-shadow:0 0 18px rgba(122,162,255,.3)}
+  .lien-token-ico{font-size:21px;flex-shrink:0}
+  .lien-token b{display:block;font-size:15px;margin-bottom:3px}
+  .lien-token-sub{display:block;font-size:11.5px;color:var(--muted);line-height:1.45}
+  .lien-token-sub b{display:inline;font-size:inherit;color:#cfe0ff}
+  .lien-token-fleche{margin-left:auto;color:var(--neon);font-size:18px;flex-shrink:0}
 </style>
 </head>
 <body>
@@ -279,27 +397,67 @@
 
 <div id="topbar">
   <div class="tb-inner">
-    <div class="tb-gauche" id="tbAccueil" title="Retour à l'accueil" style="cursor:pointer">
+    <!-- ZONE GAUCHE : le site du pote -->
+    <div class="tb-z-g">
+      <a class="fgl-btn" href="https://nawfel36cm.github.io/FelGamesList/" target="_blank" rel="noopener" title="FelGamesList — la ludothèque de Nawfel">
+        <span class="fgl-txt">
+          <span class="fgl-mark">FG<i>L</i></span>
+          <span class="fgl-sub">Jeux</span>
+        </span>
+      </a>
+    </div>
+
+    <!-- ZONE CENTRE : la marque -->
+    <div class="tb-z-c" id="tbAccueil" title="Retour à l'accueil">
       <img src="icon-192.png" class="tb-logo" alt="" onerror="this.style.display='none'">
       <span class="tb-nom">Ciné'Wawa</span>
     </div>
-    <div id="tbDroite">
-      <div class="tb-grp">
-        <button class="btn-mini" id="btnSombre" title="Assombrir le fond">🌙</button>
-        <button class="btn-mini principal" id="btnCloud">☁️ Cloud</button>
-        <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
+
+    <!-- ZONE DROITE : actions -->
+    <div class="tb-z-d" id="tbDroite">
+      <button class="ico-btn" id="btnUsersTop" title="Annuaire des utilisateurs">👥</button>
+
+      <div class="menu-wrap">
+        <button class="ico-btn" id="btnPerso" data-pop="popPerso" title="Personnalisation">🎨</button>
+        <div class="menu-pop" id="popPerso">
+          <div class="menu-titre">Fond du site</div>
+          <div class="seg" id="segFond">
+            <button data-fond="affiches">🖼️ Affiches</button>
+            <button data-fond="uni">▬ Uni</button>
+          </div>
+          <div id="blocLum">
+            <div class="menu-titre">Luminosité du fond</div>
+            <div class="seg" id="segLum">
+              <button data-lum="0">🌙</button>
+              <button data-lum="1">🌘</button>
+              <button data-lum="2">🌑</button>
+            </div>
+          </div>
+          <div class="menu-aide">Le réglage est mémorisé sur cet appareil.</div>
+        </div>
       </div>
-      <div class="tb-grp">
-        <button class="btn-users-top" id="btnUsersTop">👥 Utilisateurs</button>
-        <button class="btn-mini" id="btnConf">🔒 Confidentialité</button>
+
+      <div class="menu-wrap">
+        <button class="ico-btn" id="btnData" data-pop="popData" title="Mes données">💾</button>
+        <div class="menu-pop" id="popData">
+          <div class="menu-titre">Mes données</div>
+          <button class="menu-item" id="btnExport">⬇️ <span>Exporter (.json)</span></button>
+          <button class="menu-item" id="btnImport">⬆️ <span>Importer (.json)</span></button>
+          <div class="menu-sep"></div>
+          <button class="menu-item" id="btnLbx">🎬 <span>Importer depuis Letterboxd</span></button>
+          <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
+          <input type="file" id="inputLbx" accept=".csv,text/csv" style="display:none">
+        </div>
       </div>
-      <div class="tb-grp">
-        <button class="btn-mini" id="btnExport">Exporter</button>
-        <button class="btn-mini" id="btnImport">Importer</button>
-        <button class="btn-mini" id="btnLbx" title="Importer un export Letterboxd">Letterboxd</button>
-        <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
-        <input type="file" id="inputLbx" accept=".csv,text/csv" style="display:none">
-      </div>
+
+      <button class="ico-btn" id="btnCloud" title="Synchro cloud (GitHub)">☁️</button>
+      <span class="pill-sync" id="ligneEtat" title="Cliquer pour resynchroniser"><span class="pastille" id="pastille"></span><span id="etatTexte">Hors cloud</span></span>
+
+      <button class="profil-btn" id="btnProfil" title="Mon profil">
+        <img class="profil-pp" id="profilPP" alt="" style="display:none">
+        <span class="profil-vide" id="profilVide">🎬</span>
+        <span id="profilNom">Mon Profil</span>
+      </button>
     </div>
   </div>
 </div>
@@ -483,34 +641,47 @@
 <!-- ======== MODALE CONFIDENTIALITÉ ======== -->
 <div id="overlayConf" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
   <div class="modale">
-    <h2>🔒 Confidentialité &amp; profil</h2>
+    <h2>Mon Profil</h2>
+    <div class="prof-head">
+      <img class="prof-pp" id="pPP" alt="" style="display:none">
+      <span class="prof-pp prof-pp-vide" id="pPPVide">🎬</span>
+      <div style="min-width:0">
+        <div class="prof-nom" id="pNom">Moi</div>
+        <div class="prof-login" id="pLogin"></div>
+      </div>
+    </div>
     <div id="confVerrou" style="display:none;font-size:14px;color:var(--muted);line-height:1.6;background:#17171d;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
       🔒 <b style="color:#e8e8ee">Pas accessible pour l'instant.</b><br>
-      Connecte-toi d'abord au cloud (bouton ☁️ Cloud) pour configurer ton pseudo et la visibilité de ta liste — sans cloud, ton profil n'apparaît pas dans l'annuaire.
+      Connecte-toi d'abord au cloud (bouton ☁️) pour configurer ton pseudo et la visibilité de ta liste — sans cloud, ton profil n'apparaît pas dans l'annuaire.
       <button class="btn-mini" id="btnConfVersCloud" style="display:block;margin-top:12px;width:100%">☁️ Ouvrir la fenêtre Cloud</button>
     </div>
     <div id="confChamps">
     <div class="champ">
-      <label>Pseudo affiché (annuaire des utilisateurs)</label>
+      <label>Pseudo affiché</label>
       <input id="cPseudo" placeholder="Ex : Wawa" maxlength="24" autocomplete="off">
     </div>
     <div class="champ">
-      <label>Visibilité de ma liste dans l'annuaire</label>
+      <label>Qui peut voir ma liste</label>
       <select id="cVisibilite">
-        <option value="public">🌍 Publique — tout le monde peut la voir</option>
-        <option value="amis">👥 Amis seulement</option>
-        <option value="prive">🔒 Privée — personne</option>
+        <option value="public">🌍 Tout le monde</option>
+        <option value="amis">👥 Mes amis seulement</option>
+        <option value="prive">🔒 Personne</option>
       </select>
+      <div class="aide">« Personne » retire ta liste de l'annuaire. « Mes amis » est une règle d'affichage : ta sauvegarde reste un gist public, donc techniquement lisible par qui connaît son adresse.</div>
     </div>
     <div class="champ" id="blocAmis" style="display:none">
-      <label>Mes amis (pseudos GitHub, séparés par des virgules)</label>
-      <input id="cAmis" placeholder="pote1, pote2, pote3" autocomplete="off">
-      <div class="aide">Un ami doit avoir configuré son cloud pour que le site le reconnaisse quand il visite l'annuaire.</div>
+      <label>👥 Mes amis (pseudos GitHub)</label>
+      <div style="display:flex;gap:8px">
+        <input id="cAmiNouveau" placeholder="pseudo GitHub" autocomplete="off" style="flex:1">
+        <button class="btn-mini" id="btnAmiAdd" style="width:46px;font-size:19px;color:var(--txt)">+</button>
+      </div>
+      <div class="chips" id="listeAmis"></div>
     </div>
     </div>
     <div id="cMessage2" style="font-size:13px;margin-bottom:12px;display:none"></div>
     <div class="actions">
-      <button class="btn-ghost" id="btnConfFermer" style="flex:1">Fermer</button>
+      <button class="btn-gold" id="btnProfilSave" style="flex:1">Enregistrer mon profil</button>
+      <button class="btn-ghost" id="btnConfFermer">Fermer</button>
     </div>
   </div>
 </div>
@@ -523,21 +694,27 @@
       Ta sauvegarde est stockée sur <b>ton</b> compte GitHub.
       Colle le même token sur chaque appareil (PC, téléphone…) et tout se synchronise automatiquement.
     </div>
-    <details class="tuto">
-      <summary>❓ Première fois ? Le tuto complet (2 min)</summary>
-      <ol>
-        <li>Crée un compte gratuit sur <b>github.com</b> (si tu n'en as pas).</li>
-        <li>Va sur <b>github.com/settings/tokens</b> → « Generate new token <b>(classic)</b> ».</li>
-        <li>Donne un nom (ex : cinewawa), expiration « <b>No expiration</b> », et coche <b>UNIQUEMENT la case « gist »</b>.</li>
-        <li>Clique « Generate token » et <b>copie le code ghp_…</b> (montré une seule fois : garde-le dans tes notes).</li>
-        <li>Colle-le ci-dessous, puis « <b>Activer</b> » — ta sauvegarde cloud est créée. (Le pseudo se règle ensuite dans 🔒 Confidentialité.)</li>
-        <li>Sur ton téléphone : ouvre ce même site → ☁️ → colle <b>le même token</b> → Activer. Tout se retrouve !</li>
+    <a class="lien-token" href="https://github.com/settings/tokens/new?scopes=gist&amp;description=cinewawa&amp;default_expires_at=none" target="_blank" rel="noopener">
+      <span class="lien-token-ico">🔑</span>
+      <span>
+        <b>Créer mon token GitHub</b>
+        <span class="lien-token-sub">Page pré-remplie : nom « cinewawa », case <b>gist</b> cochée, sans expiration</span>
+      </span>
+      <span class="lien-token-fleche">↗</span>
+    </a>
+    <div class="tuto" style="margin-bottom:16px">
+      <ol style="margin:2px 0 4px">
+        <li>Clique le bouton ci-dessus (connecte-toi à GitHub si besoin), descends tout en bas et clique <b>« Generate token »</b>.</li>
+        <li><b>Copie le code ghp_…</b> — il n'est affiché qu'une seule fois, garde-le dans tes notes.</li>
+        <li>Colle-le ci-dessous puis <b>Activer</b> : ta sauvegarde cloud est créée.</li>
+        <li>Sur ton téléphone : même site → ☁️ → <b>le même token</b> → Activer. Tout se retrouve.</li>
       </ol>
-    </details>
+      <div style="color:var(--faint);margin-top:8px">Si GitHub affiche quand même une expiration, choisis « No expiration » dans le menu déroulant. Le pseudo se règle dans <b>Mon Profil</b>.</div>
+    </div>
     <div class="champ">
       <label>Token GitHub (permission « gist » uniquement)</label>
       <input id="cToken" type="password" placeholder="ghp_…" autocomplete="off">
-      <div class="aide">Créé sur github.com → Settings → Developer settings → Tokens (classic) → coche uniquement « gist ». Il reste sur cet appareil, il n'est envoyé qu'à GitHub.</div>
+      <div class="aide">Il reste sur cet appareil et n'est envoyé qu'à GitHub.</div>
     </div>
     <div class="champ">
       <label>ID du Gist (laisser vide : trouvé ou créé automatiquement)</label>
@@ -553,7 +730,7 @@
 </div>
 
 <script>
-const VERSION = 'v64';
+const VERSION = 'v65';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -742,23 +919,36 @@ function rendreSectionsAccueil(){
 function afficherMonRecap(){
   const login = (cloud && cloud.token && monLogin) ? monLogin : '';
   afficherRecap(login, etat);
+  majBoutonProfil();
   // si le login n'est pas encore connu, on le résout puis on rafraîchit pour afficher la photo
   if(cloud && cloud.token && !monLogin){
-    obtenirMonLogin().then(l => { if(l && !visu) afficherRecap(l, etat); });
+    obtenirMonLogin().then(l => { if(l && !visu) afficherRecap(l, etat); majBoutonProfil(); });
   }
 }
 
-// efface une entrée de MON feed (progression ou horodatage de note)
-function effacerEntreeFeed(c, fid, type){
+// efface une entrée de MON feed (progression d'un jour précis, ou horodatage de note)
+function effacerEntreeFeed(c, fid, type, jour){
   const f = etat[c] && etat[c].find(x => x.id === fid);
   if(!f) return;
-  if(type === 'prog') delete f.prog;
+  if(type === 'prog'){
+    if(f.prog && f.prog.j === jour) delete f.prog;
+    if(Array.isArray(f.progH)){
+      f.progH = f.progH.filter(p => p && p.j !== jour);
+      if(!f.progH.length) delete f.progH;
+    }
+  }
   else { delete f.majNote; delete f.evol; delete f.notePrec; } // retire l'entrée "a noté" du feed (garde la note)
   sauver();
   rendreSectionsAccueil();
 }
 
 // ---- feed d'activité de la communauté ----
+// libellé d'un séparateur de jour dans le feed
+function libelleJour(iso){
+  if(iso === aujourdhui()) return "Aujourd'hui";
+  if(iso === isoLocal(new Date(Date.now() - 86400000))) return 'Hier';
+  return fmtDate(iso);
+}
 function ilYA(t){
   const min = Math.floor((Date.now() - t) / 60000);
   if(min < 1) return "à l'instant";
@@ -789,34 +979,44 @@ function rendreFeed(){
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'feedSection';
-  section.innerHTML = '<div class="cav-titre">📰 Activité de la communauté</div>'
-    + feed.map(e => {
-      const croix = e.mien ? '<button class="feed-x" data-c="'+e.c+'" data-fid="'+e.fid+'" data-type="'+(e.prog?'prog':'note')+'" title="Retirer de mon activité">✕</button>' : '';
-      if(e.prog){
-        const unite = e.c === 'manga' ? ('chapitre' + (e.prog.n > 1 ? 's' : '')) : ('épisode' + (e.prog.n > 1 ? 's' : ''));
-        const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
-        const quand = e.prog.j === aujourdhui() ? "aujourd'hui" : 'le ' + fmtDate(e.prog.j);
-        return '<div class="feed-row">'
-          + '<span class="f-ico">' + CATS[e.c].ico + '</span>'
-          + '<span class="f-texte"><b>' + echap(e.p) + '</b> ' + verbe + ' <b>' + e.prog.n + ' ' + unite + '</b> de <b>' + echap(e.titre) + '</b> ' + quand + '</span>'
-          + '<span class="f-quand">' + ilYA(e.t) + '</span>'
-          + croix
-          + '</div>';
-      }
-      return '<div class="feed-row">'
-        + '<span class="f-ico">' + CATS[e.c].ico + '</span>'
-        + '<span class="f-texte"><b>' + echap(e.p) + '</b> a noté <b>' + echap(e.titre) + '</b></span>'
-        + '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '/10</span>'
-        + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="' + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation') + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '')
+  let jourPrec = null;
+  const lignes = feed.map(e => {
+    const jour = e.prog ? e.prog.j : isoLocal(new Date(e.t));
+    let sep = '';
+    if(jour !== jourPrec){ sep = '<div class="feed-jour">' + libelleJour(jour) + '</div>'; jourPrec = jour; }
+    const coul = CATS[e.c].couleur;
+    const pp = e.login
+      ? '<img class="f-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(e.login) + '.png?size=48" alt="" onerror="this.remove()">'
+      : '';
+    const croix = e.mien
+      ? '<button class="feed-x" data-c="' + e.c + '" data-fid="' + e.fid + '" data-type="' + (e.prog ? 'prog' : 'note') + '" data-jour="' + jour + '" title="Retirer de mon activité">✕</button>'
+      : '';
+    if(e.prog){
+      const unite = e.c === 'manga' ? ('chapitre' + (e.prog.n > 1 ? 's' : '')) : ('épisode' + (e.prog.n > 1 ? 's' : ''));
+      const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
+      return sep + '<div class="feed-row" style="--cc:' + coul + '">'
+        + '<span class="f-ico">' + CATS[e.c].ico + '</span>' + pp
+        + '<span class="f-texte"><b>' + echap(e.p) + '</b> ' + verbe + ' <b>' + e.prog.n + ' ' + unite + '</b> de <b>' + echap(e.titre) + '</b></span>'
         + '<span class="f-quand">' + ilYA(e.t) + '</span>'
         + croix
         + '</div>';
-    }).join('');
+    }
+    return sep + '<div class="feed-row" style="--cc:' + coul + '">'
+      + '<span class="f-ico">' + CATS[e.c].ico + '</span>' + pp
+      + '<span class="f-texte"><b>' + echap(e.p) + '</b> a noté <b>' + echap(e.titre) + '</b></span>'
+      + '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '/10</span>'
+      + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="' + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation') + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '')
+      + '<span class="f-quand">' + ilYA(e.t) + '</span>'
+      + croix
+      + '</div>';
+  }).join('');
+  section.innerHTML = '<div class="cav-titre">📡 Activité de la communauté</div>'
+    + '<div id="feedPanel">' + lignes + '</div>';
   $('pageAccueil').insertBefore(section, $('zoneUtilisateurs'));
   section.querySelectorAll('.feed-x').forEach(b => {
     b.addEventListener('click', e => {
       e.stopPropagation();
-      effacerEntreeFeed(b.dataset.c, Number(b.dataset.fid), b.dataset.type);
+      effacerEntreeFeed(b.dataset.c, Number(b.dataset.fid), b.dataset.type, b.dataset.jour);
     });
   });
   // sur petit écran : clic pour déplier une ligne tronquée
@@ -896,7 +1096,7 @@ function rendreProchainsEpisodes(){
         classe = (jours === 1) ? 'demain' : 'plus-tard';
         actions = '';
       }
-      return '<div class="cav-row" data-cat="'+c+'" data-id="'+f.id+'">'
+      return '<div class="cav-row" style="--cc:'+CATS[c].couleur+'" data-cat="'+c+'" data-id="'+f.id+'">'
         + '<span class="cav-ico">'+CATS[c].ico+'</span>'
         + '<span class="cav-info"><div class="cav-nom">'+echap(f.titre)+'</div><div class="cav-sub">'+sous+'</div></span>'
         + '<span class="cav-chip '+classe+'">'+chip+'</span>'
@@ -998,9 +1198,9 @@ function mesNotes(){
     const t = f.majNote || 0;
     if(t) feed.push({ p: moiNom, login: '', titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec, mien: true, fid: f.id });
   }));
-  // progression du jour (épisodes vus / chapitres lus)
+  // progression : une entrée par JOUR d'activité (historique conservé sur 3 semaines)
   ['series','anime','manga'].forEach(c => etat[c].forEach(f => {
-    if(f.prog && f.prog.n > 0 && f.prog.t) feed.push({ p: moiNom, login: '', titre: f.titre, c, t: f.prog.t, prog: f.prog, mien: true, fid: f.id });
+    entreesProg(f).forEach(p => feed.push({ p: moiNom, login: monLogin || '', titre: f.titre, c, t: p.t, prog: p, mien: true, fid: f.id }));
   }));
   return { agg, feed };
 }
@@ -1094,7 +1294,7 @@ function notesCommuFusion(){
 }
 function feedFusion(){
   const { feed } = mesNotes();
-  return [...(feedAutres || []), ...feed].sort((a,b) => b.t - a.t).slice(0, 10);
+  return [...(feedAutres || []), ...feed].sort((a,b) => b.t - a.t).slice(0, 60);
 }
 // ---- annuaire automatique : gist public dont les commentaires servent d'inscriptions ----
 // chaque utilisateur synchronisé poste (une fois) un commentaire ; l'auteur du commentaire
@@ -1181,13 +1381,13 @@ async function chargerNotesCommu(force){
           if(t) feed.push({ p: d.pseudo || login, login, titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec });
         }));
         ['series','anime','manga'].forEach(c => d[c].forEach(f => {
-          if(f.prog && f.prog.n > 0 && f.prog.t) feed.push({ p: d.pseudo || login, login, titre: f.titre, c, t: f.prog.t, prog: f.prog });
+          entreesProg(f).forEach(p => feed.push({ p: d.pseudo || login, login, titre: f.titre, c, t: p.t, prog: p }));
         }));
       }catch(e){}
     }
     feed.sort((a,b) => b.t - a.t);
     notesAutres = agg;
-    feedAutres = feed.slice(0, 12);
+    feedAutres = feed.slice(0, 40);
     try{ localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres })); }catch(e){}
     rafraichir();
   }catch(e){}
@@ -1393,11 +1593,35 @@ async function chercherAffiche(){
   });
 }
 
-// cumule les épisodes/chapitres consommés dans la journée
-function cumulJour(prog, n){
+// ---- historique d'activité (épisodes vus / chapitres lus), jour par jour ----
+// f.prog  = { j, n, t } → le JOUR EN COURS (format historique, lu aussi par les autres utilisateurs)
+// f.progH = [ { j, n, t }, … ] → les JOURS PRÉCÉDENTS (nouveau : avant, la veille était écrasée)
+const MAX_JOURS_PROG = 21; // on conserve 3 semaines d'activité
+
+function entreesProg(f){
+  const l = [];
+  if(Array.isArray(f.progH)) f.progH.forEach(p => { if(p && p.n > 0 && p.t && p.j) l.push(p); });
+  if(f.prog && f.prog.n > 0 && f.prog.t && f.prog.j) l.push(f.prog);
+  return l;
+}
+
+// cumule n épisodes/chapitres sur AUJOURD'HUI et archive le jour précédent au lieu de l'écraser
+function cumulJour(f, n){
   const j = aujourdhui();
-  const base = (prog && prog.j === j) ? prog.n : 0;
-  return { j, n: base + n, t: Date.now() };
+  const anc = f.prog;
+  if(anc && anc.j && anc.j !== j && anc.n > 0){
+    const h = Array.isArray(f.progH) ? f.progH.slice() : [];
+    f.progH = h.filter(p => p && p.j !== anc.j).concat([anc]);
+  }
+  if(Array.isArray(f.progH)){
+    const limite = isoLocal(new Date(Date.now() - MAX_JOURS_PROG * 86400000));
+    f.progH = f.progH
+      .filter(p => p && p.j && p.n > 0 && p.j >= limite && p.j !== j)
+      .sort((a, b) => a.j < b.j ? -1 : 1);
+    if(!f.progH.length) delete f.progH;
+  }
+  const base = (anc && anc.j === j) ? anc.n : 0;
+  f.prog = { j, n: base + n, t: Date.now() };
 }
 
 function plusUnEpisode(c, id){
@@ -1410,7 +1634,7 @@ function plusUnEpisode(c, id){
   const ref = new Date(f.date + 'T00:00:00');
   ref.setDate(ref.getDate() + pas);
   f.date = isoLocal(ref);
-  f.prog = cumulJour(f.prog, 1);
+  cumulJour(f, 1);
   sauver();
   rendreSectionsAccueil();
 }
@@ -1661,9 +1885,10 @@ function enregistrer(){
   // progression du jour : APRÈS que item.p2 soit défini, uniquement sur un titre DÉJÀ présent
   if(precedent && c !== 'films'){
     if(precedent.prog) item.prog = precedent.prog;
+    if(Array.isArray(precedent.progH)) item.progH = precedent.progH.slice();
     const avant = parseInt(precedent.p2) || 0;
     const apres = parseInt(item.p2) || 0;
-    if(apres > avant) item.prog = cumulJour(precedent.prog, apres - avant);
+    if(apres > avant) cumulJour(item, apres - avant);
   }
 
   if(enEdition){
@@ -2177,10 +2402,22 @@ function ouvrirConf(){
   $('confChamps').style.display = actif ? '' : 'none';
   $('cPseudo').value = etat.pseudo || '';
   $('cVisibilite').value = etat.visibilite || 'public';
-  $('cAmis').value = (etat.amis || []).join(', ');
   $('blocAmis').style.display = (actif && etat.visibilite === 'amis') ? '' : 'none';
+  $('btnProfilSave').style.display = actif ? '' : 'none';
+  rendreAmis();
+  // en-tête : photo GitHub + pseudo
+  $('pNom').textContent = etat.pseudo || 'Moi';
+  $('pLogin').textContent = monLogin ? '@' + monLogin : '';
+  const img = $('pPP'), vide = $('pPPVide');
+  if(monLogin){
+    img.src = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=120';
+    img.style.display = ''; vide.style.display = 'none';
+    img.onerror = () => { img.style.display = 'none'; vide.style.display = ''; };
+  } else { img.style.display = 'none'; vide.style.display = ''; }
   msgConf('');
   $('overlayConf').style.display = 'flex';
+  // le login peut arriver un peu après (résolu via le token)
+  if(actif && !monLogin) obtenirMonLogin().then(() => { if($('overlayConf').style.display === 'flex') ouvrirConf(); majBoutonProfil(); });
 }
 function msgConf(txt, erreur){
   const m = $('cMessage2');
@@ -2318,30 +2555,79 @@ $('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayClo
 $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
 $('btnUsersTop').addEventListener('click', allerUtilisateurs);
 $('tbAccueil').addEventListener('click', () => { if(visu) quitterVisu(); else allerAccueil(); });
-const NIVEAUX_SOMBRE = ['', 'sombre1', 'sombre2'];
-const EMOJI_SOMBRE = ['🌙', '🌘', '🌑'];
-function appliquerSombre(n){
-  document.body.classList.remove('sombre1','sombre2');
-  if(NIVEAUX_SOMBRE[n]) document.body.classList.add(NIVEAUX_SOMBRE[n]);
-  $('btnSombre').textContent = EMOJI_SOMBRE[n];
-  localStorage.setItem('cinewawa-sombre', n);
+
+// ================= menus déroulants du header =================
+function fermerMenus(){
+  document.querySelectorAll('.menu-pop').forEach(p => p.classList.remove('on'));
+  document.querySelectorAll('.ico-btn[data-pop]').forEach(b => b.classList.remove('actif'));
 }
-let niveauSombre = parseInt(localStorage.getItem('cinewawa-sombre') || '0');
-appliquerSombre(niveauSombre);
-$('btnSombre').addEventListener('click', () => {
-  niveauSombre = (niveauSombre + 1) % 3;
-  appliquerSombre(niveauSombre);
+function basculerMenu(btn){
+  const pop = $(btn.dataset.pop);
+  if(!pop) return;
+  const etaitOuvert = pop.classList.contains('on');
+  fermerMenus();
+  if(!etaitOuvert){ pop.classList.add('on'); btn.classList.add('actif'); }
+}
+document.querySelectorAll('.ico-btn[data-pop]').forEach(b => {
+  b.addEventListener('click', e => { e.stopPropagation(); basculerMenu(b); });
 });
+document.addEventListener('click', e => { if(!e.target.closest('.menu-wrap')) fermerMenus(); });
+document.addEventListener('keydown', e => { if(e.key === 'Escape') fermerMenus(); });
+// un clic sur une action du menu Données referme le menu
+document.querySelectorAll('#popData .menu-item').forEach(b => b.addEventListener('click', () => setTimeout(fermerMenus, 60)));
+
+// ================= personnalisation du fond =================
+// 'affiches' (collage, 3 niveaux de luminosité) ou 'uni' (anthracite bleuté)
+let fondMode = localStorage.getItem('cinewawa-fond') === 'uni' ? 'uni' : 'affiches';
+let niveauSombre = parseInt(localStorage.getItem('cinewawa-sombre') || '0');
+if(isNaN(niveauSombre) || niveauSombre < 0 || niveauSombre > 2) niveauSombre = 0;
+function appliquerFond(){
+  // un seul changement d'attribut par réglage → pas d'état intermédiaire visible (fini le flash)
+  document.body.dataset.fond = fondMode;
+  document.body.dataset.lum  = String(niveauSombre);
+  try{
+    localStorage.setItem('cinewawa-fond', fondMode);
+    localStorage.setItem('cinewawa-sombre', String(niveauSombre));
+  }catch(e){}
+  const bl = $('blocLum');
+  if(bl) bl.style.display = (fondMode === 'uni') ? 'none' : '';
+  document.querySelectorAll('#segFond button').forEach(b => b.classList.toggle('on', b.dataset.fond === fondMode));
+  document.querySelectorAll('#segLum button').forEach(b => b.classList.toggle('on', parseInt(b.dataset.lum) === niveauSombre));
+}
+document.querySelectorAll('#segFond button').forEach(b => {
+  b.addEventListener('click', () => { fondMode = b.dataset.fond; appliquerFond(); });
+});
+document.querySelectorAll('#segLum button').forEach(b => {
+  b.addEventListener('click', () => { niveauSombre = parseInt(b.dataset.lum); appliquerFond(); });
+});
+appliquerFond();
+
+// ================= bouton profil du header =================
+function majBoutonProfil(){
+  const nom = $('profilNom');
+  if(nom) nom.textContent = etat.pseudo || 'Mon Profil';
+  const img = $('profilPP'), vide = $('profilVide');
+  if(!img || !vide) return;
+  if(monLogin){
+    img.src = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=64';
+    img.style.display = ''; vide.style.display = 'none';
+    img.onerror = () => { img.style.display = 'none'; vide.style.display = ''; };
+  } else { img.style.display = 'none'; vide.style.display = ''; }
+}
+
 $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
 $('btnChercherAffiche').addEventListener('click', chercherAffiche);
-$('btnConf').addEventListener('click', ouvrirConf);
+$('btnProfil').addEventListener('click', ouvrirConf);
 $('btnConfFermer').addEventListener('click', () => { $('overlayConf').style.display = 'none'; });
 $('overlayConf').addEventListener('click', e => { if(e.target === $('overlayConf')) $('overlayConf').style.display = 'none'; });
-$('cPseudo').addEventListener('change', () => {
+$('btnProfilSave').addEventListener('click', () => {
   etat.pseudo = $('cPseudo').value.trim();
+  etat.visibilite = $('cVisibilite').value;
   sauver();
-  msgConf('Pseudo enregistré : ' + (etat.pseudo || '(vide)'));
+  majBoutonProfil();
+  rafraichir();
+  msgConf('Profil enregistré ✓');
 });
 $('cVisibilite').addEventListener('change', () => {
   etat.visibilite = $('cVisibilite').value;
@@ -2349,11 +2635,31 @@ $('cVisibilite').addEventListener('change', () => {
   sauver();
   msgConf({ public:'🌍 Liste visible par tout le monde.', amis:'👥 Liste réservée à tes amis — ajoute leurs pseudos GitHub en dessous.', prive:'🔒 Liste privée.' }[etat.visibilite]);
 });
-$('cAmis').addEventListener('change', () => {
-  etat.amis = $('cAmis').value.split(',').map(x => x.trim()).filter(Boolean);
-  sauver();
-  msgConf('Liste d\'amis enregistrée (' + etat.amis.length + ').');
-});
+// ---- amis sous forme de pastilles ----
+function rendreAmis(){
+  const z = $('listeAmis');
+  const l = Array.isArray(etat.amis) ? etat.amis : [];
+  z.className = l.length ? 'chips' : 'chips-vide';
+  z.innerHTML = l.length
+    ? l.map((a, i) => '<span class="chip">' + echap(a) + '<button data-i="' + i + '" title="Retirer">✕</button></span>').join('')
+    : 'Aucun ami pour l\'instant — ajoute un pseudo GitHub ci-dessus.';
+  z.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
+    etat.amis.splice(parseInt(b.dataset.i), 1);
+    sauver(); rendreAmis();
+  }));
+}
+function ajouterAmi(){
+  const v = $('cAmiNouveau').value.trim().replace(/^@/, '');
+  if(!v) return;
+  if(!Array.isArray(etat.amis)) etat.amis = [];
+  if(etat.amis.some(a => a.toLowerCase() === v.toLowerCase())){ msgConf('« ' + v +' » est déjà dans ta liste.', true); return; }
+  etat.amis.push(v);
+  $('cAmiNouveau').value = '';
+  sauver(); rendreAmis();
+  msgConf('Ami ajouté : ' + v);
+}
+$('btnAmiAdd').addEventListener('click', ajouterAmi);
+$('cAmiNouveau').addEventListener('keydown', e => { if(e.key === 'Enter'){ e.preventDefault(); ajouterAmi(); } });
 $('btnNotePub').addEventListener('click', recupererNotePub);
 
 // go
@@ -2363,9 +2669,11 @@ chargerCloudConf();
 majCollage();
 rendreAccueil();
 majEtatSauvegarde();
+majBoutonProfil();
 if(cloudActif()){
   tirerCloud(true);            // au démarrage : on récupère la dernière version du cloud
   inscrireAnnuaire();          // et on s'assure d'être inscrit à l'annuaire (une seule fois)
+  obtenirMonLogin().then(majBoutonProfil);  // photo GitHub du bouton profil
 }
 $('btnConfVersCloud').addEventListener('click', () => { $('overlayConf').style.display = 'none'; ouvrirCloud(); });
 chargerNotesCommu();           // notes 👥 des autres utilisateurs (cache 60 s ; les miennes sont en direct)
