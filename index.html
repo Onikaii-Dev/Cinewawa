@@ -485,6 +485,13 @@
   .feed-row:hover .reac-add{opacity:1}
   .reac-add:hover{border-color:var(--gold);color:var(--gold);opacity:1}
   @media (hover:none){.reac-add{opacity:.85}}
+  /* bande de réactions dans une carte de la liste */
+  .card-reacs{position:relative;z-index:3;margin-top:10px}
+  .card-reacs .fr-reacs{padding-left:0;margin-top:0}
+  .card-reacs .fr-bulles{padding-left:0;max-width:520px}
+  .card-reacs .reac-add{opacity:.55}
+  .card:hover .card-reacs .reac-add{opacity:1}
+  @media (hover:none){.card-reacs .reac-add{opacity:.85}}
   /* bulle du message attaché à une réaction */
   .fr-bulles{padding-left:23px}
   .reac-bulle{display:none;position:relative;margin-top:7px;background:rgba(246,183,60,.07);
@@ -904,7 +911,7 @@
 </div>
 
 <script>
-const VERSION = 'v69';
+const VERSION = 'v70';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1154,6 +1161,12 @@ function cleReac(e){
   return qui + '#' + e.c + '#' + slugTitre(e.titre) + '#' + (e.prog ? 'p' + e.prog.j : 'n');
 }
 
+// clé d'une réaction posée depuis une fiche de liste : identique à l'entrée "a noté" du feed,
+// pour qu'une même œuvre n'ait qu'un seul fil de réactions
+function cleReacOeuvre(login, c, titre){
+  return String(login || monLogin || 'moi').toLowerCase() + '#' + c + '#' + slugTitre(titre) + '#n';
+}
+
 // ---- réactions REÇUES : pastille rouge + journal dans Mon Profil ----
 const CLE_REACS_VUES = 'cinewawa-reacs-vues';
 let reacsVues = [];
@@ -1226,13 +1239,13 @@ function reactionsDe(cle){
 }
 // pose, change ou retire ma réaction
 function poserReaction(cle, emoji, msg){
-  if(visu) return;
   if(!etat.reactions || typeof etat.reactions !== 'object') etat.reactions = {};
   if(!emoji) delete etat.reactions[cle];
   // sans message on garde le format court (une simple chaîne) : lisible par les anciennes versions
   else etat.reactions[cle] = msg ? { e: emoji, m: msg.slice(0, REAC_MSG_MAX) } : emoji;
   sauver();
-  rendreSectionsAccueil();
+  if(catCourante) rendreListe();   // on réagit depuis une liste (la mienne ou celle d'un autre)
+  else rendreSectionsAccueil();
 }
 // petite fenêtre de choix d'emoji + mot (fonctionne bien au doigt sur mobile)
 let reacEnCours = { cle: '', emoji: '' };
@@ -1265,7 +1278,7 @@ function ouvrirChoixReac(cle){
   $('overlayReac').style.display = 'flex';
 }
 // bande de réactions affichée sous une ligne du feed
-function bandeReac(cle){
+function bandeReac(cle, forcerBouton){
   const l = reactionsDe(cle);
   const bulles = [];
   const puces = l.map(r => {
@@ -1283,7 +1296,7 @@ function bandeReac(cle){
       + ' title="' + echap(r.pseudo || '') + (r.msg ? ' — clique pour lire son message' : '') + '">'
       + pp + '<span class="reac-em">' + r.emoji + '</span>' + marque + '</button>';
   }).join('');
-  const bouton = visu ? '' : '<button class="reac-add" data-cle="' + echap(cle) + '" title="Réagir">☺<span>+</span></button>';
+  const bouton = (visu && !forcerBouton) ? '' : '<button class="reac-add" data-cle="' + echap(cle) + '" title="Réagir">☺<span>+</span></button>';
   if(!puces && !bouton) return '';
   return '<div class="fr-reacs">' + puces + bouton + '</div>'
     + (bulles.length ? '<div class="fr-bulles">' + bulles.join('') + '</div>' : '');
@@ -2126,6 +2139,9 @@ function rendreListe(){
     const prog = texteProgression(f, c);
     const progHTML = prog ? '<span class="progression">'+prog+'</span>' : '';
     const dateVu = f.date ? '<span class="date">'+(c==='films'?'Vu le ':'Le ')+fmtDate(f.date)+'</span>' : '';
+    // réactions de la communauté sur ce titre (même fil que l'entrée « a noté » du feed)
+    const bande = cloudActif() ? bandeReac(cleReacOeuvre(visu ? visu.login : monLogin, c, f.titre), true) : '';
+    const reacsHTML = bande ? '<div class="card-reacs">'+bande+'</div>' : '';
     return '<div class="card" data-id="'+f.id+'">'
       + poster
       + '<div class="contenu">'
@@ -2133,11 +2149,26 @@ function rendreListe(){
       +   '<div class="ligne-meta">'+st+progHTML+dateVu+'</div>'
       +   barreNotes
       +   avis
+      +   reacsHTML
       + '</div></div>';
   }).join('');
 
   zone.querySelectorAll('.card').forEach(el => {
     el.addEventListener('click', () => ouvrirModale(Number(el.dataset.id)));
+  });
+  // la bande de réactions ne doit pas ouvrir la fiche
+  zone.querySelectorAll('.card-reacs').forEach(z => {
+    z.addEventListener('click', e => e.stopPropagation());
+  });
+  zone.querySelectorAll('.card-reacs .reac-add').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); ouvrirChoixReac(b.dataset.cle); });
+  });
+  zone.querySelectorAll('.card-reacs .reac-puce[data-bulle]').forEach(b => {
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      const bulle = document.getElementById(b.dataset.bulle);
+      if(bulle){ bulle.classList.toggle('on'); b.classList.toggle('ouverte'); }
+    });
   });
 }
 
@@ -2415,7 +2446,7 @@ async function allerUtilisateurs(){
       stats.innerHTML = ['films','series','anime','manga'].map(c =>
         '<span class="uc-stat"><b style="color:' + CATS[c].couleur + '">' + nb[c] + '</b>' + (c === 'manga' ? 'manga' : CATS[c].nom.toLowerCase()) + '</span>'
       ).join('');
-      const enCours = d.anime.filter(f=>f.statut==='encours').length + d.series.filter(f=>f.statut==='encours').length;
+      const enCours = ['series','anime','manga'].reduce((t,c) => t + (d[c]||[]).filter(f=>f.statut==='encours').length, 0);
       const btn = document.createElement('button');
       btn.className = 'uc-voir';
       btn.textContent = estMoi ? 'Ma liste' : 'Voir sa liste';
