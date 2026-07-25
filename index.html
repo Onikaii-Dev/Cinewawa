@@ -925,7 +925,7 @@
 </div>
 
 <script>
-const VERSION = 'v71';
+const VERSION = 'v73';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1172,11 +1172,14 @@ function slugTitre(t){
 }
 function cleReac(e){
   const qui = (e.login || monLogin || 'moi').toLowerCase();
-  return qui + '#' + e.c + '#' + slugTitre(e.titre) + '#' + (e.prog ? 'p' + e.prog.j : 'n');
+  // suffixe : 'p<jour>' = progression, 'n<horodatage>' = entrée « a noté »
+  // l'horodatage rend le fil PROPRE À CETTE NOTATION : les réactions posées sur la fiche
+  // (suffixe 'n' seul) ou sur une notation précédente ne remontent pas ici
+  return qui + '#' + e.c + '#' + slugTitre(e.titre) + '#' + (e.prog ? 'p' + e.prog.j : 'n' + (e.t || 0));
 }
 
-// clé d'une réaction posée depuis une fiche de liste : identique à l'entrée "a noté" du feed,
-// pour qu'une même œuvre n'ait qu'un seul fil de réactions
+// clé d'une réaction posée depuis une fiche de liste (mon profil / celui d'un autre) :
+// suffixe 'n' seul → fil permanent attaché à l'œuvre, indépendant du feed
 function cleReacOeuvre(login, c, titre){
   return String(login || monLogin || 'moi').toLowerCase() + '#' + c + '#' + slugTitre(titre) + '#n';
 }
@@ -1231,7 +1234,7 @@ function cibleReac(cle){
   }
   const quoi = suf.charAt(0) === 'p'
     ? (c === 'manga' ? 'ta lecture de' : 'ton visionnage de')
-    : 'ta note sur';
+    : (suf === 'n' ? 'ta fiche de' : 'ta note sur');
   return { titre, quoi, c: CATS[c] ? c : 'films' };
 }
 function rendreNotifs(){
@@ -1622,7 +1625,7 @@ function mesNotes(){
     const k = cleTitre(c, f.titre);
     agg[k] = { s: f.note, n: 1, d: [{ p: moiNom, note: f.note }] };
     const t = f.majNote || 0;
-    if(t) feed.push({ p: moiNom, login: '', titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec, mien: true, fid: f.id });
+    if(t) feed.push({ p: moiNom, login: monLogin || '', titre: f.titre, note: f.note, c, t, ev: f.evol || 0, np: f.notePrec, mien: true, fid: f.id });
   }));
   // progression : une entrée par JOUR d'activité (historique conservé sur 3 semaines)
   ['series','anime','manga'].forEach(c => etat[c].forEach(f => {
@@ -2194,7 +2197,7 @@ function rendreListe(){
     const prog = texteProgression(f, c);
     const progHTML = prog ? '<span class="progression">'+prog+'</span>' : '';
     const dateVu = f.date ? '<span class="date">'+(c==='films'?'Vu le ':'Le ')+fmtDate(f.date)+'</span>' : '';
-    // réactions de la communauté sur ce titre (même fil que l'entrée « a noté » du feed)
+    // réactions de la communauté sur ce titre (fil propre à l'œuvre, séparé du feed)
     const bande = cloudActif() ? bandeReac(cleReacOeuvre(visu ? visu.login : monLogin, c, f.titre), true) : '';
     const reacsHTML = bande ? '<div class="card-reacs">'+bande+'</div>' : '';
     return '<div class="card" data-id="'+f.id+'">'
