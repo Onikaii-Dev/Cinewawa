@@ -180,8 +180,9 @@
   /* bouton vers le site du pote */
   .fgl-btn{display:flex;align-items:center;gap:9px;text-decoration:none;
     background:linear-gradient(135deg,rgba(120,90,220,.24),rgba(18,16,26,.92));
-    border:1px solid rgba(140,110,240,.42);border-radius:12px;padding:7px 13px;
+    border:1px solid rgba(140,110,240,.42);border-radius:12px;padding:5px 7px;
     transition:box-shadow .15s ease,border-color .15s ease}
+  .fgl-img{width:44px;height:44px;border-radius:10px;display:block;object-fit:contain}
   .fgl-btn:hover{border-color:#9d7bff;box-shadow:0 0 18px rgba(140,110,240,.4)}
   .fgl-mark{font-family:'Bebas Neue',sans-serif;font-size:24px;letter-spacing:.14em;color:#ddd3ff;line-height:1}
   .fgl-mark i{font-style:normal;color:#a98bff;filter:drop-shadow(0 0 8px rgba(169,139,255,.6))}
@@ -421,12 +422,21 @@
   .uc-badge.prive{background:rgba(229,72,77,.16);color:#ff9296;border:1px solid rgba(229,72,77,.45)}
 
   /* ---- accueil : sorties et activité côte à côte ---- */
-  .duo-accueil{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:20px;align-items:start}
-  .duo-accueil .cav-section{margin-top:48px;min-width:0}
+  .duo-accueil{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:20px;align-items:stretch}
+  .duo-accueil .cav-section{margin-top:48px;min-width:0;display:flex;flex-direction:column}
+  /* les deux panneaux s'étirent pour finir exactement à la même hauteur */
+  .duo-accueil #cavPanel,.duo-accueil #feedPanel,.duo-accueil .feed-lock{flex:1 1 auto;min-height:0}
+  .duo-accueil .feed-lock{justify-content:center}
   @media (max-width:900px){
     .duo-accueil{grid-template-columns:1fr;gap:10px}
     .duo-accueil .cav-section{margin-top:34px}
   }
+  /* message quand rien n'est en cours */
+  #cavPanel.vide,#feedPanel.vide{display:flex;align-items:center;justify-content:center;min-height:190px}
+  .cav-vide{text-align:center;padding:18px 14px;max-width:340px}
+  .cav-vide .cv-emo{font-size:34px;line-height:1;margin-bottom:10px;opacity:.85}
+  .cav-vide .cv-t{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.1em;color:#e8e8ee;margin-bottom:6px}
+  .cav-vide .cv-s{font-size:12.5px;color:var(--faint);line-height:1.55}
   #cavPanel{max-height:440px;overflow-y:auto;overscroll-behavior:contain;
     background:linear-gradient(180deg,rgba(18,18,26,.95),rgba(11,11,17,.95));
     border:1px solid var(--neon-soft);border-radius:18px;padding:9px 10px 11px;
@@ -550,7 +560,9 @@
     <!-- ZONE GAUCHE : le site du pote -->
     <div class="tb-z-g">
       <a class="fgl-btn" href="https://nawfel36cm.github.io/FelGamesList/" target="_blank" rel="noopener" title="FelGamesList — la ludothèque de Nawfel">
-        <span class="fgl-txt">
+        <img src="iconFGL-192.png" class="fgl-img" alt="FelGamesList"
+             onerror="this.style.display='none';var t=this.nextElementSibling;if(t)t.style.display='flex'">
+        <span class="fgl-txt" style="display:none">
           <span class="fgl-mark">FG<i>L</i></span>
           <span class="fgl-sub">Jeux</span>
         </span>
@@ -812,7 +824,9 @@
     </div>
     <div id="confChamps">
     <div class="champ" id="blocNotifs" style="display:none">
-      <label>🔔 Réactions reçues</label>
+      <label style="display:flex;align-items:center;gap:8px">🔔 Réactions reçues
+        <button class="btn-mini" id="btnNotifsVues" style="margin-left:auto;display:none">✓ Marquer comme vu</button>
+      </label>
       <div id="listeNotifs"></div>
     </div>
     <div class="champ">
@@ -911,7 +925,7 @@
 </div>
 
 <script>
-const VERSION = 'v70';
+const VERSION = 'v71';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1169,8 +1183,11 @@ function cleReacOeuvre(login, c, titre){
 
 // ---- réactions REÇUES : pastille rouge + journal dans Mon Profil ----
 const CLE_REACS_VUES = 'cinewawa-reacs-vues';
+const CLE_REACS_MASQ = 'cinewawa-reacs-masq';   // réactions archivées à la main (bouton « Marquer comme vu »)
 let reacsVues = [];
+let reacsMasq = [];
 try{ reacsVues = JSON.parse(localStorage.getItem(CLE_REACS_VUES) || '[]'); }catch(e){ reacsVues = []; }
+try{ reacsMasq = JSON.parse(localStorage.getItem(CLE_REACS_MASQ) || '[]'); }catch(e){ reacsMasq = []; }
 const sigReac = (cle, r) => cle + '|' + (r.login || '') + '|' + r.emoji;
 
 // toutes les réactions posées par d'AUTRES sur MON activité, les plus récentes d'abord
@@ -1192,6 +1209,17 @@ function marquerReacsVues(){
   reacsVues = reactionsRecues().map(r => r.sig).slice(-300);
   try{ localStorage.setItem(CLE_REACS_VUES, JSON.stringify(reacsVues)); }catch(e){}
 }
+// archive les réactions actuellement affichées : elles disparaissent du profil
+// (une NOUVELLE réaction du même utilisateur, avec un autre emoji, réapparaîtra)
+function archiverReacs(){
+  const sigs = reactionsRecues().map(r => r.sig);
+  const set = new Set(reacsMasq.concat(sigs));
+  reacsMasq = Array.from(set).slice(-500);
+  try{ localStorage.setItem(CLE_REACS_MASQ, JSON.stringify(reacsMasq)); }catch(e){}
+  marquerReacsVues();
+  rendreNotifs();
+  majBoutonProfil();
+}
 // retrouve le vrai titre (et ce qui a été visé) à partir d'une clé de réaction
 function cibleReac(cle){
   const p = cle.split('#');
@@ -1207,12 +1235,17 @@ function cibleReac(cle){
   return { titre, quoi, c: CATS[c] ? c : 'films' };
 }
 function rendreNotifs(){
-  const liste = reactionsRecues();
+  const toutes = reactionsRecues();
+  const liste = toutes.filter(r => !reacsMasq.includes(r.sig));
   const zone = $('listeNotifs');
   const bloc = $('blocNotifs');
+  const btn = $('btnNotifsVues');
+  if(btn) btn.style.display = liste.length ? '' : 'none';
   if(!liste.length){
     bloc.style.display = cloudActif() ? '' : 'none';
-    zone.innerHTML = '<div class="notif-vide">Personne n\'a encore réagi à ton activité.</div>';
+    zone.innerHTML = '<div class="notif-vide">' + (toutes.length
+      ? 'Tout est à jour ✨ — les nouvelles réactions apparaîtront ici.'
+      : 'Personne n\'a encore réagi à ton activité.') + '</div>';
     return;
   }
   bloc.style.display = '';
@@ -1334,7 +1367,16 @@ function rendreFeed(){
     return;
   }
   const feed = feedFusion();
-  if(!feed.length) return;
+  if(!feed.length){
+    const vide = document.createElement('div');
+    vide.className = 'cav-section'; vide.id = 'feedSection';
+    vide.innerHTML = '<div class="cav-titre">📡 Activité de la communauté</div>'
+      + '<div id="feedPanel" class="vide"><div class="cav-vide">'
+      + '<div class="cv-emo">📡</div><div class="cv-t">C\'est calme</div>'
+      + '<div class="cv-s">Aucune activité récente dans la communauté.</div></div></div>';
+    $('duoAccueil').appendChild(vide);
+    return;
+  }
   const section = document.createElement('div');
   section.className = 'cav-section';
   section.id = 'feedSection';
@@ -1415,7 +1457,20 @@ function rendreProchainsEpisodes(){
   }));
   const ancien = document.getElementById('cavSection');
   if(ancien) ancien.remove();
-  if(!items.length) return;
+  if(!items.length){
+    const vide = document.createElement('div');
+    vide.className = 'cav-section';
+    vide.id = 'cavSection';
+    vide.innerHTML = '<div class="cav-titre">⏳ Prochaines sorties</div>'
+      + '<div id="cavPanel" class="vide"><div class="cav-vide">'
+      + '<div class="cv-emo">🍿</div>'
+      + '<div class="cv-t">Rien en cours</div>'
+      + '<div class="cv-s">Tu ne regardes / ne lis rien d\'actuel en ce moment.<br>'
+      + 'Passe une série, un anime ou un manga en statut <b>« En cours »</b> avec une date et un rythme pour voir ses sorties arriver ici.</div>'
+      + '</div></div>';
+    $('duoAccueil').appendChild(vide);
+    return;
+  }
   // f.date = jour de sortie du dernier épisode marqué. Épisodes en attente = sorties écoulées depuis (f.date+pas).
   items.forEach(it => {
     const joursDepuis = Math.floor((auj - new Date(it.f.date + 'T00:00:00')) / 864e5);
@@ -3117,6 +3172,7 @@ if(cloudActif()){
   obtenirMonLogin().then(majBoutonProfil);  // photo GitHub du bouton profil
 }
 $('btnConfVersCloud').addEventListener('click', () => { $('overlayConf').style.display = 'none'; ouvrirCloud(); });
+$('btnNotifsVues').addEventListener('click', archiverReacs);
 chargerNotesCommu();           // notes 👥 des autres utilisateurs (cache 60 s ; les miennes sont en direct)
 setInterval(chargerNotesCommu, 120000);  // et rafraîchissement régulier en arrière-plan
 </script>
