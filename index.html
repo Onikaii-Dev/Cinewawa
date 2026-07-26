@@ -925,7 +925,7 @@
 </div>
 
 <script>
-const VERSION = 'v73';
+const VERSION = 'v74';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -952,14 +952,56 @@ let visu = null;          // { login, pseudo, data } quand on consulte la liste 
 const dact = () => visu ? visu.data : etat;   // données actives à afficher
 
 const BIO_MAX = 160;
+
+// ================= identifiants uniques =================
+// Bug historique : l'import Letterboxd fabriquait les id avec un timestamp + un hasard sur 1000,
+// donc deux films différents pouvaient recevoir le MÊME id. En modifiant l'un, l'autre était
+// écrasé par une copie → doublons dans la liste. Ici : id strictement croissant, jamais deux fois le même.
+let dernierId = 0;
+function nouvelId(){
+  const id = Math.max(Date.now(), dernierId + 1);
+  dernierId = id;
+  return id;
+}
+function memoriserIds(d){
+  ['films','series','anime','manga'].forEach(c => (d[c] || []).forEach(f => {
+    const n = Number(f.id) || 0; if(n > dernierId) dernierId = n;
+  }));
+}
+// répare une liste : supprime les vrais doublons (même id + même titre) et
+// redonne un id neuf aux œuvres différentes qui partageaient un id.
+let reparationFaite = false;
+function reparerIds(d){
+  memoriserIds(d);
+  let touche = false;
+  const vus = new Map(); // id → catégorie|clé de titre
+  ['films','series','anime','manga'].forEach(c => {
+    const garde = [];
+    (d[c] || []).forEach(f => {
+      const id = Number(f.id) || 0;
+      const cle = cleTitre(c, f.titre || '');
+      if(!id){ f.id = nouvelId(); touche = true; }
+      else if(vus.has(id)){
+        if(vus.get(id) === cle){ touche = true; return; } // clone né du bug → on le jette
+        f.id = nouvelId(); touche = true;                 // œuvre différente → nouvel id
+      }
+      vus.set(Number(f.id), cleTitre(c, f.titre || ''));
+      garde.push(f);
+    });
+    d[c] = garde;
+  });
+  if(touche) reparationFaite = true;
+  return d;
+}
+
 function normaliser(d){
   if(!d || typeof d !== 'object') return null;
   // ancien format (filmothèque seule) → migration
   if(Array.isArray(d.films) && !d.series && !d.anime && !d.manga){
-    return { titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {} };
+    return reparerIds({ titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {} });
   }
   if(Array.isArray(d.films) || Array.isArray(d.series) || Array.isArray(d.anime) || Array.isArray(d.manga)){
-    return {
+    return reparerIds({
       titre: d.titre || "Ciné'Wawa",
       films:  d.films  || [],
       series: d.series || [],
@@ -971,7 +1013,7 @@ function normaliser(d){
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
       amis: Array.isArray(d.amis) ? d.amis : [],
       modif:  d.modif  || 0,
-    };
+    });
   }
   return null;
 }
@@ -979,7 +1021,19 @@ function normaliser(d){
 function charger(){
   try{
     const brut = localStorage.getItem(CLE);
-    if(brut){ const d = normaliser(JSON.parse(brut)); if(d) etat = d; }
+    if(brut){
+      reparationFaite = false;
+      const d = normaliser(JSON.parse(brut));
+      if(d){
+        etat = d;
+        // on enregistre la version réparée en local, SANS toucher à l'horodatage :
+        // sinon une copie locale ancienne écraserait une version cloud plus récente.
+        if(reparationFaite){
+          console.log("Ciné'Wawa : doublons d'identifiants réparés (local)");
+          try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+        }
+      }
+    }
   }catch(e){ console.error('Lecture impossible', e); }
 }
 function sauver(){
@@ -2299,7 +2353,7 @@ function enregistrer(){
 
   const precedent = enEdition ? etat[c].find(x=>x.id===enEdition) : null;
   const item = {
-    id: enEdition || Date.now(),
+    id: enEdition || nouvelId(),
     titre, note,
     date: $('fDate').value || '',
     affiche: $('fAffiche').value.trim(),
@@ -2349,7 +2403,8 @@ function enregistrer(){
   }
 
   if(enEdition){
-    etat[c] = etat[c].map(x => x.id===enEdition ? item : x);
+    const i = etat[c].findIndex(x => x.id === enEdition);   // une seule fiche, jamais un lot
+    if(i >= 0) etat[c][i] = item; else etat[c].unshift(item);
   } else {
     etat[c].unshift(item);
   }
@@ -2358,7 +2413,8 @@ function enregistrer(){
 
 function supprimer(){
   if(!enEdition || visu) return;
-  etat[catCourante] = etat[catCourante].filter(x => x.id !== enEdition);
+  const i = etat[catCourante].findIndex(x => x.id === enEdition);
+  if(i >= 0) etat[catCourante].splice(i, 1);
   sauver(); fermerModale(); majCollage(); rafraichir();
 }
 
@@ -2376,10 +2432,14 @@ function rafraichir(){
 }
 
 function appliquerDonnees(d){
+  reparationFaite = false;
   const propre = normaliser(d);
   if(!propre) return false;
   etat = propre;
   try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+  // données venues du cloud : elles font foi, on peut donc renvoyer la version nettoyée
+  // (horodatage inchangé → aucun risque d'écraser une version plus récente)
+  if(reparationFaite){ console.log("Ciné'Wawa : doublons d'identifiants réparés (cloud)"); planifierPush(); }
   majCollage();
   rafraichir();
   return true;
@@ -2722,7 +2782,7 @@ function importerLetterboxd(fichier){
         const dateVu = iDate !== -1 && /^\d{4}-\d{2}-\d{2}$/.test((l[iDate]||'').trim()) ? l[iDate].trim() : '';
         const ts = dateVu ? new Date(dateVu + 'T12:00:00').getTime() : Date.now() + ajoutes;
         etat.films.push({
-          id: ts + Math.floor(Math.random()*1000),
+          id: nouvelId(),
           titre: nom,
           note: isNaN(noteBrute) ? null : Math.min(10, Math.round(noteBrute * 2 * 10) / 10),
           date: dateVu, affiche: '', avis: '', ajout: ts,
