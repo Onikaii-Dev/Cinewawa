@@ -607,8 +607,10 @@
           <button class="menu-item" id="btnImport">⬆️ <span>Importer (.json)</span></button>
           <div class="menu-sep"></div>
           <button class="menu-item" id="btnLbx">🎬 <span>Importer depuis Letterboxd</span></button>
+          <button class="menu-item" id="btnMal">⛩️ <span>Importer depuis MyAnimeList</span></button>
           <input type="file" id="inputImport" accept=".json,application/json" style="display:none">
           <input type="file" id="inputLbx" accept=".csv,text/csv" style="display:none">
+          <input type="file" id="inputMal" accept=".xml,.gz,application/xml,text/xml" style="display:none">
         </div>
       </div>
 
@@ -804,6 +806,28 @@
   </div>
 </div>
 
+<!-- ======== MODALE MYANIMELIST ======== -->
+<div id="overlayMal" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
+  <div class="modale">
+    <h2>⛩️ Importer depuis MyAnimeList</h2>
+    <div class="tuto" style="margin-bottom:14px">
+      <ol style="margin-top:2px">
+        <li>Sur <b>myanimelist.net</b> (depuis un navigateur) : <b>Profil</b> → <b>Settings</b> → onglet <b>Export</b>.</li>
+        <li>Choisis <b>Anime List</b> ou <b>Manga List</b>, puis <b>« Export My List »</b>.</li>
+        <li>Un fichier <b>.xml.gz</b> se télécharge — tu peux le donner tel quel, le site le décompresse tout seul.</li>
+        <li>Refais l'opération pour l'autre liste (anime et manga s'exportent séparément).</li>
+      </ol>
+    </div>
+    <div style="font-size:13px;color:var(--muted);margin-bottom:16px">
+      Les notes /10 sont reprises telles quelles, le statut est converti (Watching → En cours, Completed → Terminé…), et la progression aussi (épisodes vus, tomes et chapitres lus). Les titres déjà présents sont ignorés. Ensuite : 🖼️ Affiches partout pour les visuels.
+    </div>
+    <div class="actions">
+      <button class="btn-gold" id="btnMalChoisir">📂 Choisir mon fichier (.xml ou .gz)</button>
+      <button class="btn-ghost" id="btnMalFermer">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======== MODALE CONFIDENTIALITÉ ======== -->
 <div id="overlayConf" style="display:none;position:fixed;inset:0;z-index:60;background:rgba(5,5,8,.75);backdrop-filter:blur(6px);align-items:center;justify-content:center;padding:16px">
   <div class="modale">
@@ -925,7 +949,7 @@
 </div>
 
 <script>
-const VERSION = 'v74';
+const VERSION = 'v75';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2799,6 +2823,108 @@ function importerLetterboxd(fichier){
   lecteur.readAsText(fichier);
 }
 
+// ================= import MyAnimeList =================
+// L'export MAL est un XML (souvent compressé en .gz) : une balise <anime> ou <manga> par titre.
+const MAL_STATUTS = {
+  'watching':'encours', 'reading':'encours',
+  'completed':'termine',
+  'on-hold':'pause', 'on hold':'pause', 'onhold':'pause',
+  'dropped':'abandonne',
+  'plan to watch':'prevu', 'plan to read':'prevu', 'plantowatch':'prevu', 'plantoread':'prevu',
+};
+function malTexte(noeud, ...noms){
+  for(const n of noms){
+    const el = noeud.getElementsByTagName(n)[0];
+    if(el) return (el.textContent || '').trim();
+  }
+  return '';
+}
+function malDate(s){ // MAL écrit 0000-00-00 quand la date est absente
+  return /^\d{4}-\d{2}-\d{2}$/.test(s) && s.slice(0,4) !== '0000' ? s : '';
+}
+function malNombre(s){
+  const n = parseInt(s, 10);
+  return (!isNaN(n) && n > 0) ? String(n) : '';
+}
+// lit le fichier en texte, en décompressant le gzip si besoin
+async function malLireTexte(fichier){
+  const buf = await fichier.arrayBuffer();
+  const oct = new Uint8Array(buf);
+  const gzip = oct.length > 2 && oct[0] === 0x1f && oct[1] === 0x8b;   // signature gzip
+  if(!gzip) return new TextDecoder('utf-8').decode(buf);
+  if(typeof DecompressionStream === 'undefined') throw new Error('gzip-non-supporte');
+  const flux = new Blob([buf]).stream().pipeThrough(new DecompressionStream('gzip'));
+  return await new Response(flux).text();
+}
+async function importerMAL(fichier){
+  let txt;
+  try{
+    txt = await malLireTexte(fichier);
+  }catch(e){
+    alert("Impossible de lire ce fichier.\n\nS'il finit par .gz, décompresse-le d'abord (clic droit → Extraire, ou 7-Zip) puis redonne-moi le .xml.");
+    return;
+  }
+  try{
+    const doc = new DOMParser().parseFromString(txt, 'text/xml');
+    if(doc.getElementsByTagName('parsererror').length) throw new Error('xml illisible');
+    const noeuds = [];
+    Array.prototype.forEach.call(doc.getElementsByTagName('anime'), n => noeuds.push({ n, c:'anime' }));
+    Array.prototype.forEach.call(doc.getElementsByTagName('manga'), n => noeuds.push({ n, c:'manga' }));
+    if(!noeuds.length) throw new Error('aucune entree');
+
+    const existants = {
+      anime: new Set(etat.anime.map(f => cleTitre('anime', f.titre))),
+      manga: new Set(etat.manga.map(f => cleTitre('manga', f.titre))),
+    };
+    const jour = aujourdhui();
+    let ajAnime = 0, ajManga = 0, doublons = 0;
+
+    noeuds.forEach((e, idx) => {
+      const c = e.c, n = e.n;
+      const titre = malTexte(n, 'series_title', 'manga_title');
+      if(!titre) return;
+      const k = cleTitre(c, titre);
+      if(existants[c].has(k)){ doublons++; return; }
+      existants[c].add(k);
+
+      const score = parseFloat(malTexte(n, 'my_score'));
+      const note = (isNaN(score) || score <= 0) ? null : Math.min(10, Math.round(score * 10) / 10);
+      const statut = MAL_STATUTS[malTexte(n, 'my_status').toLowerCase()] || 'termine';
+      // la date = jour de sortie du dernier épisode traité. Pour un titre EN COURS on repart
+      // d'aujourd'hui, sinon « Prochaines sorties » afficherait des dizaines d'épisodes en retard.
+      const dateMal = malDate(malTexte(n, 'my_finish_date')) || malDate(malTexte(n, 'my_start_date'));
+      const date = statut === 'encours' ? jour : (dateMal || '');
+      const ts = dateMal ? new Date(dateMal + 'T12:00:00').getTime() : Date.now() + idx;
+
+      const item = {
+        id: nouvelId(),
+        titre, note,
+        date, affiche: '', avis: '', ajout: ts,
+        statut, freq: '7',
+        p1: c === 'anime' ? '1' : malNombre(malTexte(n, 'my_read_volumes')),
+        p2: c === 'anime' ? malNombre(malTexte(n, 'my_watched_episodes')) : malNombre(malTexte(n, 'my_read_chapters')),
+      };
+      // horodatage de la note UNIQUEMENT si MAL fournit une vraie date : sans ça, un import de
+      // 300 titres remplirait tout le feed d'activité de la communauté avec des « a noté ».
+      if(note !== null && dateMal) item.majNote = ts;
+      const idMal = malTexte(n, 'series_animedb_id', 'manga_mangadb_id');
+      if(/^\d+$/.test(idMal)) item.ref = 'mal:' + idMal;   // sert au rapprochement entre utilisateurs
+
+      etat[c].push(item);
+      if(c === 'anime') ajAnime++; else ajManga++;
+    });
+
+    const total = ajAnime + ajManga;
+    if(total){ sauver(); majCollage(); rafraichir(); }
+    const detail = [ajAnime ? ajAnime + ' anime' : '', ajManga ? ajManga + ' manga' : ''].filter(Boolean).join(' et ');
+    alert('Import MyAnimeList terminé ✓\n' + (total ? detail + ' importé(s)' : 'Aucun nouveau titre')
+      + (doublons ? ', ' + doublons + ' déjà présent(s) (ignorés)' : '') + '.'
+      + '\n\nAstuce : le bouton 🖼️ « Affiches partout » de chaque catégorie récupère toutes les affiches d\'un coup.');
+  }catch(err){
+    alert("Fichier non reconnu — il faut l'export MyAnimeList (animelist_....xml ou .xml.gz, obtenu via Settings → Export).");
+  }
+}
+
 // ---- export / import ----
 function exporter(){
   const blob = new Blob([JSON.stringify(etat, null, 2)], { type: 'application/json' });
@@ -3083,6 +3209,11 @@ $('vueListe').addEventListener('click', () => setVue('liste'));
 $('vueGrille').addEventListener('click', () => setVue('grille'));
 setVue(localStorage.getItem('cinewawa-vue') || 'liste');
 $('inputLbx').addEventListener('change', e => { if(e.target.files[0]) importerLetterboxd(e.target.files[0]); e.target.value=''; });
+$('btnMal').addEventListener('click', () => { $('overlayMal').style.display = 'flex'; });
+$('btnMalChoisir').addEventListener('click', () => { $('overlayMal').style.display = 'none'; $('inputMal').click(); });
+$('btnMalFermer').addEventListener('click', () => { $('overlayMal').style.display = 'none'; });
+$('overlayMal').addEventListener('click', e => { if(e.target === $('overlayMal')) $('overlayMal').style.display = 'none'; });
+$('inputMal').addEventListener('change', e => { if(e.target.files[0]) importerMAL(e.target.files[0]); e.target.value=''; });
 $('btnCloud').addEventListener('click', ouvrirCloud);
 $('btnCloudOn').addEventListener('click', activerCloud);
 $('btnCloudOff').addEventListener('click', desactiverCloud);
