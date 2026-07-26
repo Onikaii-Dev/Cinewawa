@@ -949,7 +949,7 @@
 </div>
 
 <script>
-const VERSION = 'v75';
+const VERSION = 'v76';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1807,6 +1807,7 @@ function feedFusion(){
 // chaque utilisateur synchronisé poste (une fois) un commentaire ; l'auteur du commentaire
 // est vérifié par GitHub → impossible de s'inscrire sous un faux nom.
 const ANNUAIRE_GIST = 'c5813c308faaa60aaa0b1d13ed47fbee';
+const PROPRIO_ANNUAIRE = 'onikaii-dev'; // en minuscules : ne peut pas forker son propre gist
 
 // liste complète des membres : utilisateurs.json (liste manuelle) + inscrits automatiques
 async function loginsAnnuaire(){
@@ -1821,9 +1822,16 @@ async function loginsAnnuaire(){
     const cache = JSON.parse(localStorage.getItem('cinewawa-annuaire-gist') || 'null');
     if(cache && Date.now() - cache.ts < 5*60e3) noms = cache.noms; // cache 5 min (limites API GitHub)
     if(!noms){
-      const r = await fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments?per_page=100', { headers: enTetes(), cache: 'no-store' });
-      if(r.ok){
-        noms = (await r.json()).map(x => x.user && x.user.login).filter(Boolean);
+      // forks = inscriptions actuelles (silencieuses) ; commentaires = anciennes inscriptions (compat)
+      const [rf, rc] = await Promise.all([
+        fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/forks?per_page=100', { headers: enTetes(), cache: 'no-store' }).catch(() => null),
+        fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments?per_page=100', { headers: enTetes(), cache: 'no-store' }).catch(() => null),
+      ]);
+      const lst = [];
+      if(rf && rf.ok) (await rf.json()).forEach(x => { const l = x && x.owner && x.owner.login; if(l) lst.push(l); });
+      if(rc && rc.ok) (await rc.json()).forEach(x => { const l = x && x.user && x.user.login; if(l) lst.push(l); });
+      if((rf && rf.ok) || (rc && rc.ok)){
+        noms = lst;
         try{ localStorage.setItem('cinewawa-annuaire-gist', JSON.stringify({ ts: Date.now(), noms })); }catch(e){}
       } else if(cache) noms = cache.noms; // API indisponible → on ressort le vieux cache
     }
@@ -1839,15 +1847,21 @@ async function inscrireAnnuaire(){
     const login = await obtenirMonLogin();
     if(!login) return;
     if(localStorage.getItem('cinewawa-annuaire-inscrit') === login) return;
-    // déjà inscrit (autre appareil) ? on vérifie avant de poster
-    const r = await fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments?per_page=100', { headers: enTetes(), cache: 'no-store' });
-    const deja = r.ok && (await r.json()).some(x => x.user && x.user.login && x.user.login.toLowerCase() === login.toLowerCase());
+    const bas = login.toLowerCase();
+    // le propriétaire du gist ne peut pas forker le sien : il est déjà dans utilisateurs.json
+    if(bas === PROPRIO_ANNUAIRE){ localStorage.setItem('cinewawa-annuaire-inscrit', login); return; }
+    // déjà inscrit (autre appareil, ou ancien commentaire) ? on vérifie avant d'agir
+    const [rf, rc] = await Promise.all([
+      fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/forks?per_page=100', { headers: enTetes(), cache: 'no-store' }).catch(() => null),
+      fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments?per_page=100', { headers: enTetes(), cache: 'no-store' }).catch(() => null),
+    ]);
+    let deja = false;
+    if(rf && rf.ok) deja = (await rf.json()).some(x => x && x.owner && x.owner.login && x.owner.login.toLowerCase() === bas);
+    if(!deja && rc && rc.ok) deja = (await rc.json()).some(x => x && x.user && x.user.login && x.user.login.toLowerCase() === bas);
     if(!deja){
-      const rc = await fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/comments', {
-        method: 'POST', headers: enTetes(),
-        body: JSON.stringify({ body: "📇 Inscription automatique à l'annuaire Ciné'Wawa" }),
-      });
-      if(!rc.ok) return; // on retentera à la prochaine visite
+      // fork du gist annuaire : identité vérifiée par GitHub, et AUCUNE notification envoyée aux membres
+      const rp = await fetch('https://api.github.com/gists/' + ANNUAIRE_GIST + '/forks', { method: 'POST', headers: enTetes() });
+      if(!rp.ok && rp.status !== 422) return; // on retentera à la prochaine visite
       localStorage.removeItem('cinewawa-annuaire-gist'); // pour que l'annuaire se rafraîchisse
     }
     localStorage.setItem('cinewawa-annuaire-inscrit', login);
