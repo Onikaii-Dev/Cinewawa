@@ -420,6 +420,13 @@
   .uc-voir:hover{filter:brightness(1.08)}
   .uc-badge{margin-left:auto;font-size:12px;font-weight:800;border-radius:9px;padding:8px 14px;white-space:nowrap}
   .uc-badge.prive{background:rgba(229,72,77,.16);color:#ff9296;border:1px solid rgba(229,72,77,.45)}
+  .uc-presence{margin-left:auto;align-self:flex-start;margin-top:2px;flex-shrink:0;
+    display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;line-height:1;
+    font-variant-numeric:tabular-nums;letter-spacing:.2px}
+  .uc-presence i{width:7px;height:7px;border-radius:50%;display:block;flex-shrink:0}
+  .uc-presence.en-ligne i{background:#3fb950;box-shadow:0 0 7px rgba(63,185,80,.85)}
+  .uc-presence.hors-ligne{color:#e5484d;opacity:.85}
+  .uc-presence.hors-ligne i{background:#e5484d;opacity:.9}
 
   /* ---- accueil : sorties et activité côte à côte ---- */
   .duo-accueil{display:grid;grid-template-columns:repeat(auto-fit,minmax(400px,1fr));gap:20px;align-items:stretch}
@@ -949,7 +956,7 @@
 </div>
 
 <script>
-const VERSION = 'v76';
+const VERSION = 'v77';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1036,6 +1043,7 @@ function normaliser(d){
       reactions: (d.reactions && typeof d.reactions === 'object' && !Array.isArray(d.reactions)) ? d.reactions : {},
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
       amis: Array.isArray(d.amis) ? d.amis : [],
+      vu: Number(d.vu) || 0,        // présence : horodatage de dernière activité
       modif:  d.modif  || 0,
     });
   }
@@ -2586,6 +2594,8 @@ async function allerUtilisateurs(){
         pied.innerHTML = '<span class="uc-badge prive">🔒 Privé</span>';
         return;
       }
+      // présence : affichée même si la liste est privée
+      carte.querySelector('.uc-head').insertAdjacentHTML('beforeend', htmlPresence(d.vu));
       carte.querySelector('.uc-pseudo').textContent = d.pseudo || login;
       if(d.bio){ bio.textContent = d.bio; bio.classList.add('on'); }
       const vis = d.visibilite || 'public';
@@ -3034,6 +3044,47 @@ async function pousserCloud(){
   try{ majCloudEtat('sync'); await gistEcrire(); pushEnAttente = false; majCloudEtat('ok'); }
   catch(e){ majCloudEtat('err', e); }
 }
+// ---- présence (petit point vert / rouge dans l'annuaire) ----
+// principe : on écrit régulièrement un horodatage `vu` dans le Gist tant que l'onglet est visible.
+// `vu` ne touche JAMAIS à `modif` → la présence ne peut pas gagner un conflit de synchro.
+const PRESENCE_MS = 4 * 60000;   // battement toutes les 4 min
+const EN_LIGNE_MS = 9 * 60000;   // « en ligne » si vu il y a moins de 9 min
+let battementTimer = null;
+
+async function battement(){
+  if(!cloudActif() || document.hidden) return;
+  try{
+    const distant = await gistLire();                       // on relit d'abord : jamais écraser plus récent
+    if(distant && (distant.modif || 0) > (etat.modif || 0) && !pushEnAttente) appliquerDonnees(distant);
+    etat.vu = Date.now();
+    try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+    await gistEcrire();
+    pushEnAttente = false;
+    derniereSync = Date.now();
+    majCloudEtat('ok');
+  }catch(e){ /* silencieux : la présence n'est pas critique */ }
+}
+function lancerBattement(){
+  battement();
+  if(battementTimer) return;
+  battementTimer = setInterval(battement, PRESENCE_MS);
+}
+function fmtDepuis(ms){
+  const min = Math.floor(ms / 60000);
+  if(min < 1) return '1m';
+  if(min < 60) return min + 'm';
+  const h = Math.floor(min / 60);
+  if(h < 24) return h + 'h';
+  const j = Math.floor(h / 24);
+  return j < 365 ? j + 'j' : Math.floor(j / 365) + 'a';
+}
+function htmlPresence(vu){
+  if(!vu) return '';                                        // jamais vu (ancienne version) → rien
+  const ecart = Date.now() - vu;
+  if(ecart < EN_LIGNE_MS) return '<span class="uc-presence en-ligne" title="En ligne"><i></i></span>';
+  return '<span class="uc-presence hors-ligne" title="Hors ligne depuis ' + ilYA(vu) + '"><i></i>' + fmtDepuis(ecart) + '</span>';
+}
+
 async function tirerCloud(force){
   if(!cloudActif()) return;
   if(pushEnAttente){ await pousserCloud(); return; } // une modif locale attend → on pousse au lieu de tirer
@@ -3153,6 +3204,7 @@ async function activerCloud(){
     $('btnCloudOff').style.display = 'block';
     majCloudEtat('ok');
     inscrireAnnuaire();   // inscription automatique à l'annuaire des utilisateurs
+    lancerBattement();    // présence en ligne
     chargerNotesCommu(true);
   }catch(e){
     cloud = { token: '', gistId: '' };
@@ -3169,7 +3221,7 @@ function desactiverCloud(){
 }
 
 // resync quand on revient sur l'onglet / l'appli (pratique en alternant PC et téléphone)
-document.addEventListener('visibilitychange', () => { if(!document.hidden){ tirerCloud(false); chargerNotesCommu(); } });
+document.addEventListener('visibilitychange', () => { if(!document.hidden){ tirerCloud(false); chargerNotesCommu(); battement(); } });
 window.addEventListener('focus', () => { tirerCloud(false); chargerNotesCommu(); });
 
 // ================= PWA (installer comme une appli sur téléphone) =================
@@ -3376,6 +3428,7 @@ majEtatSauvegarde();
 majBoutonProfil();
 if(cloudActif()){
   tirerCloud(true);            // au démarrage : on récupère la dernière version du cloud
+  lancerBattement();           // et on signale sa présence (point vert dans l'annuaire)
   inscrireAnnuaire();          // et on s'assure d'être inscrit à l'annuaire (une seule fois)
   obtenirMonLogin().then(majBoutonProfil);  // photo GitHub du bouton profil
 }
