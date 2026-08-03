@@ -555,6 +555,91 @@
   .lien-token-sub{display:block;font-size:11.5px;color:var(--muted);line-height:1.45}
   .lien-token-sub b{display:inline;font-size:inherit;color:#cfe0ff}
   .lien-token-fleche{margin-left:auto;color:var(--neon);font-size:18px;flex-shrink:0}
+
+  /* ---- Défi « Avengers: Doomsday » ---- */
+  :root{ --dd:#35c96f; --dd2:#1d7f47; }
+  .mcu-banner{position:relative;overflow:hidden;isolation:isolate;width:100%;display:flex;align-items:center;gap:16px;
+    margin-top:18px;padding:18px 20px;cursor:pointer;text-align:left;color:var(--txt);font-family:inherit;
+    background:linear-gradient(120deg,rgba(20,42,30,.95) 0%,rgba(16,20,26,.95) 55%,rgba(12,12,18,.96) 100%);
+    border:1px solid rgba(53,201,111,.28);border-radius:18px;box-shadow:0 6px 22px rgba(0,0,0,.34);
+    transition:transform .22s cubic-bezier(.2,.7,.3,1),border-color .22s ease,box-shadow .22s ease}
+  .mcu-banner::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
+    background:radial-gradient(90% 120% at 0% 50%,var(--dd) 0%,transparent 62%);opacity:.15;transition:opacity .25s ease}
+  .mcu-banner:hover{transform:translateY(-3px);border-color:rgba(53,201,111,.55);box-shadow:0 14px 34px rgba(0,0,0,.46)}
+  .mcu-banner:hover::before{opacity:.3}
+  .mcu-b-ico{flex-shrink:0;width:50px;height:50px;display:flex;align-items:center;justify-content:center;font-size:26px;
+    border-radius:14px;background:rgba(255,255,255,.045);border:1px solid rgba(53,201,111,.3)}
+  .mcu-b-txt{flex:1;min-width:0}
+  .mcu-b-nom{font-family:'Bebas Neue',sans-serif;font-size:28px;letter-spacing:.05em;line-height:1}
+  .mcu-b-sous{color:var(--muted);font-size:13px;margin-top:5px}
+  .mcu-b-sous b{color:var(--dd);font-weight:800}
+  .mcu-b-barre{margin-top:9px;height:6px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .mcu-b-barre i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--dd2),var(--dd));
+    box-shadow:0 0 12px rgba(53,201,111,.55);transition:width .5s ease;width:0}
+  .mcu-b-pct{font-family:'Bebas Neue',sans-serif;font-size:36px;color:var(--dd);letter-spacing:.02em;flex-shrink:0}
+  @media (max-width:520px){.mcu-b-nom{font-size:23px}.mcu-b-pct{font-size:28px}.mcu-banner{padding:15px 16px;gap:12px}}
+
+  /* hero de la page */
+  .mcu-hero{display:flex;align-items:center;gap:24px;flex-wrap:wrap;
+    background:linear-gradient(120deg,rgba(20,42,30,.9) 0%,rgba(17,17,23,.94) 60%);
+    border:1px solid rgba(53,201,111,.22);border-radius:18px;padding:22px;margin-bottom:22px}
+  .mcu-ring{width:126px;height:126px;flex-shrink:0}
+  .mcu-ring circle{fill:none;stroke-width:9;stroke-linecap:round}
+  .mcu-ring .fond{stroke:rgba(255,255,255,.08)}
+  .mcu-ring .jauge{stroke:var(--dd);filter:drop-shadow(0 0 6px rgba(53,201,111,.6));transition:stroke-dashoffset .6s ease}
+  .mcu-ring text{fill:#fff;font-family:'Bebas Neue',sans-serif;font-size:30px;text-anchor:middle}
+  .mcu-hero-txt{flex:1;min-width:220px}
+  .mcu-hero-txt h2{margin:0 0 6px;font-family:'Bebas Neue',sans-serif;font-size:32px;letter-spacing:.04em;font-weight:400}
+  .mcu-hero-txt p{margin:0;color:var(--muted);font-size:13.5px;line-height:1.55}
+  .mcu-actions{display:flex;gap:9px;flex-wrap:wrap;margin-top:14px}
+  .btn-dd{background:var(--dd);color:#08210f;border:none;border-radius:9px;padding:9px 15px;font-size:13px;font-weight:800;
+    cursor:pointer;font-family:inherit;white-space:nowrap}
+  .btn-dd:hover{filter:brightness(1.1)}
+
+  /* sections films / séries */
+  .mcu-sect{margin-bottom:26px}
+  .mcu-sect-tete{display:flex;align-items:center;gap:12px;margin-bottom:12px;flex-wrap:wrap}
+  .mcu-sect-tete .t{font-family:'Bebas Neue',sans-serif;font-size:27px;letter-spacing:.05em}
+  .mcu-sect-tete .n{color:var(--muted);font-size:13px}
+  .mcu-sect-tete .n b{color:var(--dd);font-weight:800}
+  .mcu-sect-barre{flex:1;min-width:120px;height:5px;border-radius:99px;background:rgba(255,255,255,.08);overflow:hidden}
+  .mcu-sect-barre i{display:block;height:100%;border-radius:99px;background:linear-gradient(90deg,var(--dd2),var(--dd));transition:width .5s ease}
+  .mcu-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(124px,1fr));gap:12px}
+  @media (max-width:520px){.mcu-grille{grid-template-columns:repeat(auto-fill,minmax(104px,1fr));gap:9px}}
+
+  .mcu-tuile{position:relative;padding:0;border:1px solid var(--border);border-radius:12px;overflow:hidden;cursor:pointer;
+    background:#101014;aspect-ratio:2/3;font-family:inherit;color:var(--txt);
+    transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}
+  .mcu-tuile:hover{transform:translateY(-3px);border-color:var(--border-h)}
+  .mcu-tuile img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;
+    filter:grayscale(.85) brightness(.55);transition:filter .25s ease}
+  .mcu-tuile .vide-aff{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;padding:10px;
+    text-align:center;font-family:'Bebas Neue',sans-serif;font-size:17px;letter-spacing:.04em;color:#6f6f7c;
+    background:linear-gradient(160deg,#1a1a22,#0e0e14)}
+  .mcu-tuile .voile-t{position:absolute;inset:0;background:linear-gradient(180deg,rgba(0,0,0,.15) 0%,rgba(8,8,12,.35) 45%,rgba(8,8,12,.94) 100%)}
+  .mcu-tuile .nom-t{position:absolute;left:8px;right:8px;bottom:7px;font-size:11.5px;font-weight:700;line-height:1.25;
+    text-align:left;text-shadow:0 1px 5px rgba(0,0,0,.9)}
+  .mcu-tuile .an-t{display:block;color:#9a9aa6;font-weight:600;font-size:10.5px;margin-top:2px}
+  .mcu-tuile .num-t{position:absolute;left:7px;top:7px;min-width:20px;height:20px;padding:0 5px;border-radius:6px;
+    display:flex;align-items:center;justify-content:center;font-size:11px;font-weight:800;
+    background:rgba(8,8,12,.75);border:1px solid rgba(255,255,255,.14);color:#c9c9d4}
+  .mcu-tuile .chk-t{position:absolute;right:7px;top:7px;width:23px;height:23px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:13px;font-weight:800;
+    background:rgba(8,8,12,.72);border:1px solid rgba(255,255,255,.18);color:transparent;transition:all .18s ease}
+  .mcu-tuile.vu{border-color:var(--dd);box-shadow:0 0 0 1px rgba(53,201,111,.35),0 8px 20px rgba(0,0,0,.4)}
+  .mcu-tuile.vu img{filter:grayscale(0) brightness(1)}
+  .mcu-tuile.vu .chk-t{background:var(--dd);border-color:var(--dd);color:#08210f}
+  .mcu-tuile.vu .voile-t{background:linear-gradient(180deg,rgba(0,0,0,.05) 0%,rgba(8,8,12,.2) 40%,rgba(8,8,12,.92) 100%)}
+
+  /* carte finale */
+  .mcu-final{position:relative;overflow:hidden;border-radius:18px;padding:26px 22px;text-align:center;
+    border:1px solid rgba(53,201,111,.25);background:linear-gradient(160deg,rgba(18,38,27,.92),rgba(11,11,16,.96))}
+  .mcu-final .gros{font-family:'Bebas Neue',sans-serif;font-size:42px;letter-spacing:.06em;line-height:1;margin-bottom:8px}
+  .mcu-final .sous{color:var(--muted);font-size:14px}
+  .mcu-final.pret{border-color:var(--dd);box-shadow:0 0 34px rgba(53,201,111,.25) inset,0 10px 30px rgba(0,0,0,.45)}
+  .mcu-final.pret .gros{color:var(--dd);text-shadow:0 0 22px rgba(53,201,111,.5)}
+  .mcu-final .cadenas{font-size:34px;margin-bottom:10px;opacity:.75}
+  @media (max-width:520px){.mcu-final .gros{font-size:31px}}
 </style>
 </head>
 <body>
@@ -647,6 +732,15 @@
   <div id="pageAccueil">
     <div class="cav-titre" style="margin-top:4px;margin-bottom:16px">🍿 Que veux-tu consulter ?</div>
     <div class="grille-cat" id="grilleCat"></div>
+    <button class="mcu-banner" id="btnMcu" title="Défi Avengers: Doomsday">
+      <div class="mcu-b-ico">🛡️</div>
+      <div class="mcu-b-txt">
+        <div class="mcu-b-nom">Défi Avengers: Doomsday</div>
+        <div class="mcu-b-sous" id="mcuBanSous"></div>
+        <div class="mcu-b-barre"><i id="mcuBanBarre"></i></div>
+      </div>
+      <div class="mcu-b-pct" id="mcuBanPct">0%</div>
+    </button>
     <div class="duo-accueil" id="duoAccueil"></div>
     <div id="zoneUtilisateurs"></div>
   </div>
@@ -662,6 +756,38 @@
       Les watchlists publiques de la communauté — consultation seule, personne ne peut modifier celle des autres.
     </div>
     <div id="listeUsers"></div>
+  </div>
+
+
+  <!-- ======== DÉFI AVENGERS: DOOMSDAY ======== -->
+  <div id="pageMcu" class="cache">
+    <header>
+      <button class="retour" id="btnRetourMcu" title="Retour à l'accueil">←</button>
+      <div class="avatar" style="cursor:default;background:linear-gradient(135deg,#35c96f,#12321f)">🛡️</div>
+      <h1>Avengers: Doomsday</h1>
+    </header>
+
+    <div class="mcu-hero">
+      <svg class="mcu-ring" viewBox="0 0 120 120">
+        <circle class="fond" cx="60" cy="60" r="52"></circle>
+        <circle class="jauge" id="mcuJauge" cx="60" cy="60" r="52" transform="rotate(-90 60 60)"
+                stroke-dasharray="326.7" stroke-dashoffset="326.7"></circle>
+        <text x="60" y="70" id="mcuPctRing">0%</text>
+      </svg>
+      <div class="mcu-hero-txt">
+        <h2 id="mcuHeroTitre">Ta route vers le Doomsday</h2>
+        <p id="mcuHeroSous">Coche les films que tu as déjà vus : la jauge se remplit et te dit si tu es prêt.</p>
+        <div class="mcu-actions" id="mcuActions">
+          <button class="btn-dd" id="btnMcuDetect">✨ Détecter depuis ma liste</button>
+          <button class="btn-mini" id="btnMcuTout">Tout cocher</button>
+          <button class="btn-mini" id="btnMcuRien">Tout décocher</button>
+        </div>
+        <div id="mcuMsgZone" style="display:none;margin-top:10px;font-size:13px;font-weight:600"></div>
+      </div>
+    </div>
+
+    <div id="mcuSections"></div>
+    <div id="mcuFinal"></div>
   </div>
 
   <!-- ======== CATÉGORIE ======== -->
@@ -956,7 +1082,7 @@
 </div>
 
 <script>
-const VERSION = 'v77';
+const VERSION = 'v80';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -976,7 +1102,7 @@ const STATUTS = {
 
 // ================= état =================
 const CLE = 'cinewawa-v1';
-let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {} };
+let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {}, mcu: [] };
 let catCourante = null;   // null = accueil
 let enEdition = null;
 let visu = null;          // { login, pseudo, data } quand on consulte la liste de quelqu'un (lecture seule)
@@ -1029,7 +1155,7 @@ function normaliser(d){
   if(!d || typeof d !== 'object') return null;
   // ancien format (filmothèque seule) → migration
   if(Array.isArray(d.films) && !d.series && !d.anime && !d.manga){
-    return reparerIds({ titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {} });
+    return reparerIds({ titre: "Ciné'Wawa", films: d.films, series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {}, mcu: [] });
   }
   if(Array.isArray(d.films) || Array.isArray(d.series) || Array.isArray(d.anime) || Array.isArray(d.manga)){
     return reparerIds({
@@ -1041,6 +1167,7 @@ function normaliser(d){
       pseudo: d.pseudo || '',
       bio: (typeof d.bio === 'string' ? d.bio : '').slice(0, BIO_MAX),
       reactions: (d.reactions && typeof d.reactions === 'object' && !Array.isArray(d.reactions)) ? d.reactions : {},
+      mcu: Array.isArray(d.mcu) ? d.mcu : [],        // défi Avengers: Doomsday (ids cochés)
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
       amis: Array.isArray(d.amis) ? d.amis : [],
       vu: Number(d.vu) || 0,        // présence : horodatage de dernière activité
@@ -1131,12 +1258,14 @@ function allerAccueil(){
   $('pageAccueil').classList.remove('cache');
   $('pageCategorie').classList.add('cache');
   $('pageUtilisateurs').classList.add('cache');
+  $('pageMcu').classList.add('cache');
   rendreAccueil();
 }
 function allerCategorie(c){
   catCourante = c;
   $('pageAccueil').classList.add('cache');
   $('pageUtilisateurs').classList.add('cache');
+  $('pageMcu').classList.add('cache');
   $('pageCategorie').classList.remove('cache');
   const conf = CATS[c];
   $('catTitre').textContent = conf.nom;
@@ -1205,6 +1334,7 @@ function rendreAccueil(){
   rendreSectionsAccueil();
 }
 function rendreSectionsAccueil(){
+  majBanniereMcu();              // jauge du défi Doomsday
   rendreProchainsEpisodes();     // colonne de gauche
   rendreFeed();                  // colonne de droite
   if(!visu) afficherMonRecap();  // ma carte récap tout en bas, pleine largeur
@@ -2555,6 +2685,7 @@ async function allerUtilisateurs(){
   catCourante = null;
   $('pageAccueil').classList.add('cache');
   $('pageCategorie').classList.add('cache');
+  $('pageMcu').classList.add('cache');
   $('pageUtilisateurs').classList.remove('cache');
   document.title = "Ciné'Wawa — Utilisateurs";
   const zone = $('listeUsers');
@@ -3244,6 +3375,279 @@ function initPWA(){
 }
 
 
+
+// ================= Défi « Avengers: Doomsday » =================
+// Parcours complet à voir avant le film : colonne films + colonne séries (d'après l'affiche officielle du parcours).
+// Chaque entrée : id stable (sert de sauvegarde), titre affiché, année, requête TMDB éventuelle, alias FR pour la détection.
+const MCU_FILMS = [
+  { id:'im1',      t:'Iron Man',                                   a:2008 },
+  { id:'hulk',     t:'The Incredible Hulk',                        a:2008, al:["L'Incroyable Hulk"] },
+  { id:'im2',      t:'Iron Man 2',                                 a:2010 },
+  { id:'thor1',    t:'Thor',                                       a:2011 },
+  { id:'cap1',     t:'Captain America: The First Avenger',         a:2011, al:['Captain America: First Avenger'] },
+  { id:'av1',      t:'The Avengers',                               a:2012, q:'The Avengers', al:['Avengers'] },
+  { id:'im3',      t:'Iron Man 3',                                 a:2013 },
+  { id:'thor2',    t:'Thor: The Dark World',                       a:2013, al:['Thor: Le Monde des ténèbres'] },
+  { id:'cap2',     t:'Captain America: The Winter Soldier',        a:2014, al:["Captain America: Le Soldat de l'hiver"] },
+  { id:'gotg1',    t:'Guardians of the Galaxy',                    a:2014, al:['Les Gardiens de la Galaxie'] },
+  { id:'av2',      t:'Avengers: Age of Ultron',                    a:2015, al:["Avengers: L'Ère d'Ultron"] },
+  { id:'antman1',  t:'Ant-Man',                                    a:2015 },
+  { id:'cap3',     t:'Captain America: Civil War',                 a:2016, al:['Civil War'] },
+  { id:'strange1', t:'Doctor Strange',                             a:2016, al:['Docteur Strange'] },
+  { id:'gotg2',    t:'Guardians of the Galaxy Vol. 2',             a:2017, al:['Les Gardiens de la Galaxie Vol. 2'] },
+  { id:'sm1',      t:'Spider-Man: Homecoming',                     a:2017 },
+  { id:'thor3',    t:'Thor: Ragnarok',                             a:2017 },
+  { id:'bp1',      t:'Black Panther',                              a:2018 },
+  { id:'av3',      t:'Avengers: Infinity War',                     a:2018 },
+  { id:'antman2',  t:'Ant-Man and the Wasp',                       a:2018, al:['Ant-Man et la Guêpe'] },
+  { id:'cm1',      t:'Captain Marvel',                             a:2019 },
+  { id:'av4',      t:'Avengers: Endgame',                          a:2019 },
+  { id:'sm2',      t:'Spider-Man: Far From Home',                  a:2019, al:['Spider-Man: Loin des siens'] },
+  { id:'bw',       t:'Black Widow',                                a:2021, al:['Veuve Noire'] },
+  { id:'shangchi', t:'Shang-Chi and the Legend of the Ten Rings',  a:2021, al:['Shang-Chi et la Légende des Dix Anneaux'] },
+  { id:'eternals', t:'Eternals',                                   a:2021, al:['Les Éternels'] },
+  { id:'sm3',      t:'Spider-Man: No Way Home',                    a:2021 },
+  { id:'strange2', t:'Doctor Strange in the Multiverse of Madness',a:2022, al:['Doctor Strange in the Multiverse of Madness'] },
+  { id:'thor4',    t:'Thor: Love and Thunder',                     a:2022 },
+  { id:'bp2',      t:'Black Panther: Wakanda Forever',             a:2022, al:['Wakanda Forever'] },
+  { id:'antman3',  t:'Ant-Man and the Wasp: Quantumania',          a:2023, al:['Ant-Man et la Guêpe: Quantumania'] },
+  { id:'gotg3',    t:'Guardians of the Galaxy Vol. 3',             a:2023, al:['Les Gardiens de la Galaxie Vol. 3'] },
+  { id:'marvels',  t:'The Marvels',                                a:2023 },
+  { id:'dpw',      t:'Deadpool & Wolverine',                       a:2024, al:['Deadpool and Wolverine','Deadpool 3'] },
+  { id:'cap4',     t:'Captain America: Brave New World',           a:2025 },
+  { id:'newav',    t:'The New Avengers (Thunderbolts*)',           a:2025, q:'Thunderbolts', nofr:1, al:['Thunderbolts','Thunderbolts*','The New Avengers'] },
+  { id:'ff4',      t:'The Fantastic Four: First Steps',            a:2025, al:['Les 4 Fantastiques: Premiers Pas','Les Quatre Fantastiques: Premiers Pas'] },
+  { id:'sm4',      t:'Spider-Man: Brand New Day',                  a:2026 },
+];
+const MCU_FINAL = { id:'doomsday', t:'Avengers: Doomsday', a:2026 };
+const MCU_TOTAL = MCU_FILMS.length;
+
+// ---- affiches (cache local, jamais envoyé au cloud : ça n'alourdit pas la sauvegarde) ----
+const CLE_MCU_AFF = 'cinewawa-mcu-affiches-v2';   // v2 : { id: {u:affiche, fr:titre français, vo:titre original} }
+let mcuAff = {};
+try{ mcuAff = JSON.parse(localStorage.getItem(CLE_MCU_AFF) || '{}') || {}; }catch(e){ mcuAff = {}; }
+function mcuSauverAff(){ try{ localStorage.setItem(CLE_MCU_AFF, JSON.stringify(mcuAff)); }catch(e){} }
+
+// ---- lecture / écriture de la progression ----
+function mcuListe(){ const d = dact(); return Array.isArray(d.mcu) ? d.mcu : []; }
+function mcuVus(){ return new Set(mcuListe()); }
+function mcuBascule(id){
+  if(visu) return;                                   // lecture seule quand on visite quelqu'un
+  if(!Array.isArray(etat.mcu)) etat.mcu = [];
+  const i = etat.mcu.indexOf(id);
+  if(i >= 0) etat.mcu.splice(i, 1); else etat.mcu.push(id);
+  sauver();
+}
+function mcuPct(){ const v = mcuVus(); let n = 0;
+  MCU_FILMS.forEach(x => { if(v.has(x.id)) n++; });
+  return { n, total: MCU_TOTAL, pct: MCU_TOTAL ? Math.round(n / MCU_TOTAL * 100) : 0 };
+}
+
+// ---- bannière d'accueil ----
+function majBanniereMcu(){
+  const b = $('mcuBanBarre'), p = $('mcuBanPct'), s = $('mcuBanSous');
+  if(!b) return;
+  const r = mcuPct();
+  b.style.width = r.pct + '%';
+  p.textContent = r.pct + '%';
+  s.innerHTML = r.n >= r.total
+    ? 'Parcours terminé — tu peux foncer voir le film 🍿'
+    : '<b>' + r.n + '</b> / ' + r.total + ' films cochés · encore <b>' + (r.total - r.n) + '</b> avant le film';
+}
+
+// ---- page du défi ----
+function allerMcu(){
+  catCourante = null;
+  $('pageAccueil').classList.add('cache');
+  $('pageCategorie').classList.add('cache');
+  $('pageUtilisateurs').classList.add('cache');
+  $('pageMcu').classList.remove('cache');
+  document.title = "Ciné'Wawa — Avengers: Doomsday";
+  rendreMcu();
+  mcuChargerAffiches();
+}
+
+// titre affiché : le titre français officiel de TMDB s'il est connu, sinon mon libellé
+function mcuTitre(x){
+  const c = mcuAff[x.id];
+  return (c && c.fr && !x.nofr) ? c.fr : x.t;
+}
+function mcuTuile(x, i, vus){
+  const c = mcuAff[x.id];
+  const nom = mcuTitre(x);
+  const visuel = (c && c.u)
+    ? '<img src="' + echap(c.u) + '" alt="" loading="lazy">'
+    : '<div class="vide-aff">' + echap(nom) + '</div>';
+  return '<button class="mcu-tuile' + (vus.has(x.id) ? ' vu' : '') + '" data-mcu="' + x.id + '" title="' + echap(nom) + ' (' + x.a + ')">'
+    + visuel
+    + '<span class="voile-t"></span>'
+    + '<span class="num-t">' + (i+1) + '</span>'
+    + '<span class="chk-t">✓</span>'
+    + '<span class="nom-t">' + echap(nom) + '<span class="an-t">' + x.a + '</span></span>'
+    + '</button>';
+}
+function mcuSection(cle, ico, nom, liste, vus){
+  const n = liste.filter(x => vus.has(x.id)).length;
+  const pct = liste.length ? Math.round(n / liste.length * 100) : 0;
+  return '<div class="mcu-sect" data-sect="' + cle + '">'
+    + '<div class="mcu-sect-tete">'
+      + '<span class="t">' + ico + ' ' + nom + '</span>'
+      + '<span class="n"><b>' + n + '</b> / ' + liste.length + '</span>'
+      + '<span class="mcu-sect-barre"><i style="width:' + pct + '%"></i></span>'
+      + '<span class="n">' + pct + '%</span>'
+    + '</div>'
+    + '<div class="mcu-grille">' + liste.map((x,i) => mcuTuile(x, i, vus)).join('') + '</div>'
+    + '</div>';
+}
+function rendreMcu(){
+  const vus = mcuVus();
+  const r = mcuPct();
+
+  // anneau de progression
+  const circ = 2 * Math.PI * 52;
+  const j = $('mcuJauge');
+  j.setAttribute('stroke-dasharray', circ.toFixed(1));
+  j.setAttribute('stroke-dashoffset', (circ * (1 - r.pct/100)).toFixed(1));
+  $('mcuPctRing').textContent = r.pct + '%';
+  $('mcuHeroTitre').textContent = visu
+    ? 'Parcours de ' + visu.pseudo
+    : (r.n >= r.total ? 'Prêt pour le Doomsday !' : 'Ta route vers le Doomsday');
+  $('mcuHeroSous').innerHTML = visu
+    ? '<b>' + r.n + '</b> / ' + r.total + ' films vus — lecture seule.'
+    : ('<b>' + r.n + '</b> / ' + r.total + ' films cochés. '
+       + (r.n >= r.total ? 'Tout est vu : le film n\'aura aucun secret pour toi.' : 'Clique une affiche pour la cocher — la sauvegarde est automatique.'));
+  $('mcuActions').style.display = visu ? 'none' : '';
+
+  $('mcuSections').innerHTML = mcuSection('films', '🎬', 'Films', MCU_FILMS, vus);
+
+  // carte finale
+  const reste = r.total - r.n;
+  const aff = mcuAff[MCU_FINAL.id] && mcuAff[MCU_FINAL.id].u;
+  $('mcuFinal').innerHTML = '<div class="mcu-final' + (reste === 0 ? ' pret' : '') + '">'
+    + (aff ? '<img src="' + echap(aff) + '" alt="" style="width:120px;border-radius:10px;margin-bottom:14px;box-shadow:0 10px 26px rgba(0,0,0,.5)">' : '')
+    + (reste === 0 ? '' : '<div class="cadenas">🔒</div>')
+    + '<div class="gros">Avengers: Doomsday</div>'
+    + '<div class="sous">' + (reste === 0
+        ? 'Parcours complet ✓ Tu as tout vu, bonne séance !'
+        : 'Encore <b style="color:#35c96f">' + reste + '</b> film' + (reste>1?'s':'') + ' à voir pour tout comprendre.') + '</div>'
+    + '</div>';
+
+  $('mcuSections').querySelectorAll('.mcu-tuile').forEach(b => {
+    b.addEventListener('click', () => {
+      if(visu) return;
+      mcuBascule(b.dataset.mcu);
+      rendreMcu();
+    });
+  });
+}
+
+// ---- récupération des affiches TMDB (une fois, puis cache local) ----
+let mcuAffEnCours = false;
+async function mcuAffUne(x, type){
+  const q = x.q || x.t;
+  const base = 'https://api.themoviedb.org/3/search/' + type + '?api_key=' + TMDB_KEY
+    + '&language=fr-FR&include_adult=false&query=' + encodeURIComponent(q);
+  const essais = [base + (type === 'movie' ? '&year=' + x.a : '&first_air_date_year=' + x.a), base];
+  for(const url of essais){
+    try{
+      const r = await fetch(url);
+      if(!r.ok) continue;
+      const j = await r.json();
+      const trouve = (j.results || []).find(v => v.poster_path);
+      if(trouve) return {
+        u:  'https://image.tmdb.org/t/p/w342' + trouve.poster_path,
+        fr: trouve.title || trouve.name || '',                    // titre français officiel
+        vo: trouve.original_title || trouve.original_name || '',  // titre original (VO)
+      };
+    }catch(e){}
+  }
+  return null;
+}
+async function mcuChargerAffiches(){
+  if(mcuAffEnCours) return;
+  const manquants = MCU_FILMS.map(x => [x,'movie'])
+    .concat([[MCU_FINAL,'movie']])
+    .filter(([x]) => !mcuAff[x.id]);
+  if(!manquants.length) return;
+  mcuAffEnCours = true;
+  let touche = false;
+  // 4 requêtes en parallèle : rapide et très en dessous des limites TMDB
+  const file = manquants.slice();
+  const ouvrier = async () => {
+    while(file.length){
+      const [x, type] = file.shift();
+      const info = await mcuAffUne(x, type);
+      if(info){ mcuAff[x.id] = info; touche = true; }
+    }
+  };
+  await Promise.all([ouvrier(), ouvrier(), ouvrier(), ouvrier()]);
+  mcuAffEnCours = false;
+  if(touche){
+    mcuSauverAff();
+    if(!$('pageMcu').classList.contains('cache')) rendreMcu();
+  }
+}
+
+// ---- détection automatique depuis ma bibliothèque ----
+function mcuNorm(t){
+  let s = String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');  // accents
+  s = s.replace(/\s*\(\d{4}\)\s*/g,' ');            // « (2014) » à la fin
+  s = s.replace(/\bmarvel\s*s?\b|\bstudios\b/g,' '); // « Marvel's Daredevil »
+  s = s.replace(/\bvol(ume)?\b/g,' ');                // « Vol. 2 » = « 2 »
+  s = s.replace(/[^a-z0-9]+/g,' ').trim();
+  return s;
+}
+// signature : les mots vides sautent, pour que « Les Gardiens de la Galaxie » = « Gardiens Galaxie »
+const MCU_VIDES = new Set(['le','la','les','l','un','une','des','du','de','d','the','a','an','of','et','and','en','in','du']);
+function mcuSig(t){
+  return mcuNorm(t).split(' ').filter(m => m && !MCU_VIDES.has(m)).join(' ');
+}
+// tous les noms connus d'une entrée : mon libellé, mes alias, + le titre FR et le titre VO de TMDB
+function mcuNoms(x){
+  const c = mcuAff[x.id] || {};
+  return [x.t.replace(/\s*\(.*\)\s*/,'')].concat(x.al || [], c.fr ? [c.fr] : [], c.vo ? [c.vo] : []);
+}
+async function mcuDetecter(){
+  if(visu) return;
+  // les titres français viennent de TMDB : on s'assure qu'ils sont chargés avant de comparer
+  if(MCU_FILMS.some(x => !mcuAff[x.id])){
+    mcuMsg('Récupération des titres français…', true);
+    await mcuChargerAffiches();
+  }
+  const normes = new Set(), sigs = new Set();
+  ['films','series'].forEach(c => (etat[c]||[]).forEach(f => {
+    normes.add(mcuNorm(f.titre)); sigs.add(mcuSig(f.titre));
+  }));
+  if(!Array.isArray(etat.mcu)) etat.mcu = [];
+  let ajout = 0;
+  MCU_FILMS.forEach(x => {
+    if(etat.mcu.includes(x.id)) return;
+    const noms = mcuNoms(x);
+    const ok = noms.some(n => n && (normes.has(mcuNorm(n)) || sigs.has(mcuSig(n))));
+    if(ok){ etat.mcu.push(x.id); ajout++; }
+  });
+  if(ajout){ sauver(); rendreMcu(); }
+  mcuMsg(ajout ? '✓ ' + ajout + ' titre' + (ajout>1?'s':'') + ' coché' + (ajout>1?'s':'') + ' automatiquement d\'après ta bibliothèque.'
+               : 'Aucun nouveau titre trouvé dans ta bibliothèque — les titres doivent être écrits pareil.', !ajout);
+}
+// petit message sous les boutons (remplace les alert/confirm natifs, bloqués dans certains contextes)
+let mcuMsgT = null;
+function mcuMsg(txt, gris){
+  const z = $('mcuMsgZone');
+  if(!z) return;
+  z.textContent = txt;
+  z.style.color = gris ? 'var(--muted)' : 'var(--dd)';
+  z.style.display = 'block';
+  clearTimeout(mcuMsgT);
+  mcuMsgT = setTimeout(() => { z.style.display = 'none'; }, 5000);
+}
+function mcuToutCocher(v){
+  if(visu) return;
+  etat.mcu = v ? MCU_FILMS.map(x => x.id) : [];
+  sauver(); rendreMcu();
+  mcuMsg(v ? '✓ Les ' + MCU_TOTAL + ' films sont cochés.' : 'Parcours remis à zéro.', !v);
+}
+
 // ================= branchements =================
 $('btnRetour').addEventListener('click', allerAccueil);
 $('btnAjouter').addEventListener('click', () => ouvrirModale(null));
@@ -3287,6 +3691,11 @@ $('btnCloudFermer').addEventListener('click', fermerCloud);
 $('overlayCloud').addEventListener('click', e => { if(e.target === $('overlayCloud')) fermerCloud(); });
 $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(true); });
 $('btnUsersTop').addEventListener('click', allerUtilisateurs);
+$('btnMcu').addEventListener('click', allerMcu);
+$('btnRetourMcu').addEventListener('click', allerAccueil);
+$('btnMcuDetect').addEventListener('click', mcuDetecter);
+$('btnMcuTout').addEventListener('click', () => mcuToutCocher(true));
+$('btnMcuRien').addEventListener('click', () => mcuToutCocher(false));
 $('tbAccueil').addEventListener('click', () => { if(visu) quitterVisu(); else allerAccueil(); });
 
 // ================= menus déroulants du header =================
