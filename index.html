@@ -1210,6 +1210,10 @@
     background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
   .dc-p-n{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dk)}
   .dc-p-v{font-size:9px;color:var(--faint);line-height:1.3}
+  .dc-p{position:relative}
+  .dc-p-porte{position:absolute;top:5px;right:5px;font-size:8px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--gold);
+    border-radius:99px;padding:2px 6px;line-height:1}
   .dc-aide{font-size:11.5px;color:var(--faint);text-align:center;margin-top:11px;line-height:1.45}
   .dc-p{font-family:inherit;color:var(--txt);cursor:pointer;
     transition:transform .16s cubic-bezier(.2,.7,.3,1),border-color .16s ease,box-shadow .16s ease}
@@ -2051,7 +2055,7 @@
 </div>
 
 <script>
-const VERSION = 'v103';
+const VERSION = 'v105';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2330,8 +2334,6 @@ const SUCCES = [
     desc:'Les fiches qui ont une affiche. Le bouton « Compléter les affiches » aide à monter vite.' },
   { id:'age',    ico:'🕰️', nom:'Ancienneté',    unite:'mois',        paliers:[1,6,12,24,48],     val:d => moisDepuis(d),
     desc:'Le temps passé sur Ciné\'Wawa, compté depuis ta première visite.' },
-  { id:'mcu',    ico:'🛡️', nom:'Vers le Doomsday', unite:'films MCU', paliers:[5,12,22,30,38],   val:d => (d.mcu || []).length,
-    desc:'Les films cochés dans le défi Avengers: Doomsday, onglet Défis.' },
 ];
 
 // Ancienneté : le temps passé SUR LE SITE, compté depuis `debut` (posé au premier
@@ -2423,7 +2425,6 @@ function medaillonsHTML(d, max, statique){
 // Bronze donne l'anneau et l'emblème, Anomalie ajoute le halo. Les défis, eux, donnent
 // un cadre unique une fois terminés. Tout est dessiné en SVG — aucune image à charger.
 
-function paliersFranchis(d){ return tousSucces(d).reduce((t, e) => t + e.niv, 0); }
 function defiFini(d, id){
   const def = DEFIS.find(x => x.id === id);
   if(!def) return false;
@@ -2571,7 +2572,6 @@ const DECO_MOTIFS = {
   coeur:   '<path d="M60 28 C44 18 44 5 52.5 4 Q60 3.5 60 11 Q60 3.5 67.5 4 C76 5 76 18 60 28 Z"/>',
   affiche: '<rect x="44" y="4" width="32" height="23" rx="3"/><path d="M44.5 22 L54 13 L60 18.5 L67 10 L75.5 20"/><circle cx="52.5" cy="11" r="2.6"/>',
   age:     '<path d="M47 3 H73 M47 27 H73"/><path d="M50 3 Q50 12 60 15 Q50 18 50 27"/><path d="M70 3 Q70 12 60 15 Q70 18 70 27"/>',
-  mcu:     '<path d="M60 2 L74.5 7 Q74.5 21 60 28 Q45.5 21 45.5 7 Z"/><path d="M60 10 V21 M54.5 15 H65.5"/>',
 };
 const motifDe = (u, id) => '<g fill="none" stroke="' + F(u) + '" stroke-width="3" stroke-linecap="round"'
   + ' stroke-linejoin="round">' + (DECO_MOTIFS[id] || DECO_MOTIFS.total) + '</g>';
@@ -2590,7 +2590,6 @@ const PARURES = {
   coeur:   { anneau:'triple',    semis:'coeur',   bas:'ailes',   pointes:'plumes'   },
   affiche: { anneau:'triple',    semis:'carre',   bas:'socle',   pointes:'cristaux' },
   age:     { anneau:'plein',     semis:'grad',    bas:'bandeau', pointes:'rayons'   },
-  mcu:     { anneau:'segments',  semis:'rivet',   bas:'socle',   pointes:'crocs'    },
 };
 
 // Les couches, empilées selon le palier atteint. Chacune ajoute un cran de détail.
@@ -2803,14 +2802,16 @@ function majDecoBoite(img, d, max){
 
 // Le cadre d'un membre, retrouvé dans les données déjà chargées de la communauté.
 // Le mien se calcule en direct : il doit changer à la seconde où je le choisis.
-// `max` plafonne le nombre de couches : sur une vignette de 24 px, les pointes et le
-// semis ne font plus qu'une tache — on garde l'anneau, sa couleur et l'emblème.
+// `max` peut plafonner le détail, mais on ne s'en sert plus : un dessin simplifié sur les
+// petites vignettes donnait deux versions du même cadre selon l'endroit.
 function decoLogin(login, max){
   if(!login) return '';
   const l = String(login).toLowerCase();
   const mien = typeof monLogin === 'string' && monLogin && l === monLogin.toLowerCase();
   let deco, niv;
-  if(mien){ deco = maDeco(etat); niv = decoNiveau(etat, deco); }
+  // le palier PORTÉ, pas le plus haut atteint : sinon mon cadre était dessiné en Or dans
+  // le classement pendant que je portais le Bronze ailleurs
+  if(mien){ deco = maDeco(etat); niv = decoNiveauPorte(etat, deco); }
   else {
     const m = membresCommu.find(x => String(x.login || '').toLowerCase() === l);
     if(!m || !m.deco) return '';
@@ -2870,7 +2871,8 @@ function allerTrophees(onglet, origine){
 
 // Aperçu d'un cadre : les six paliers côte à côte, pour voir ce que chacun ajoute.
 let decoApercu = '';
-function ouvrirApercuDeco(id){
+let decoApercuNiv = 0;   // le palier sélectionné dans la fenêtre, pas encore porté
+function ouvrirApercuDeco(id, choix){
   const x = decoDe(id);
   if(!x || !x.id) return;
   decoApercu = x.id;
@@ -2878,7 +2880,9 @@ function ouvrirApercuDeco(id){
   const ok = decoDebloquee(d, x);
   const niv = decoNiveau(d, x);            // le plus haut palier atteint
   const porteId = maDeco(d).id === x.id;
-  const porteNiv = porteId ? decoNiveauPorte(d, x) : 0;   // celui qu'on affiche en ce moment
+  const porteNiv = porteId ? decoNiveauPorte(d, x) : 0;   // celui qu'on porte en ce moment
+  // à l'ouverture, la sélection part de ce qu'on porte déjà, sinon du plus haut palier
+  decoApercuNiv = Math.max(1, Math.min(Number(choix) || porteNiv || niv, niv));
 
   $('dcIco').textContent = x.ico || '🖼️';
   $('dcIco').style.setProperty('--nc', x.succes
@@ -2895,12 +2899,14 @@ function ouvrirApercuDeco(id){
     ? NIVEAUX.map((nv, k) => {
         const dispo = niv >= k + 1;
         const porte = porteNiv === k + 1;
-        return '<button type="button" class="dc-p' + (dispo ? ' fait' : '') + (porte ? ' actif' : '') + '"'
+        const choisi = decoApercuNiv === k + 1;
+        return '<button type="button" class="dc-p' + (dispo ? ' fait' : '') + (choisi ? ' actif' : '') + '"'
           + (dispo && !visu ? ' data-niv="' + (k + 1) + '"' : ' disabled')
-          + ' style="--dk:' + nv.c + '" title="' + (dispo ? 'Porter ce palier' : 'Pas encore atteint') + '">'
+          + ' style="--dk:' + nv.c + '" title="' + (dispo ? 'Choisir ce palier' : 'Pas encore atteint') + '">'
           + '<span class="dc-p-ap">' + decoSVG(x, k + 1, true) + '<span class="dc-p-rond"></span></span>'
           + '<span class="dc-p-n">' + nv.n + '</span>'
           + '<span class="dc-p-v">' + paliersDe(x.succes)[k] + ' ' + x.succes.unite + '</span>'
+          + (porte ? '<span class="dc-p-porte">porté</span>' : '')
           + '</button>';
       }).join('')
     : '<div class="dc-p fait actif dc-p-solo" style="--dk:' + x.coul + '">'
@@ -2908,9 +2914,10 @@ function ouvrirApercuDeco(id){
         + '<span class="dc-p-n">Cadre de défi</span>'
         + '<span class="dc-p-v">un seul dessin</span></div>';
   $('dcPreviews').innerHTML = cases;
+  // un clic choisit le palier ; c'est le bouton Porter qui l'équipe
   if(x.succes && !visu){
     $('dcPreviews').querySelectorAll('[data-niv]').forEach(b => {
-      b.addEventListener('click', () => porterDeco(x.id, Number(b.dataset.niv)));
+      b.addEventListener('click', () => ouvrirApercuDeco(x.id, Number(b.dataset.niv)));
     });
   }
 
@@ -2918,7 +2925,7 @@ function ouvrirApercuDeco(id){
   b.disabled = !ok || !!visu;
   b.textContent = 'Porter';
   $('dcAide').textContent = x.succes
-    ? (ok ? 'Clique un palier pour le figer, ou laisse le cadre suivre ta progression.'
+    ? (ok ? 'Choisis le palier que tu veux, puis clique Porter.'
           : 'Franchis le premier palier pour débloquer ce cadre.')
     : '';
   $('overlayDeco').classList.add('on');
@@ -2931,10 +2938,10 @@ function porterDeco(id, niv){
   sauver();
   rendreDeco();
   majBoutonProfil();
-  if(id) ouvrirApercuDeco(id); else $('overlayDeco').classList.remove('on');
+  if(id) ouvrirApercuDeco(id, niv); else $('overlayDeco').classList.remove('on');
   toast(niv ? 'Cadre équipé en ' + NIVEAUX[niv - 1].n + ' ✓' : 'Cadre équipé ✓', 'ok');
 }
-$('dcPorter').addEventListener('click', () => { if(decoApercu) porterDeco(decoApercu, 0); });
+$('dcPorter').addEventListener('click', () => { if(decoApercu) porterDeco(decoApercu, decoApercuNiv); });
 
 // Sous chaque cadre : ce qu'il reste à faire pour l'enrichir, ou pour l'obtenir.
 function sousTexteDeco(d, x, ok, niv){
@@ -3087,7 +3094,7 @@ function rendreClassement(){
       ? podium.map((m,i) => {
           const pp = avecDeco(m.login
             ? '<img class="cl-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=48" alt="" onerror="this.remove()">'
-            : '<span class="cl-pp cl-pp-vide">🎬</span>', m.login, 2);
+            : '<span class="cl-pp cl-pp-vide">🎬</span>', m.login);
           return '<div class="cl-l' + (m.mien ? ' mien' : '') + '"' + (m.login && !m.mien ? ' data-login="' + echap(m.login) + '"' : '') + '>'
             + '<span class="cl-r r' + (i+1) + '">' + (i+1) + '</span>' + pp
             + '<span class="cl-nom">' + echap(m.pseudo) + '</span>'
@@ -3420,7 +3427,7 @@ function rendreNotifs(){
   zone.innerHTML = liste.slice(0, 25).map(r => {
     const cible = cibleReac(r.cle);
     const pp = r.login
-      ? avecDeco('<img class="notif-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=48" alt="" onerror="this.remove()">', r.login, 2)
+      ? avecDeco('<img class="notif-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=48" alt="" onerror="this.remove()">', r.login)
       : '';
     return '<div class="notif-row' + (r.neuf ? ' neuf' : '') + '">'
       + (r.neuf ? '<span class="notif-neuf-pt"></span>' : '')
@@ -3484,7 +3491,7 @@ function bandeReac(cle, forcerBouton){
   const bulles = [];
   const puces = l.map(r => {
     const pp = r.login
-      ? avecDeco('<img class="reac-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=32" alt="" onerror="this.remove()">', r.login, 1)
+      ? avecDeco('<img class="reac-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=32" alt="" onerror="this.remove()">', r.login)
       : '';
     let attr = '', marque = '';
     if(r.msg){
@@ -3694,7 +3701,7 @@ function ligneEvenement(e, opts){
   const ico = CATS[e.c] ? CATS[e.c].ico : '🎬';
   const ava = avecDeco(e.login
     ? '<img class="fr-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(e.login) + '.png?size=64" alt="" onerror="this.replaceWith(document.createTextNode(\'\'))">'
-    : '<span class="fr-pp fr-pp-vide">🎬</span>', e.login, 3);
+    : '<span class="fr-pp fr-pp-vide">🎬</span>', e.login);
 
   let action, droite, infoBulle = '';
   if(e.prog){
@@ -5281,7 +5288,7 @@ async function allerUtilisateurs(){
     const carte = document.createElement('div');
     carte.className = 'user-card';
     carte.innerHTML = '<div class="uc-head">'
-      + avecDeco('<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">', login, 3)
+      + avecDeco('<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">', login)
       + '<div class="uc-id"><div class="uc-pseudo">' + echap(login) + '</div><div class="uc-login">@' + echap(login) + '</div></div>'
       + '</div>'
       + '<div class="uc-bio"></div>'
@@ -6038,7 +6045,7 @@ function ouvrirConf(){
   $('pNom').textContent = etat.pseudo || 'Moi';
   $('pLogin').textContent = monLogin ? '@' + monLogin : '';
   $('pBio').textContent = etat.bio || '';
-  majDecoBoite($('pPP'), etat, 3);
+  majDecoBoite($('pPP'), etat);
   const img = $('pPP'), vide = $('pPPVide');
   if(monLogin){
     const url = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=120';
@@ -6318,7 +6325,10 @@ function defiAvancement(def, source){
 }
 
 // ---- affiches (cache local, jamais envoyé au cloud : ça n'alourdit pas la sauvegarde) ----
-const CLE_MCU_AFF = 'cinewawa-mcu-affiches-v3';   // v3 : { id: {u:affiche, fr:titre français, vo:titre original} }
+// v4 : la clé n'est plus l'identifiant du film mais « titre de recherche|année », qui lui
+// est unique dans tout le site — deux défis qui partagent un film partagent donc l'entrée.
+const CLE_MCU_AFF = 'cinewawa-mcu-affiches-v4';   // { 'Spider-Man 3|2007': {u, fr, vo} }
+const cleAff = x => (x.q || x.t) + '|' + x.a;
 let mcuAff = {};
 try{ mcuAff = JSON.parse(localStorage.getItem(CLE_MCU_AFF) || '{}') || {}; }catch(e){ mcuAff = {}; }
 function mcuSauverAff(){ try{ localStorage.setItem(CLE_MCU_AFF, JSON.stringify(mcuAff)); }catch(e){} }
@@ -6389,11 +6399,11 @@ function mcuTitre(x){
   // un défi « titresFixes » garde mes libellés : les titres TMDB d'une même saga
   // n'ont aucune cohérence entre eux (« La Guerre des étoiles » à côté de « Star Wars : … »)
   if(defiActuel().titresFixes || x.nofr) return x.t;
-  const c = mcuAff[x.id];
+  const c = mcuAff[cleAff(x)];
   return (c && c.fr) ? c.fr : x.t;
 }
 function mcuTuile(x, i, vus){
-  const c = mcuAff[x.id];
+  const c = mcuAff[cleAff(x)];
   const nom = mcuTitre(x);
   const visuel = (c && c.u)
     ? '<img src="' + echap(c.u) + '" alt="" loading="lazy">'
@@ -6446,7 +6456,7 @@ function rendreCommuDefi(def){
     + liste.map(m => {
         const pct = Math.round(m.n / total * 100);
         const pp = m.login
-          ? avecDeco('<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=44" alt="" onerror="this.remove()">', m.login, 3)
+          ? avecDeco('<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=44" alt="" onerror="this.remove()">', m.login)
           : '<span class="dc-vide">🎬</span>';
         return '<span class="dc-m' + (m.mien ? ' mien' : '') + '" title="'
           + echap(m.pseudo + ' — ' + m.n + '/' + total + ' (' + pct + '%)') + '">'
@@ -6484,7 +6494,7 @@ function rendreMcu(){
   if(!def.final){
     $('mcuFinal').innerHTML = '';
   } else {
-    const aff = mcuAff[def.final.id] && mcuAff[def.final.id].u;
+    const aff = mcuAff[cleAff(def.final)] && mcuAff[cleAff(def.final)].u;
     $('mcuFinal').innerHTML = '<div class="mcu-final' + (reste === 0 ? ' pret' : '') + '">'
       + (aff ? '<img src="' + echap(aff) + '" alt="" style="width:120px;border-radius:10px;margin-bottom:14px;box-shadow:0 10px 26px rgba(0,0,0,.5)">' : '')
       + (reste === 0 ? '' : '<div class="cadenas">🔒</div>')
@@ -6539,7 +6549,7 @@ async function mcuChargerAffiches(defArg){
   const def = defArg || defiActuel();
   const manquants = def.films.map(x => [x,'movie'])
     .concat(def.final ? [[def.final,'movie']] : [])
-    .filter(([x]) => !mcuAff[x.id]);
+    .filter(([x]) => !mcuAff[cleAff(x)]);
   if(!manquants.length) return;
   mcuAffEnCours = true;
   let touche = false;
@@ -6549,7 +6559,7 @@ async function mcuChargerAffiches(defArg){
     while(file.length){
       const [x, type] = file.shift();
       const info = await mcuAffUne(x, type);
-      if(info){ mcuAff[x.id] = info; touche = true; }
+      if(info){ mcuAff[cleAff(x)] = info; touche = true; }
     }
   };
   await Promise.all([ouvrier(), ouvrier(), ouvrier(), ouvrier()]);
@@ -6584,7 +6594,7 @@ function mcuSig(t){
 }
 // tous les noms connus d'une entrée : mon libellé, mes alias, + le titre FR et le titre VO de TMDB
 function mcuNoms(x){
-  const c = mcuAff[x.id] || {};
+  const c = mcuAff[cleAff(x)] || {};
   return [x.t.replace(/\s*\(.*\)\s*/,'')].concat(x.al || [], c.fr ? [c.fr] : [], c.vo ? [c.vo] : []);
 }
 // Ce que la détection a déjà reconnu une fois pour ce défi.
@@ -6626,7 +6636,7 @@ async function mcuDetecter(){
   if(visu) return;
   const def = defiActuel();
   // les titres français viennent de TMDB : on s'assure qu'ils sont chargés avant de comparer
-  if(def.films.some(x => !mcuAff[x.id])){
+  if(def.films.some(x => !mcuAff[cleAff(x)])){
     mcuMsg('Récupération des titres français…', true);
     await mcuChargerAffiches();
   }
