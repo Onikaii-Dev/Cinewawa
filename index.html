@@ -433,7 +433,12 @@
   /* ---- visite d'une watchlist (lecture seule) ---- */
   #bandeauVisu{display:none;background:rgba(86,204,255,.15);border:1px solid rgba(86,204,255,.5);border-radius:12px;padding:11px 14px;margin-bottom:18px;color:#a9d8ff;font-size:14px;text-align:center;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap}
   #bandeauVisu.on{display:flex}
-  #btnQuitterVisu{background:#56ccff;color:#062033;border:none;border-radius:99px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit}
+  #btnQuitterVisu{background:#56ccff;color:#062033;border:none;border-radius:99px;padding:8px 16px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
+  #btnQuitterVisu:hover{filter:brightness(1.08)}
+  .visu-btn{background:rgba(255,255,255,.07);border:1px solid rgba(86,204,255,.4);color:#cfeaff;
+    border-radius:99px;padding:8px 15px;font-size:13px;font-weight:700;cursor:pointer;font-family:inherit;
+    white-space:nowrap;transition:background .15s ease,border-color .15s ease}
+  .visu-btn:hover{background:rgba(86,204,255,.18);border-color:#56ccff;color:#fff}
 
 
   /* ================= FICHE PROFIL =================
@@ -1321,9 +1326,10 @@
 <div class="wrap">
 
   <div id="bandeauVisu">
-    <span>👀 Tu regardes la liste de <b id="visuNom"></b> — lecture seule</span>
-    <button id="btnVisuBiblio" class="btn-mini">📚 Sa bibliothèque</button>
-    <button id="btnQuitterVisu">Revenir à ma liste</button>
+    <span>👀 Lecture seule — tu consultes le compte de <b id="visuNom"></b></span>
+    <button id="btnVisuBiblio" class="visu-btn">📚 Sa bibliothèque</button>
+    <button id="btnVisuProfil" class="visu-btn">👤 Son profil</button>
+    <button id="btnQuitterVisu">✕ Revenir chez moi</button>
   </div>
 
   <!-- ======== ACCUEIL ======== -->
@@ -1837,7 +1843,7 @@
 </div>
 
 <script>
-const VERSION = 'v89';
+const VERSION = 'v90';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1926,6 +1932,7 @@ function normaliser(d){
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
       amis: Array.isArray(d.amis) ? d.amis : [],
       vu: Number(d.vu) || 0,        // présence : horodatage de dernière activité
+      debut: Number(d.debut) || 0,  // inscription : point de départ du badge d'ancienneté
       modif:  d.modif  || 0,
     });
   }
@@ -1954,6 +1961,19 @@ function sauver(){
   etat.modif = Date.now(); // horodatage pour la synchro (le plus récent gagne)
   try{ localStorage.setItem(CLE, JSON.stringify(etat)); }
   catch(e){ console.error('Sauvegarde impossible', e); }
+  planifierPush();
+}
+
+// Point de départ du badge d'ancienneté : le jour où l'on découvre ce compte.
+// On l'écrit une seule fois, SANS toucher à `etat.modif` — sinon une copie locale
+// paraîtrait plus récente que le cloud et pourrait l'écraser.
+const MOIS_MS = 30.44 * 864e5;
+function assurerDebut(){
+  if(etat.debut) return;
+  const dejaLa = ['films','series','anime','manga'].some(c => (etat[c] || []).length);
+  // les membres déjà installés ne repartent pas de zéro : un mois d'avance
+  etat.debut = Date.now() - (dejaLa ? MOIS_MS : 0);
+  try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
   planifierPush();
 }
 
@@ -2076,28 +2096,18 @@ const SUCCES = [
   { id:'affiche',ico:'🖼️', nom:'Galerie',       unite:'affiches',    paliers:[25,100,250,500,900], val:d => compte(d, f => !!f.affiche),
     desc:'Les fiches qui ont une affiche. Le bouton « Compléter les affiches » aide à monter vite.' },
   { id:'age',    ico:'🕰️', nom:'Ancienneté',    unite:'mois',        paliers:[1,6,12,24,48],     val:d => moisDepuis(d),
-    desc:'Le temps écoulé depuis la date la plus ancienne de ta bibliothèque.' },
+    desc:'Le temps passé sur Ciné\'Wawa, compté depuis ta première visite.' },
   { id:'mcu',    ico:'🛡️', nom:'Vers le Doomsday', unite:'films MCU', paliers:[5,12,22,30,38],   val:d => (d.mcu || []).length,
     desc:'Les films cochés dans le défi Avengers: Doomsday, onglet Défis.' },
 ];
 
-// ancienneté : on prend la DATE la plus ancienne de la bibliothèque (le jour où tu as vu
-// le tout premier titre fiché). L'horodatage d'ajout ne convient pas : un import le remet à zéro.
+// Ancienneté : le temps passé SUR LE SITE, compté depuis `debut` (posé au premier
+// démarrage). Les dates de visionnage ne conviennent pas — un film vu en 2023 donnait
+// 33 mois d'ancienneté sur un site qui n'a que deux mois.
 function moisDepuis(d){
-  let vieille = '';
-  ['films','series','anime','manga'].forEach(c => d[c].forEach(f => {
-    const j = String(f.date || '');
-    if(/^\d{4}-\d{2}-\d{2}$/.test(j) && (!vieille || j < vieille)) vieille = j;
-  }));
-  let t = vieille ? new Date(vieille + 'T00:00:00').getTime() : 0;
-  if(!t){ // aucune date renseignée : on retombe sur l'horodatage d'ajout
-    ['films','series','anime','manga'].forEach(c => d[c].forEach(f => {
-      const a = Number(f.ajout) || 0;
-      if(a > 1e12 && (!t || a < t)) t = a;
-    }));
-  }
-  if(!t) return 0;
-  return Math.max(0, Math.floor((Date.now() - t) / (30.44 * 864e5)));
+  const t = Number(d.debut) || 0;
+  if(!t) return 0;   // membre qui n'a pas encore rouvert le site : son compteur démarre à sa prochaine visite
+  return Math.max(0, Math.floor((Date.now() - t) / MOIS_MS));
 }
 
 // ---- fiche détaillée d'un succès (clic sur une carte) ----
@@ -2365,7 +2375,7 @@ function rendreHero(){
 
   let sous;
   if(!total){
-    sous = 'Ta bibliothèque est vide.';
+    sous = visu ? echap(nom) + ' n\'a encore rien ajouté.' : 'Ta bibliothèque est vide.';
   } else {
     const bouts = ['<b>' + total + '</b> œuvre' + (total>1?'s':'')];
     if(enCours) bouts.push('<b>' + enCours + '</b> en cours');
@@ -2374,7 +2384,7 @@ function rendreHero(){
   }
 
   const actions = visu
-    ? '<button class="btn-secondaire" id="heroRetour">← Revenir à ma liste</button>'
+    ? ''
     : '<button class="btn-primaire" id="heroAjouter">＋ Ajouter un titre</button>';
 
   z.innerHTML = '<div class="hero">' + pp
@@ -2391,8 +2401,6 @@ function rendreHero(){
     a.addEventListener('click', ouvrirChoixCategorie);
     if(!total) a.classList.add('appel');   // personne de nouveau ne doit chercher par où commencer
   }
-  const r = document.getElementById('heroRetour');
-  if(r) r.addEventListener('click', quitterVisu);
 }
 function bonjour(){
   const h = new Date().getHours();
@@ -2854,7 +2862,9 @@ function rendreProchainsEpisodes(){
       + panTete('⏳', 'Prochaines sorties', '', '#ffc24b', '')
       + '<div class="pan-corps"><div id="cavPanel" class="vide"><div class="cav-vide">'
       + '<div class="cv-emo">🍿</div><div class="cv-t">Rien en cours</div>'
-      + '<div class="cv-s">Passe un titre en <b>« En cours »</b> : son compte à rebours s\'installe ici.</div>'
+      + '<div class="cv-s">' + (visu
+          ? echap(visu.pseudo || visu.login) + ' ne suit rien en ce moment.'
+          : 'Passe un titre en <b>« En cours »</b> : son compte à rebours s\'installe ici.') + '</div>'
       + '</div></div></div></div>';
     z.appendChild(section);
     return;
@@ -3650,10 +3660,13 @@ function rendreListe(){
   if(liste.length === 0){
     if(items.length === 0){
       zone.innerHTML = '<div class="vide-msg"><div class="emoji">'+CATS[c].ico+'</div>'
-        + '<div class="gros">Ta section ' + CATS[c].nom + ' est vide</div>'
-        + '<div style="font-size:13.5px;line-height:1.6;max-width:400px;margin:0 auto">Tape trois lettres,'
-        + ' le site trouve l\'affiche et la note.</div>'
-        + (visu ? '' : '<button class="btn-primaire appel" id="btnAjouterVide">＋ Ajouter mon premier titre</button>')
+        + (visu
+          ? '<div class="gros">Rien en ' + CATS[c].nom + '</div>'
+            + '<div style="font-size:13.5px">' + echap(visu.pseudo || visu.login) + ' n\'a rien dans cette section.</div>'
+          : '<div class="gros">Ta section ' + CATS[c].nom + ' est vide</div>'
+            + '<div style="font-size:13.5px;line-height:1.6;max-width:400px;margin:0 auto">Tape trois lettres,'
+            + ' le site trouve l\'affiche et la note.</div>'
+            + '<button class="btn-primaire appel" id="btnAjouterVide">＋ Ajouter mon premier titre</button>')
         + '</div>';
       const bv = document.getElementById('btnAjouterVide');
       if(bv) bv.addEventListener('click', () => ouvrirModale(null));
@@ -4198,6 +4211,7 @@ function appliquerDonnees(d){
   const propre = normaliser(d);
   if(!propre) return false;
   etat = propre;
+  assurerDebut();
   try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
   // données venues du cloud : elles font foi, on peut donc renvoyer la version nettoyée
   // (horodatage inchangé → aucun risque d'écraser une version plus récente)
@@ -5486,7 +5500,7 @@ $('ligneEtat').addEventListener('click', () => { if(cloudActif()) tirerCloud(tru
 $('btnUsersTop').addEventListener('click', allerUtilisateurs);
 $('btnTropheesTop').addEventListener('click', () => allerTrophees(null, 'accueil'));
 $('btnRetourSucces').addEventListener('click', () => retourTrophees === 'profil' ? allerProfil() : allerAccueil());
-$('btnRetourProfil').addEventListener('click', allerAccueil);
+$('btnRetourProfil').addEventListener('click', () => visu ? quitterVisu() : allerAccueil());
 document.querySelectorAll('#ongletsSucces button').forEach(b => {
   b.addEventListener('click', () => allerTrophees(b.dataset.o));
 });
@@ -5574,6 +5588,7 @@ function majBoutonProfil(){
 $('btnRetourUsers').addEventListener('click', allerAccueil);
 $('btnQuitterVisu').addEventListener('click', quitterVisu);
 $('btnVisuBiblio').addEventListener('click', allerAccueil);
+$('btnVisuProfil').addEventListener('click', allerProfil);
 $('btnChercherAffiche').addEventListener('click', chercherAffiche);
 $('btnProfil').addEventListener('click', allerProfil);
 $('btnConfFermer').addEventListener('click', () => { $('overlayConf').style.display = 'none'; });
@@ -5638,6 +5653,7 @@ $('btnNotePub').addEventListener('click', recupererNotePub);
 initPWA();
 charger();
 chargerCloudConf();
+assurerDebut();
 majCollage();
 rendreAccueil();
 majEtatSauvegarde();
