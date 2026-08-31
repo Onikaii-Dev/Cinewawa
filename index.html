@@ -687,39 +687,58 @@
   #cavPanel::-webkit-scrollbar-track,#feedPanel::-webkit-scrollbar-track{background:transparent}
   #cavPanel .cav-row:last-child{margin-bottom:0}
 
-  /* ---- feed d'activité : panneau « console » scrollable ---- */
-  #feedPanel{position:relative;max-height:472px;overflow-y:auto;overscroll-behavior:contain;
-    background:linear-gradient(180deg,rgba(26,20,48,.95),rgba(11,11,17,.95));
-    border:1px solid var(--neon-soft);border-radius:18px;padding:9px 10px 11px;
-    box-shadow:inset 0 0 44px rgba(157,139,255,.045),0 12px 36px rgba(0,0,0,.4)}
-  .feed-jour{display:flex;align-items:center;gap:11px;font-size:9.5px;letter-spacing:.2em;text-transform:uppercase;
-    color:var(--faint);font-weight:800;margin:14px 3px 8px}
+  /* ---- feed d'activité ---- */
+  #feedPanel{position:relative;max-height:472px;overflow-y:auto;overscroll-behavior:contain;padding:10px}
+  .feed-jour{display:flex;align-items:center;gap:11px;margin:14px 2px 9px}
   .feed-jour:first-child{margin-top:2px}
-  .feed-jour::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(157,139,255,.3),transparent)}
-  .feed-row{position:relative;display:flex;flex-direction:column;gap:0;
-    background:rgba(26,26,36,.62);border:1px solid rgba(255,255,255,.045);border-left:3px solid var(--cc,#403466);
-    border-radius:10px;padding:8px 11px;margin-bottom:6px;font-size:13.5px;color:#e6dfd2;
-    transition:background .14s ease,border-color .14s ease}
-  .feed-row:hover{background:rgba(40,32,71,.8);border-color:rgba(157,139,255,.3);border-left-color:var(--cc,#403466)}
+  .feed-jour span{font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:var(--faint);font-weight:800;
+    background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:99px;padding:4px 12px;flex-shrink:0}
+  .feed-jour::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.09),transparent)}
+
+  .feed-row{position:relative;border-radius:var(--r-sm);margin-bottom:6px;
+    background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.05);
+    border-left:3px solid var(--cc,#403466);transition:background .15s ease,border-color .15s ease}
+  .feed-row:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);border-left-color:var(--cc,#403466)}
   .feed-row:last-child{margin-bottom:0}
-  .fr-main{display:flex;align-items:center;gap:9px;cursor:pointer;min-width:0}
-  .feed-row .f-ico{flex-shrink:0;font-size:14px;opacity:.9}
-  .f-pp{width:24px;height:24px;border-radius:50%;flex-shrink:0;object-fit:cover;background:#161029;border:1px solid rgba(255,255,255,.08)}
-  .feed-row .f-texte{flex:1;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+
+  .fr-main{display:flex;align-items:center;gap:11px;padding:9px 11px;min-width:0}
+  .fr-ava{position:relative;width:34px;height:34px;flex-shrink:0}
+  .fr-pp{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;background:var(--bg2);
+    border:1px solid rgba(255,255,255,.1)}
+  .fr-pp-vide{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:15px;background:linear-gradient(135deg,#ffc24b,#ff5e7a)}
+  .fr-cat{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:9px;border:2px solid #16102a}
+  .fr-txt{flex:1;min-width:0}
+  .fr-l1{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fr-l1 b{color:var(--txt);font-weight:800}
+  .fr-l2{display:block;font-size:13.5px;font-weight:700;color:var(--txt);margin-top:2px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .feed-row.ouvert .fr-l1,.feed-row.ouvert .fr-l2{white-space:normal;overflow:visible;line-height:1.4}
   .feed-row.ouvert .fr-main{align-items:flex-start}
-  .feed-row.ouvert .f-texte{white-space:normal;overflow:visible;line-height:1.45}
-  .feed-row .f-quand{color:var(--faint);font-size:11px;flex-shrink:0;font-variant-numeric:tabular-nums}
-  .f-evol{font-size:13px;font-weight:800;flex-shrink:0;cursor:default}
-  .f-evol.up{color:#3ee0a5;text-shadow:0 0 8px rgba(62,224,165,.4)}
-  .f-evol.down{color:#ff5e7a;text-shadow:0 0 8px rgba(255,94,122,.4)}
-  .feed-x{background:transparent;border:none;color:#6f6497;font-size:14px;cursor:pointer;padding:2px 4px;flex-shrink:0;line-height:1;border-radius:5px}
+  .fr-d{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+  .fr-d .badge{font-size:12px}
+  .f-quand{color:var(--faint);font-size:10.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
+  .f-evol{font-size:12px;font-weight:800;cursor:default}
+  .f-evol.up{color:#3ee0a5}
+  .f-evol.down{color:#ff5e7a}
+
+  .fr-btns{display:flex;flex-direction:column;gap:3px;flex-shrink:0;opacity:.35;transition:opacity .15s ease}
+  .feed-row:hover .fr-btns,.fr-pin.on{opacity:1}
+  @media (hover:none){.fr-btns{opacity:.85}}
+  .fr-pin,.feed-x{background:transparent;border:none;color:#6f6497;font-size:12px;cursor:pointer;
+    padding:3px 5px;line-height:1;border-radius:6px;filter:grayscale(1)}
+  .fr-pin:hover{background:rgba(255,194,75,.14);filter:none}
+  .fr-pin.on{filter:none;background:rgba(255,194,75,.16)}
+  .feed-x{font-size:13px;filter:none}
   .feed-x:hover{color:#ff5e7a;background:rgba(255,94,122,.12)}
+
   .feed-lock{border:1px dashed #3d3363;border-radius:var(--r-sm);padding:26px 20px;text-align:center;
     color:var(--muted);font-size:13.5px;line-height:1.6;display:flex;flex-direction:column;align-items:center;
     justify-content:center;gap:4px;flex:1 1 auto;background:rgba(0,0,0,.16)}
 
   /* ---- réactions emoji ---- */
-  .fr-reacs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;margin-top:7px;padding-left:23px}
+  .fr-reacs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:0 11px 9px 56px;margin-top:-2px}
   .reac-puce{display:flex;align-items:center;gap:4px;background:rgba(157,139,255,.1);border:1px solid rgba(157,139,255,.25);
     border-radius:99px;padding:2px 8px 2px 3px;font-size:13px;line-height:1.5;font-family:inherit;color:inherit;
     cursor:default;transition:border-color .14s ease,background .14s ease,transform .12s ease}
@@ -745,7 +764,7 @@
   .card:hover .card-reacs .reac-add{opacity:1}
   @media (hover:none){.card-reacs .reac-add{opacity:.85}}
   /* bulle du message attaché à une réaction */
-  .fr-bulles{padding-left:23px}
+  .fr-bulles{padding:0 11px 9px 56px}
   .reac-bulle{display:none;position:relative;margin-top:7px;background:rgba(255,194,75,.07);
     border:1px solid rgba(255,194,75,.28);border-left:3px solid var(--gold);border-radius:4px 12px 12px 4px;
     padding:9px 13px;font-size:13px;color:#ece6f5;line-height:1.45;white-space:normal;
@@ -981,6 +1000,18 @@
     .fiche-apercu .fa-btns .btn-mini{min-width:0}
   }
 
+  /* ---- temps forts épinglés ---- */
+  .feed-row.fige{margin-bottom:8px;background:linear-gradient(120deg,rgba(255,194,75,.09),rgba(255,255,255,.025));
+    border-color:rgba(255,194,75,.24)}
+  .feed-row.fige:last-child{margin-bottom:0}
+  .feed-row.fige .fr-btns{opacity:.5}
+  .feed-row.fige:hover .fr-btns{opacity:1}
+  .tf-x{background:transparent;border:none;color:#6f6497;font-size:13px;cursor:pointer;
+    padding:3px 5px;line-height:1;border-radius:6px}
+  .tf-x:hover{color:#ff5e7a;background:rgba(255,94,122,.12)}
+  .tf-vide{font-size:12.5px;color:var(--faint);line-height:1.6;text-align:center;padding:20px 16px}
+  .tf-vide b{color:var(--muted)}
+
   /* ---- fiche en lecture seule ---- */
   #blocLecture{margin-bottom:16px}
   .lect-note{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
@@ -1036,19 +1067,25 @@
   /* ---- bandeau membres de la communaute ---- */
   #membresPanel{display:flex;flex-direction:column;justify-content:center;flex:1 1 auto;min-height:0}
   .mb-grille{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-content:center}
-  .mb-carte{display:flex;flex-direction:column;align-items:center;gap:7px;background:transparent;border:none;
-    padding:6px 2px;cursor:pointer;font-family:inherit;color:var(--txt);border-radius:var(--r-sm);
-    transition:background .15s ease,transform .15s ease}
-  .mb-carte:hover{background:rgba(255,255,255,.05);transform:translateY(-2px)}
+  .mb-carte{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font-family:inherit;
+    color:var(--txt);border-radius:var(--r-sm);padding:13px 9px 11px;
+    background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
+    border:1px solid rgba(255,255,255,.07);
+    transition:transform .18s cubic-bezier(.2,.7,.3,1),border-color .18s ease,box-shadow .18s ease}
+  .mb-carte:hover{transform:translateY(-4px);border-color:rgba(255,194,75,.4);box-shadow:0 12px 26px rgba(0,0,0,.42)}
   .mb-ava{position:relative;display:block;width:52px;height:52px;flex-shrink:0}
   .mb-ava img{width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--bg2);
-    border:2px solid var(--border);transition:border-color .15s ease,box-shadow .15s ease}
-  .mb-carte:hover .mb-ava img{border-color:var(--gold);box-shadow:0 0 18px rgba(255,194,75,.3)}
-  .mb-ava .pt{position:absolute;right:1px;bottom:1px;width:13px;height:13px;border-radius:50%;
-    border:2px solid #150f26;background:#4c4079}
+    border:2px solid rgba(255,255,255,.12);transition:border-color .15s ease,box-shadow .15s ease}
+  .mb-carte:hover .mb-ava img{border-color:var(--gold);box-shadow:0 0 18px rgba(255,194,75,.35)}
+  .mb-ava .pt{position:absolute;right:0;bottom:0;width:13px;height:13px;border-radius:50%;
+    border:2px solid #1a1430;background:#4c4079}
   .mb-ava .pt.on{background:#3ee0a5;box-shadow:0 0 9px rgba(62,224,165,.9)}
-  .mb-nom{font-size:11.5px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
-  .mb-sous{font-size:10px;color:var(--faint);text-align:center}
+  .mb-nom{font-size:12px;font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
+  .mb-sous{font-size:10.5px;color:var(--faint);text-align:center}
+  .mb-sous b{color:var(--muted);font-weight:800;font-size:12px}
+  .mb-prive{color:#ffbb7a}
+  .mb-bar{display:flex;width:100%;height:4px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.06);margin-top:2px}
+  .mb-bar i{display:block;height:100%}
   .mb-vide{font-size:12.5px;color:var(--faint);line-height:1.6;text-align:center;padding:18px 10px}
 
   /* ---- ligne « moi » dans la barre du haut ---- */
@@ -1233,6 +1270,15 @@
     color:var(--gold-vif);font-weight:700;margin:0 2px}
   .menu-item.principal:hover{background:rgba(255,194,75,.18)}
 
+  /* ---- avertissement de synchro ---- */
+  .alerte-sync{display:flex;align-items:center;gap:14px;flex-wrap:wrap;
+    background:linear-gradient(120deg,rgba(255,159,69,.14),rgba(30,24,52,.9));
+    border:1px solid rgba(255,159,69,.4);border-radius:var(--r);padding:14px 18px;box-shadow:var(--ombre)}
+  .as-ico{font-size:22px;flex-shrink:0}
+  .as-t{flex:1;min-width:200px;line-height:1.45}
+  .as-t b{display:block;font-size:14px;color:#ffbb7a}
+  .as-t span{display:block;font-size:12.5px;color:var(--muted);margin-top:3px}
+
   /* ---- outils en masse : menu discret de la barre d'outils ---- */
   .outils-pop{min-width:242px;left:auto;right:0}
 
@@ -1334,6 +1380,7 @@
 
   <!-- ======== ACCUEIL ======== -->
   <div id="pageAccueil">
+    <div id="alerteSync"></div>
     <div id="heroAccueil"></div>
     <div class="grille-cat" id="grilleCat"></div>
     <div id="zoneSorties"></div>
@@ -1843,7 +1890,7 @@
 </div>
 
 <script>
-const VERSION = 'v90';
+const VERSION = 'v92';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1863,7 +1910,7 @@ const STATUTS = {
 
 // ================= état =================
 const CLE = 'cinewawa-v1';
-let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {}, mcu: [] };
+let etat = { titre: "Ciné'Wawa", films: [], series: [], anime: [], manga: [], pseudo: '', bio: '', reactions: {}, mcu: [], epingles: [] };
 let catCourante = null;   // null = accueil
 let enEdition = null;
 let visu = null;          // { login, pseudo, data } quand on consulte la liste de quelqu'un (lecture seule)
@@ -1929,6 +1976,7 @@ function normaliser(d){
       bio: (typeof d.bio === 'string' ? d.bio : '').slice(0, BIO_MAX),
       reactions: (d.reactions && typeof d.reactions === 'object' && !Array.isArray(d.reactions)) ? d.reactions : {},
       mcu: Array.isArray(d.mcu) ? d.mcu : [],        // défi Avengers: Doomsday (ids cochés)
+      epingles: Array.isArray(d.epingles) ? d.epingles.slice(0, 3) : [],  // temps forts du profil
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
       amis: Array.isArray(d.amis) ? d.amis : [],
       vu: Number(d.vu) || 0,        // présence : horodatage de dernière activité
@@ -2439,7 +2487,25 @@ function panTete(ico, nom, sous, couleur, actions){
     + '</div>';
 }
 
+// Un appareil hors cloud garde une copie figée : les dates ne bougent plus, donc
+// tout paraît « en retard ». On le dit clairement plutôt que de laisser croire à un bug.
+function rendreAlerteSync(){
+  const z = $('alerteSync');
+  if(!z) return;
+  z.innerHTML = '';
+  if(visu || cloudActif()) return;
+  const aDesDonnees = ['films','series','anime','manga'].some(c => etat[c].length);
+  if(!aDesDonnees) return;
+  z.innerHTML = '<div class="alerte-sync">'
+    + '<span class="as-ico">☁️</span>'
+    + '<span class="as-t"><b>Cet appareil n\'est pas synchronisé.</b>'
+    +   '<span>Ce que tu ajoutes ailleurs n\'arrive pas ici : les compteurs de sorties peuvent afficher de faux retards.</span></span>'
+    + '<button class="btn-mini principal" id="asBrancher">Brancher le cloud</button></div>';
+  z.querySelector('#asBrancher').addEventListener('click', ouvrirCloud);
+}
+
 function rendreSectionsAccueil(){
+  rendreAlerteSync();            // avertissement si l'appareil n'est pas synchronisé
   rendreProchainsEpisodes();     // le suivi des sorties, pleine largeur
   rendreCommunaute();            // membres + activité
   rendreLienProfil();            // la porte d'entrée vers la page profil
@@ -2698,35 +2764,26 @@ function rendreFeed(panneau){
   panneau.innerHTML = feed.map(e => {
     const jour = e.prog ? e.prog.j : isoLocal(new Date(e.t));
     let sep = '';
-    if(jour !== jourPrec){ sep = '<div class="feed-jour">' + libelleJour(jour) + '</div>'; jourPrec = jour; }
-    const coul = CATS[e.c].couleur;
+    if(jour !== jourPrec){ sep = '<div class="feed-jour"><span>' + libelleJour(jour) + '</span></div>'; jourPrec = jour; }
     const cle = cleReac(e);
-    const pp = e.login
-      ? '<img class="f-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(e.login) + '.png?size=48" alt="" onerror="this.remove()">'
+    const idx = feed.indexOf(e);
+    // seul le propriétaire du compte épingle SES moments : rien à épingler chez les autres
+    const actions = e.mien
+      ? '<span class="fr-btns">'
+        + '<button class="fr-pin' + (estEpingle(e) ? ' on' : '') + '" data-ev="' + idx + '"'
+        +   ' title="' + (estEpingle(e) ? 'Retirer des temps forts' : 'Épingler sur mon profil') + '">📌</button>'
+        + '<button class="feed-x" data-c="' + e.c + '" data-fid="' + e.fid + '" data-type="' + (e.prog ? 'prog' : 'note')
+        +   '" data-jour="' + jour + '" title="Retirer de mon activité">✕</button>'
+        + '</span>'
       : '';
-    const croix = e.mien
-      ? '<button class="feed-x" data-c="' + e.c + '" data-fid="' + e.fid + '" data-type="' + (e.prog ? 'prog' : 'note') + '" data-jour="' + jour + '" title="Retirer de mon activité">✕</button>'
-      : '';
-    if(e.prog){
-      const unite = e.c === 'manga' ? ('chapitre' + (e.prog.n > 1 ? 's' : '')) : ('épisode' + (e.prog.n > 1 ? 's' : ''));
-      const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
-      return sep + '<div class="feed-row" style="--cc:' + coul + '"><div class="fr-main">'
-        + '<span class="f-ico">' + CATS[e.c].ico + '</span>' + pp
-        + '<span class="f-texte"><b>' + echap(e.p) + '</b> ' + verbe + ' <b>' + e.prog.n + ' ' + unite + '</b> de <b>' + echap(e.titre) + '</b></span>'
-        + '<span class="f-quand">' + ilYA(e.t) + '</span>'
-        + croix
-        + '</div>' + bandeReac(cle) + '</div>';
-    }
-    return sep + '<div class="feed-row" style="--cc:' + coul + '"><div class="fr-main">'
-      + '<span class="f-ico">' + CATS[e.c].ico + '</span>' + pp
-      + '<span class="f-texte"><b>' + echap(e.p) + '</b> a noté <b>' + echap(e.titre) + '</b></span>'
-      + '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '/10</span>'
-      + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="' + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation') + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '')
-      + '<span class="f-quand">' + ilYA(e.t) + '</span>'
-      + croix
-      + '</div>' + bandeReac(cle) + '</div>';
+    return sep + '<div class="feed-row" style="--cc:' + (CATS[e.c] ? CATS[e.c].couleur : '#9d8bff') + '">'
+      + ligneEvenement(e, { actions })
+      + bandeReac(cle) + '</div>';
   }).join('');
 
+  panneau.querySelectorAll('.fr-pin').forEach(b => {
+    b.addEventListener('click', ev => { ev.stopPropagation(); basculerEpingle(feed[Number(b.dataset.ev)]); });
+  });
   panneau.querySelectorAll('.feed-x').forEach(b => {
     b.addEventListener('click', e => {
       e.stopPropagation();
@@ -2757,14 +2814,26 @@ function rendreMembres(panneau){
     // en ligne d'abord, puis les listes visibles, puis le reste
     membres.sort((a,b) => (b.enLigne?1:0)-(a.enLigne?1:0) || (b.total||0)-(a.total||0));
     const grille = membres.slice(0, 9).map(m => {
-      const sous = m.visible ? (m.total + ' titre' + (m.total>1?'s':'')) : '🔒 privé';
+      const nb = m.nb || {};
+      const somme = ['films','series','anime','manga'].reduce((t,c) => t + (nb[c] || 0), 0);
+      // une barre de répartition minuscule : on voit d'un coup d'œil qui regarde quoi
+      const barre = somme
+        ? '<span class="mb-bar">' + ['films','series','anime','manga']
+            .filter(c => nb[c] > 0)
+            .map(c => '<i style="width:' + (nb[c]/somme*100) + '%;background:' + CATS[c].couleur + '"'
+              + ' title="' + nb[c] + ' ' + CATS[c].nom + '"></i>').join('') + '</span>'
+        : '';
+      const sous = m.visible
+        ? '<b>' + m.total + '</b> titre' + (m.total>1?'s':'')
+        : '<span class="mb-prive">🔒 privé</span>';
       return '<button class="mb-carte" data-login="' + echap(m.login) + '" title="' + echap(m.pseudo) + '">'
         + '<span class="mb-ava">'
         +   '<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=110" alt="" onerror="this.style.visibility=\'hidden\'">'
-        +   '<span class="pt' + (m.enLigne ? ' on' : '') + '"></span>'
+        +   '<span class="pt' + (m.enLigne ? ' on' : '') + '" title="' + (m.enLigne ? 'en ligne' : 'hors ligne') + '"></span>'
         + '</span>'
         + '<span class="mb-nom">' + echap(m.pseudo) + '</span>'
         + '<span class="mb-sous">' + sous + '</span>'
+        + barre
         + '</button>';
     }).join('');
     panneau.innerHTML = '<div class="mb-grille">' + grille + '</div>';
@@ -2806,6 +2875,81 @@ function rendreCommunaute(){
   z.appendChild(sec);
   rendreFeed(sec.querySelector('#feedPanel'));
   rendreMembres(sec.querySelector('#membresPanel'));
+}
+
+// ================= TEMPS FORTS =================
+// Trois entrées du feed, gardées sur le profil. On stocke une copie de l'évènement :
+// le feed ne remonte que quelques semaines, un temps fort doit survivre bien plus longtemps.
+const MAX_EPINGLES = 3;
+const cleEpingle = e => (e.login || '') + '|' + e.c + '|' + e.titre + '|' + (e.prog ? 'p' + e.prog.j : 'n' + e.t);
+function mesEpingles(){ return Array.isArray(etat.epingles) ? etat.epingles : (etat.epingles = []); }
+function estEpingle(e){ const k = cleEpingle(e); return mesEpingles().some(x => x.k === k); }
+
+function basculerEpingle(e){
+  if(!e || !e.mien) return;   // garde-fou : un temps fort est toujours le sien
+  const liste = mesEpingles();
+  const k = cleEpingle(e);
+  const i = liste.findIndex(x => x.k === k);
+  if(i >= 0){
+    liste.splice(i, 1);
+    toast('Temps fort retiré.');
+  } else {
+    if(liste.length >= MAX_EPINGLES){
+      toast('Trois temps forts au maximum — retires-en un d\'abord.', 'err');
+      return;
+    }
+    liste.push({
+      k, c: e.c, titre: e.titre, p: e.p, login: e.login || '', t: e.t,
+      note: e.note, ev: e.ev || 0, prog: e.prog ? { n: e.prog.n, j: e.prog.j, e: e.prog.e } : null,
+      pose: Date.now(),
+    });
+    toast('Ajouté à tes temps forts ✓', 'ok');
+  }
+  sauver();
+  rafraichir();
+}
+
+// une ligne d'évènement, utilisée par le feed ET par les temps forts du profil
+function ligneEvenement(e, opts){
+  const o = opts || {};
+  const coul = CATS[e.c] ? CATS[e.c].couleur : '#9d8bff';
+  const ico = CATS[e.c] ? CATS[e.c].ico : '🎬';
+  const ava = e.login
+    ? '<img class="fr-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(e.login) + '.png?size=64" alt="" onerror="this.replaceWith(document.createTextNode(\'\'))">'
+    : '<span class="fr-pp fr-pp-vide">🎬</span>';
+
+  let action, droite, infoBulle = '';
+  if(e.prog){
+    const unite = e.c === 'manga' ? 'chapitre' : 'épisode';
+    const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
+    if(e.prog.n > 1){
+      // séance marathon : le compte suffit, aligner les numéros noierait le fil
+      action = verbe + ' <b>' + e.prog.n + '</b> ' + unite + 's';
+      if(e.prog.e) infoBulle = ' title="jusqu\'au ' + unite + ' ' + e.prog.e + '"';
+    } else if(e.prog.e){
+      action = verbe + ' l\'' + unite + ' <b>' + e.prog.e + '</b>';
+    } else {
+      action = verbe + ' <b>1</b> ' + unite;
+    }
+    droite = '';
+  } else {
+    action = 'a noté';
+    droite = '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '</span>'
+      + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="'
+          + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation')
+          + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '');
+  }
+
+  return '<div class="fr-main">'
+    + '<span class="fr-ava">' + ava + '<span class="fr-cat" style="background:' + coul + '">' + ico + '</span></span>'
+    + '<span class="fr-txt">'
+    +   '<span class="fr-l1"' + infoBulle + '><b>' + echap(e.p) + '</b> ' + action + '</span>'
+    +   '<span class="fr-l2">' + echap(e.titre) + '</span>'
+    + '</span>'
+    + '<span class="fr-d">' + droite
+    +   (o.quand === false ? '' : '<span class="f-quand">' + ilYA(e.t) + '</span>') + '</span>'
+    + (o.actions || '')
+    + '</div>';
 }
 
 // ================= PROCHAINES SORTIES =================
@@ -3300,10 +3444,12 @@ async function chargerNotesCommu(force){
         // une liste compte si elle m'est visible : publique, ou amis dont je fais partie
         const vis = d.visibilite || 'public';
         const visible = vis === 'public' || (vis === 'amis' && moi && (d.amis || []).some(a => a.toLowerCase() === moi));
+        const nb = {};
+        ['films','series','anime','manga'].forEach(c => { nb[c] = visible ? nbGroupe(d[c], c) : 0; });
         membres.push({
           login, pseudo: d.pseudo || login, visible,
-          total: visible ? ['films','series','anime','manga'].reduce((t,c) => t + nbGroupe(d[c], c), 0) : 0,
-          enLigne: !!(d.vu && Date.now() - d.vu < EN_LIGNE_MS),
+          total: visible ? nb.films + nb.series + nb.anime + nb.manga : 0,
+          nb, enLigne: !!(d.vu && Date.now() - d.vu < EN_LIGNE_MS),
         });
         if(!visible) continue;
         // scores de chaque succès : le classement se calcule ici, une fois, pas à l'affichage
@@ -3581,7 +3727,9 @@ function cumulJour(f, n){
     if(!f.progH.length) delete f.progH;
   }
   const base = (anc && anc.j === j) ? anc.n : 0;
-  f.prog = { j, n: base + n, t: Date.now() };
+  // `e` = numéro atteint ce jour-là : « a regardé l'épisode 12 » est plus parlant que « 1 épisode »
+  const atteint = parseInt(f.p2) || 0;
+  f.prog = { j, n: base + n, t: Date.now(), e: atteint || undefined };
 }
 
 function plusUnEpisode(c, id){
@@ -4368,7 +4516,7 @@ function voirUtilisateur(login, d){
   $('tbDroite').style.display = 'none';
   $('zoneUtilisateurs').style.display = 'none';
   majCollage();               // le fond affiche les affiches de l'utilisateur visité !
-  allerProfil();
+  allerAccueil();             // on arrive sur sa bibliothèque ; son profil est dans le bandeau
 }
 
 // carte récapitulative d'un profil (photo + activité par mois)
@@ -4478,6 +4626,15 @@ function afficherRecap(login, d){
       + '<div class="tp-rang-h">' + tuiles + '</div></div>';
   }).join('');
 
+  // ---- temps forts ----
+  const epingles = (Array.isArray(d.epingles) ? d.epingles : []).slice(0, MAX_EPINGLES);
+  const epinglesHTML = epingles.map((x, i) =>
+    '<div class="feed-row fige" style="--cc:' + (CATS[x.c] ? CATS[x.c].couleur : '#9d8bff') + '">'
+    + ligneEvenement(x, {
+        actions: (visu ? '' : '<span class="fr-btns"><button class="tf-x" data-i="' + i + '" title="Retirer">✕</button></span>'),
+      })
+    + '</div>').join('');
+
   // ---------- trophées ----------
   const succes = tousSucces(d);
   const gagnes = succes.filter(e => e.niv > 0);
@@ -4526,6 +4683,18 @@ function afficherRecap(login, d){
     +     '</div>'
     +   '</div>'
     + '</div>'
+
+    // ---- temps forts ----
+    + (epingles.length
+      ? '<div class="panneau pleine">'
+        + panTete('📌', miens('temps forts'), '', '#ffc24b',
+                  '<span class="pan-chip">' + epingles.length + '/' + MAX_EPINGLES + '</span>')
+        + '<div class="pan-corps" style="padding:14px">' + epinglesHTML + '</div></div>'
+      : (estMoi
+        ? '<div class="panneau pleine"><div class="pan-corps" style="padding:0">'
+          + '<div class="tf-vide">📌 Épingle jusqu\'à ' + MAX_EPINGLES + ' moments du fil <b>« Ça dit quoi ? »</b>'
+          + ' pour les garder ici.</div></div></div>'
+        : ''))
 
     // ---- rythme ----
     + '<div class="panneau">'
@@ -4593,6 +4762,14 @@ function afficherRecap(login, d){
   if(bn) bn.addEventListener('click', ouvrirConf);
   const bt = document.getElementById('pgTrophees');
   if(bt) bt.addEventListener('click', () => allerTrophees('succes', 'profil'));
+  $('zoneProfil').querySelectorAll('.tf-x').forEach(b => {
+    b.addEventListener('click', () => {
+      mesEpingles().splice(Number(b.dataset.i), 1);
+      sauver();
+      toast('Temps fort retiré.');
+      afficherRecap(visu ? visu.login : monLogin, dact());
+    });
+  });
 }
 
 // ---- la carte d'accès au profil, en bas de l'accueil ----
@@ -5666,6 +5843,16 @@ if(cloudActif()){
 }
 $('btnConfVersCloud').addEventListener('click', () => { $('overlayConf').style.display = 'none'; ouvrirCloud(); });
 $('btnNotifsVues').addEventListener('click', archiverReacs);
+// Une PWA reste ouverte des jours : sans ça, les comptes à rebours resteraient
+// figés sur le jour d'ouverture. On surveille le changement de date.
+let jourAffiche = aujourdhui();
+setInterval(() => {
+  const j = aujourdhui();
+  if(j === jourAffiche) return;
+  jourAffiche = j;
+  if(!$('pageAccueil').classList.contains('cache')) rendreAccueil();
+}, 60000);
+
 chargerNotesCommu();           // notes 👥 des autres utilisateurs (cache 60 s ; les miennes sont en direct)
 setInterval(chargerNotesCommu, 120000);  // et rafraîchissement régulier en arrière-plan
 </script>
