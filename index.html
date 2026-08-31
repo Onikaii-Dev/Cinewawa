@@ -157,8 +157,19 @@
   /* ---- barre d'outils ---- */
   .toolbar{display:flex;gap:9px;margin-bottom:20px;flex-wrap:wrap;align-items:center;
     background:rgba(30,24,52,.8);border:1px solid var(--border);border-radius:var(--r);padding:10px}
-  .toolbar input,.toolbar select{background:#161029;border:1px solid var(--border);border-radius:var(--r-xs);color:var(--txt);padding:11px 13px;font-size:14px;outline:none;font-family:inherit;transition:border-color .15s ease}
-  .toolbar input:focus,.toolbar select:focus{border-color:var(--gold)}
+  .toolbar input{background:#161029;border:1px solid var(--border);border-radius:var(--r-xs);color:var(--txt);padding:11px 13px;font-size:14px;outline:none;font-family:inherit;transition:border-color .15s ease}
+  /* menus déroulants : chevron dessiné, pas celui du système */
+  .toolbar select{appearance:none;-webkit-appearance:none;
+    background:linear-gradient(180deg,rgba(255,255,255,.055),rgba(255,255,255,.02)) ,#161029;
+    border:1px solid var(--border);border-radius:99px;color:var(--txt);
+    padding:11px 36px 11px 15px;font-size:13.5px;font-weight:700;outline:none;font-family:inherit;
+    background-image:url("data:image/svg+xml;utf8,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'><path d='M1 1.5 6 6.5 11 1.5' fill='none' stroke='%23a79ec0' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/></svg>");
+    background-repeat:no-repeat;background-position:right 14px center;background-size:11px;
+    transition:border-color .15s ease,box-shadow .15s ease}
+  .toolbar select:hover{border-color:var(--border-h)}
+  .toolbar input:focus{border-color:var(--gold)}
+  .toolbar select:focus{border-color:var(--gold);box-shadow:0 0 0 3px rgba(255,194,75,.12)}
+  .toolbar select option{background:#1c1533;color:var(--txt);font-weight:600}
   #recherche{flex:2;min-width:150px}
   #filtreStatut{flex:1;min-width:130px;cursor:pointer}
   #tri{flex:1;min-width:150px;cursor:pointer}
@@ -976,6 +987,8 @@
   .sugg-note{font-size:11px;font-weight:800;color:var(--ink);background:var(--gold);border-radius:5px;padding:1px 6px}
   .sugg-note.pub{background:rgba(255,159,69,.18);color:#ffbb7a;border:1px solid rgba(255,159,69,.4)}
   .sugg-note.commu{background:rgba(157,139,255,.16);color:#cbbfff;border:1px solid rgba(157,139,255,.4)}
+  .sugg-note.cliquable{cursor:pointer;font-family:inherit;transition:transform .14s ease,box-shadow .14s ease}
+  .sugg-note.cliquable:hover{transform:translateY(-1px);border-color:#9d8bff;box-shadow:0 4px 12px rgba(0,0,0,.4)}
   .sugg-deja{font-size:10px;font-weight:800;color:#3ee0a5;background:rgba(62,224,165,.14);
     border:1px solid rgba(62,224,165,.35);border-radius:5px;padding:1px 6px;flex-shrink:0}
   .sugg-info{padding:11px 13px;font-size:12px;color:var(--faint)}
@@ -995,9 +1008,15 @@
   .fiche-apercu .fa-meta{font-size:11.5px;color:var(--muted);margin-top:7px;display:flex;gap:7px;
     flex-wrap:wrap;align-items:center}
   .fiche-apercu .fa-btns{display:flex;gap:8px;margin-top:auto;flex-wrap:wrap}
-  .fiche-apercu .fa-btns .btn-mini{flex:1;min-width:118px;padding:9px 10px;font-size:12.5px;font-weight:700;
-    background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:var(--txt)}
-  .fiche-apercu .fa-btns .btn-mini:hover{border-color:var(--gold);color:var(--gold-vif);background:rgba(255,194,75,.1)}
+  .fiche-apercu .fa-btns .btn-mini{flex:1 1 0;min-width:0;padding:9px 8px;font-size:12px;font-weight:700;
+    background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.14);color:var(--txt);
+    overflow:hidden;text-overflow:ellipsis;transition:opacity .15s ease,border-color .15s ease,background .15s ease}
+  .fiche-apercu .fa-btns .btn-mini:hover:not(:disabled){border-color:var(--gold);color:var(--gold-vif);background:rgba(255,194,75,.1)}
+  /* rien à chercher tant que le titre est vide */
+  .fiche-apercu .fa-btns .btn-mini:disabled{opacity:.35;cursor:not-allowed}
+  /* déjà trouvé : le bouton s'efface, il ne sert plus qu'à remplacer à la main */
+  .fiche-apercu .fa-btns .btn-mini.discret{opacity:.55;background:transparent;border-color:var(--border);color:var(--muted)}
+  .fiche-apercu .fa-btns .btn-mini.discret:hover:not(:disabled){opacity:1}
   .fa-ok{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:800;color:#3ee0a5;
     background:rgba(62,224,165,.13);border:1px solid rgba(62,224,165,.35);border-radius:6px;padding:2px 7px}
   .fa-ko{display:flex;align-items:center;gap:4px;font-size:11px;font-weight:700;color:var(--faint);
@@ -1134,6 +1153,27 @@
     .pan-btn{padding:7px 10px;font-size:11.5px}
   }
 
+  /* ---- où en sont les autres sur un défi ---- */
+  .dc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
+  .dc-lab{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--faint);
+    font-weight:800;margin-right:2px}
+  .dc-m{position:relative;overflow:hidden;display:flex;align-items:center;gap:7px;
+    background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);
+    border-radius:99px;padding:4px 11px 4px 4px}
+  /* le fond se remplit à hauteur de la progression : lisible d'un coup d'œil, sans jauge en plus */
+  .dc-m i{position:absolute;left:0;top:0;bottom:0;background:var(--dd);opacity:.17;pointer-events:none}
+  .dc-m img,.dc-vide{position:relative;width:22px;height:22px;border-radius:50%;object-fit:cover;
+    background:var(--bg2);flex-shrink:0;display:flex;align-items:center;justify-content:center;font-size:11px}
+  .dc-m b{position:relative;font-size:12px;font-weight:700;color:var(--txt);max-width:110px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .dc-m span{position:relative;font-size:11.5px;font-weight:800;color:var(--dd);font-variant-numeric:tabular-nums}
+  .dc-m.mien{border-color:var(--dd)}
+  .dc-m.mien b{color:var(--dd)}
+
+  /* ---- liste des défis ---- */
+  .defis-liste{display:flex;flex-direction:column;gap:13px}
+  .defis-liste .mcu-banner{margin:0}
+
   /* ================= ONGLETS ================= */
   .pg-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-wrap:wrap;justify-content:flex-end}
   /* sur telephone, le titre garde sa ligne : les actions passent dessous */
@@ -1195,6 +1235,17 @@
     box-shadow:0 0 10px -1px var(--nc);transition:width .6s ease}
   .badge-prog{font-size:10.5px;color:var(--faint);margin-top:6px;font-variant-numeric:tabular-nums}
   .badge-prog b{color:var(--muted)}
+
+  /* qui a noté : la liste des membres derrière la moyenne */
+  .badge.badge-commu{cursor:pointer;font-family:inherit;transition:transform .14s ease,box-shadow .14s ease}
+  .badge.badge-commu:hover{transform:translateY(-1px);box-shadow:0 4px 14px rgba(0,0,0,.4)}
+  .nt-l{display:flex;align-items:center;gap:11px;padding:9px 12px;border-radius:var(--r-xs);
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.06);margin-bottom:6px}
+  .nt-l.mien{background:rgba(255,194,75,.1);border-color:rgba(255,194,75,.32)}
+  .nt-nom{flex:1;min-width:0;font-size:13px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .nt-l.mien .nt-nom{color:var(--gold-vif)}
+  .nt-et{flex-shrink:0;opacity:.9}
+  .nt-v{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.02em;flex-shrink:0;min-width:34px;text-align:right}
 
   /* fenêtre de détail d'un succès */
   .sc-tete{display:flex;align-items:center;gap:14px;margin-bottom:14px}
@@ -1439,25 +1490,15 @@
     </div>
     <div id="zoneSucces"></div>
     <div id="zoneClassement" class="cache"></div>
-    <div id="zoneDefis" class="cache">
-      <button class="mcu-banner" id="btnMcu" title="Défi Avengers: Doomsday">
-        <div class="mcu-b-ico">🛡️</div>
-        <div class="mcu-b-txt">
-          <div class="mcu-b-nom">Avengers: Doomsday</div>
-          <div class="mcu-b-sous" id="mcuBanSous"></div>
-          <div class="mcu-b-barre"><i id="mcuBanBarre"></i></div>
-        </div>
-        <div class="mcu-b-pct" id="mcuBanPct">0%</div>
-      </button>
-    </div>
+    <div id="zoneDefis" class="cache"></div>
   </div>
 
   <!-- ======== DÉFI AVENGERS: DOOMSDAY ======== -->
   <div id="pageMcu" class="cache">
     <header>
       <button class="retour" id="btnRetourMcu" title="Retour aux défis">←</button>
-      <div class="avatar" style="cursor:default;background:linear-gradient(135deg,#3ee0a5,#12321f)">🛡️</div>
-      <h1>Avengers: Doomsday</h1>
+      <div class="avatar" id="mcuAvatar" style="cursor:default;background:linear-gradient(135deg,#3ee0a5,#12321f)">🛡️</div>
+      <h1 id="mcuNomPage">Doomsday</h1>
     </header>
 
     <div class="mcu-hero">
@@ -1479,6 +1520,7 @@
       </div>
     </div>
 
+    <div id="mcuCommu"></div>
     <div id="mcuSections"></div>
     <div id="mcuFinal"></div>
   </div>
@@ -1508,6 +1550,7 @@
         <option value="note-desc">Trier : meilleures notes</option>
         <option value="note-asc">Trier : pires notes</option>
         <option value="pub-desc">Trier : note du public</option>
+        <option value="commu-desc">Trier : note des membres</option>
         <option value="vu-desc">Trier : vu récemment</option>
         <option value="alpha">Trier : A → Z</option>
       </select>
@@ -1711,6 +1754,18 @@
   </div>
 </div>
 
+<!-- ======== QUI A NOTÉ ======== -->
+<div id="overlayNotes" class="ovl">
+  <div class="mini-modale" style="max-width:400px">
+    <h3 id="ntTitre">Qui a noté</h3>
+    <p id="ntSous" style="margin-bottom:14px"></p>
+    <div id="ntListe"></div>
+    <div class="actions" style="margin-top:18px">
+      <button class="btn-ghost" id="ntFermer" style="flex:1">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======== DÉTAIL D'UN SUCCÈS ======== -->
 <div id="overlaySucces" class="ovl">
   <div class="mini-modale" style="max-width:430px">
@@ -1898,7 +1953,7 @@
 </div>
 
 <script>
-const VERSION = 'v93';
+const VERSION = 'v100';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -1985,6 +2040,8 @@ function normaliser(d){
       reactions: (d.reactions && typeof d.reactions === 'object' && !Array.isArray(d.reactions)) ? d.reactions : {},
       mcu: Array.isArray(d.mcu) ? d.mcu : [],        // défi Avengers: Doomsday (ids cochés)
       epingles: Array.isArray(d.epingles) ? d.epingles.slice(0, 3) : [],  // temps forts du profil
+      defis: (d.defis && typeof d.defis === 'object' && !Array.isArray(d.defis)) ? d.defis : {},
+      defisInit: (d.defisInit && typeof d.defisInit === 'object' && !Array.isArray(d.defisInit)) ? d.defisInit : {},
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
       amis: Array.isArray(d.amis) ? d.amis : [],
       vu: Number(d.vu) || 0,        // présence : horodatage de dernière activité
@@ -2128,17 +2185,34 @@ const NIVEAUX = [
 
 const compte = (d, f) => ['films','series','anime','manga'].reduce((t,c) => t + d[c].filter(x => f(x, c)).length, 0);
 
+// Une bibliothèque ne remonte souvent qu'à un an — mais les cases cochées dans les défis
+// disent bien qu'on a vu ces films. Pour les succès et le classement, on compte l'union
+// des deux, dédoublonnée sur le titre normalisé (un même film peut figurer dans deux défis).
+function nomsFilmsVus(d){
+  const noms = new Set();
+  d.films.forEach(f => { if(f.titre) noms.add(mcuNorm(f.titre)); });
+  DEFIS.forEach(def => {
+    const coches = new Set(defiCoches(def.id, d));
+    if(!coches.size) return;
+    def.films.forEach(x => { if(coches.has(x.id)) noms.add(mcuNorm(x.t)); });
+  });
+  return noms;
+}
+const nbFilmsVus = d => nomsFilmsVus(d).size;
+// total d'œuvres : on remplace le compte de films par celui qui inclut les défis
+const nbOeuvresVues = d => totalOeuvres(d) - d.films.length + nbFilmsVus(d);
+
 const SUCCES = [
-  { id:'films',  ico:'🎬', nom:'Cinéphile',    unite:'films',       paliers:[10,25,50,100,250], val:d => d.films.length,
-    desc:'Le nombre de films enregistrés dans ta section Films.' },
+  { id:'films',  ico:'🎬', nom:'Cinéphile',    unite:'films',       paliers:[10,25,50,100,250], val:d => nbFilmsVus(d),
+    desc:'Tes films vus : ceux de ta section Films, plus ceux que tu as cochés dans les défis (sans doublon).' },
   { id:'series', ico:'📺', nom:'Sériephile',   unite:'séries',      paliers:[5,15,30,60,100],   val:d => nbGroupe(d.series,'series'),
     desc:'Le nombre de séries suivies. Les saisons d\'une même série ne comptent que pour une.' },
   { id:'anime',  ico:'⛩️', nom:'Otaku',        unite:'anime',       paliers:[10,25,50,100,250], val:d => nbGroupe(d.anime,'anime'),
     desc:'Le nombre d\'anime enregistrés. Là aussi, les saisons d\'un même titre sont regroupées.' },
   { id:'manga',  ico:'📖', nom:'Grand lecteur', unite:'manga',      paliers:[5,15,30,60,120],   val:d => d.manga.length,
     desc:'Le nombre de manga et manhwa dans ta bibliothèque.' },
-  { id:'total',  ico:'🗂️', nom:'Collectionneur', unite:'œuvres',    paliers:[50,100,250,500,1000], val:d => totalOeuvres(d),
-    desc:'Tout ce que tu as fiché, les quatre rayons additionnés.' },
+  { id:'total',  ico:'🗂️', nom:'Collectionneur', unite:'œuvres',    paliers:[50,100,250,500,1000], val:d => nbOeuvresVues(d),
+    desc:'Tout ce que tu as vu : les quatre rayons, plus les films cochés dans les défis.' },
   { id:'notes',  ico:'⭐', nom:'Juge',          unite:'notes',       paliers:[10,50,150,400,800], val:d => compte(d, f => f.note != null),
     desc:'Les titres auxquels tu as mis une note. Ceux laissés « à noter » ne comptent pas.' },
   { id:'avis',   ico:'✍️', nom:'Critique',      unite:'avis',        paliers:[5,25,75,150,300],  val:d => compte(d, f => f.avis && f.avis.trim()),
@@ -2167,6 +2241,27 @@ function moisDepuis(d){
 }
 
 // ---- fiche détaillée d'un succès (clic sur une carte) ----
+// détail de la note communauté : la liste des membres et leur note
+function ouvrirNotesCommu(cle, titre){
+  const cm = notesCommuFusion()[cle];
+  if(!cm || !cm.n) return;
+  const moy = Math.round(cm.s / cm.n * 10) / 10;
+  const moiNom = (etat.pseudo || 'Moi').trim().toLowerCase();
+  const lignes = (cm.d || []).slice().sort((a,b) => b.note - a.note);
+  $('ntTitre').textContent = titre || 'Qui a noté';
+  $('ntSous').innerHTML = 'Moyenne <b style="color:' + couleurNote(moy) + '">' + showNote(moy)
+    + '/10</b> sur <b>' + cm.n + '</b> membre' + (cm.n > 1 ? 's' : '') + '.';
+  $('ntListe').innerHTML = lignes.map(x => {
+    const mien = String(x.p || '').trim().toLowerCase() === moiNom;
+    return '<div class="nt-l' + (mien ? ' mien' : '') + '">'
+      + '<span class="nt-nom">' + echap(x.p || '?') + '</span>'
+      + '<span class="nt-et">' + etoilesHTML(x.note, 13) + '</span>'
+      + '<span class="nt-v" style="color:' + couleurNote(x.note) + '">' + showNote(x.note) + '</span>'
+      + '</div>';
+  }).join('');
+  $('overlayNotes').classList.add('on');
+}
+
 function ouvrirSucces(id){
   const sc = SUCCES.find(x => x.id === id);
   if(!sc) return;
@@ -2260,7 +2355,34 @@ function allerTrophees(onglet, origine){
   $('zoneDefis').classList.toggle('cache', ongletTrophees !== 'defis');
   rendreSucces();
   rendreClassement();
-  majBanniereMcu();
+  rendreDefis();
+}
+
+function rendreDefis(){
+  const z = $('zoneDefis');
+  if(!z) return;
+  const d = dact();
+  z.innerHTML = '<div class="defis-liste">' + DEFIS.map(def => {
+    const r = defiAvancement(def, d);
+    const fini = r.n >= r.total;
+    return '<button class="mcu-banner" data-defi="' + def.id + '"'
+      + ' style="--dd:' + def.coul + ';--dd2:' + hexRgba(def.coul, .5) + '"'
+      + ' title="' + echap(def.nom) + '">'
+      + '<div class="mcu-b-ico">' + def.ico + '</div>'
+      + '<div class="mcu-b-txt">'
+      +   '<div class="mcu-b-nom">' + echap(def.court) + '</div>'
+      +   '<div class="mcu-b-sous">' + (fini
+            ? 'Parcours terminé 🍿'
+            : '<b>' + r.n + '</b> / ' + r.total + ' films cochés · encore <b>' + (r.total - r.n) + '</b>') + '</div>'
+      +   '<div class="mcu-b-barre"><i style="width:' + r.pct + '%"></i></div>'
+      + '</div>'
+      + '<div class="mcu-b-pct">' + r.pct + '%</div>'
+      + '</button>';
+  }).join('') + '</div>';
+  z.querySelectorAll('[data-defi]').forEach(b => {
+    b.addEventListener('click', () => allerMcu(b.dataset.defi));
+  });
+  initialiserDefis();   // le compte doit être juste sans avoir à entrer dans chaque parcours
 }
 
 function rendreSucces(){
@@ -3459,10 +3581,13 @@ async function chargerNotesCommu(force){
         const visible = vis === 'public' || (vis === 'amis' && moi && (d.amis || []).some(a => a.toLowerCase() === moi));
         const nb = {};
         ['films','series','anime','manga'].forEach(c => { nb[c] = visible ? nbGroupe(d[c], c) : 0; });
+        // avancement sur chaque défi : deux entiers par parcours, c'est négligeable au cache
+        const dfs = {};
+        try{ DEFIS.forEach(def => { dfs[def.id] = defiAvancement(def, d).n; }); }catch(e){}
         membres.push({
           login, pseudo: d.pseudo || login, visible,
           total: visible ? nb.films + nb.series + nb.anime + nb.manga : 0,
-          nb, enLigne: !!(d.vu && Date.now() - d.vu < EN_LIGNE_MS),
+          nb, defis: dfs, enLigne: !!(d.vu && Date.now() - d.vu < EN_LIGNE_MS),
         });
         if(!visible) continue;
         // scores de chaque succès : le classement se calcule ici, une fois, pas à l'affichage
@@ -3804,12 +3929,19 @@ function rendreListe(){
   if(c !== 'films' && fs) liste = liste.filter(f => (f.statut||'') === fs);
 
   const noteOu = (f,d) => sansNote(f) ? d : f.note;
+  // moyenne de la communauté sur ce titre — calculée avant le tri pour pouvoir trier dessus
+  const commuMap = visu ? null : notesCommuFusion();
+  const noteCommu = f => {
+    const e = commuMap && commuMap[cleTitre(c, f.titre)];
+    return (e && e.n) ? e.s / e.n : -1;
+  };
   const tris = {
     'ajout-desc': (a,b)=>b.ajout-a.ajout,
     'ajout-asc' : (a,b)=>a.ajout-b.ajout,
     'note-desc' : (a,b)=>noteOu(b,-1)-noteOu(a,-1),
     'note-asc'  : (a,b)=>noteOu(a,99)-noteOu(b,99),
     'pub-desc'  : (a,b)=>((b.notePub!==undefined&&b.notePub!==null)?b.notePub:-1)-((a.notePub!==undefined&&a.notePub!==null)?a.notePub:-1),
+    'commu-desc': (a,b)=>noteCommu(b)-noteCommu(a),
     'vu-desc'   : (a,b)=>(b.date||'').localeCompare(a.date||''),
     'alpha'     : (a,b)=>a.titre.localeCompare(b.titre,'fr'),
   };
@@ -3861,7 +3993,7 @@ function rendreListe(){
     return;
   }
 
-  const notesFusionnees = visu ? null : notesCommuFusion();
+  const notesFusionnees = commuMap;
   zone.innerHTML = liste.map(f => {
     const poster = f.affiche
       ? '<img class="poster" loading="lazy" src="'+echap(f.affiche)+'" alt="" onerror="this.remove()"><div class="fondu"></div>'
@@ -3884,8 +4016,11 @@ function rendreListe(){
     if(cm && cm.n > 0){
       const chaud = cm.n >= 2; // rouge dès que quelqu'un d'autre que moi a noté → repérable au scroll
       const detailCommu = (cm.d || []).map(x => x.p + ' : ' + showNote(x.note)).join('  ·  ');
-      cellules.push('<span class="note-cell" title="'+echap('Moyenne de '+cm.n+' note'+(cm.n>1?'s':'')+(detailCommu ? ' — ' + detailCommu : ''))+'"><span class="note-lab">Communauté Wawa</span>'
-        + '<span class="badge '+(chaud ? 'badge-commu-hot' : 'badge-pub')+'">👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</span></span>');
+      cellules.push('<span class="note-cell"><span class="note-lab">Communauté Wawa</span>'
+        + '<button class="badge badge-commu '+(chaud ? 'badge-commu-hot' : 'badge-pub')+'"'
+        +   ' data-commu="'+echap(k)+'" data-titre="'+echap(f.titre)+'"'
+        +   ' title="'+echap('Voir qui a noté'+(detailCommu ? ' — ' + detailCommu : ''))+'">'
+        + '👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</button></span>');
     }
     const barreNotes = '<div class="notes-bar">' + cellules.join('<span class="note-sep"></span>') + '</div>';
     const st = (c !== 'films' && f.statut && STATUTS[f.statut])
@@ -3910,6 +4045,10 @@ function rendreListe(){
 
   zone.querySelectorAll('.card').forEach(el => {
     el.addEventListener('click', () => ouvrirModale(Number(el.dataset.id)));
+  });
+  // la moyenne des membres s'ouvre sur le détail : qui a noté, et combien
+  zone.querySelectorAll('[data-commu]').forEach(b => {
+    b.addEventListener('click', e => { e.stopPropagation(); ouvrirNotesCommu(b.dataset.commu, b.dataset.titre); });
   });
   // la bande de réactions ne doit pas ouvrir la fiche
   zone.querySelectorAll('.card-reacs').forEach(z => {
@@ -4099,11 +4238,25 @@ function majFichePreview(){
   $('faNom').textContent = t || 'Aucun titre pour l\'instant';
   const meta = [];
   const np = parseNote($('fNotePub').value);
+  // tant qu'il n'y a pas de titre il n'y a rien à chercher ; une fois trouvé, le bouton
+  // s'efface au profit du contenu et propose de le remplacer à la main.
+  const bA = $('btnChercherAffiche'), bN = $('btnNotePub');
+  bA.disabled = !t; bN.disabled = !t;
+  bA.classList.toggle('discret', !!aff);
+  bA.textContent = aff ? '🖼️ Custom affiche' : '🖼️ Trouver l\'affiche';
+  bN.classList.toggle('discret', np !== null);
+  bN.textContent = np !== null ? '📊 Custom note'
+    : ((c === 'anime' || c === 'manga') ? '📊 Note MAL' : '📊 Note IMDb');
   if(np !== null) meta.push('<span class="sugg-note pub">' + echap((notePubTemp && notePubTemp.src) || 'Public') + ' ' + showNote(np) + '</span>');
-  meta.push(aff ? '<span class="fa-ok">🖼️ affiche</span>' : '<span class="fa-ko">🖼️ aucune affiche</span>');
-  const cm = t ? notesCommuFusion()[cleTitre(c, t)] : null;
-  if(cm && cm.n > 0) meta.push('<span class="sugg-note commu">👥 ' + showNote(Math.round(cm.s / cm.n * 10) / 10) + ' (' + cm.n + ')</span>');
+  if(!aff) meta.push('<span class="fa-ko">🖼️ aucune affiche</span>');
+  const cle = t ? cleTitre(c, t) : '';
+  const cm = cle ? notesCommuFusion()[cle] : null;
+  if(cm && cm.n > 0) meta.push('<button class="sugg-note commu cliquable" data-commu="' + echap(cle) + '"'
+    + ' data-titre="' + echap(t) + '" title="Voir qui a noté">'
+    + '👥 ' + showNote(Math.round(cm.s / cm.n * 10) / 10) + ' (' + cm.n + ')</button>');
   $('faMeta').innerHTML = meta.join('');
+  const bc = $('faMeta').querySelector('[data-commu]');
+  if(bc) bc.addEventListener('click', e => { e.preventDefault(); ouvrirNotesCommu(bc.dataset.commu, bc.dataset.titre); });
 }
 
 // ---- notation : cinq étoiles cliquables, demi-étoiles comprises ----
@@ -4205,9 +4358,9 @@ function ouvrirModale(id){
   $('btnNotePub').style.display = ro ? 'none' : '';
   $('labTitre').textContent = (ro || f) ? 'Titre' : 'Titre — tape 3 lettres, le site trouve le reste';
 
-  // champs spécifiques à la catégorie
-  $('blocStatut').classList.toggle('cache', c === 'films');
-  $('blocProgression').classList.toggle('cache', !conf.progression);
+  // champs spécifiques à la catégorie — et masqués aussi en lecture seule
+  $('blocStatut').classList.toggle('cache', ro || c === 'films');
+  $('blocProgression').classList.toggle('cache', ro || !conf.progression);
   if(conf.progression){
     $('labelP1').textContent = conf.progression[0];
     $('labelP2').textContent = conf.progression[1];
@@ -4228,12 +4381,11 @@ function ouvrirModale(id){
   notePubTemp = (f && f.notePub) ? { note: f.notePub, src: f.notePubSrc || 'Public', nom: f.titre } : null;
   $('fNotePub').value = (f && f.notePub) ? showNote(f.notePub) : '';
   $('infoNotePub').innerHTML = notePubTemp ? 'Source actuelle : <b style="color:#cdc4e0">' + echap(notePubTemp.src) + '</b>' : '';
-  $('btnNotePub').textContent = (c === 'anime' || c === 'manga') ? '📊 Note MAL' : '📊 Note IMDb';
   $('erreur').style.display = 'none';
   // fiche de quelqu'un d'autre : rien n'est modifiable, donc rien n'est affiché en champ.
   // On remplace tout le formulaire par un récapitulatif lisible.
-  ['blocTitre','blocNote','blocStatut','blocProgression','blocDate','blocAvis','repliAvance','fichePreview']
-    .forEach(i => $(i).classList.toggle('cache', ro && i !== 'fichePreview'));
+  ['blocTitre','blocNote','blocDate','blocAvis','repliAvance']
+    .forEach(i => $(i).classList.toggle('cache', ro));
   $('blocLecture').classList.toggle('cache', !ro);
   if(ro) remplirLecture(f, c);
   majStatuts();
@@ -5377,55 +5529,203 @@ const MCU_FILMS = [
   { id:'sm4',      t:'Spider-Man: Brand New Day',                  a:2026 },
 ];
 const MCU_FINAL = { id:'doomsday', t:'Avengers: Doomsday', a:2026 };
-const MCU_TOTAL = MCU_FILMS.length;
+
+// ---- Spider-Man ----
+// `t` sert d'affichage (les défis marqués `titresFixes` ignorent le titre TMDB, qui varie
+// beaucoup d'un film à l'autre) ; `al` sert uniquement à reconnaître ma bibliothèque.
+const SPIDER_FILMS = [
+  { id:'sm1',  t:'Spider-Man',                          a:2002, q:'Spider-Man' },
+  { id:'sm2',  t:'Spider-Man 2',                        a:2004, q:'Spider-Man 2' },
+  { id:'sm3',  t:'Spider-Man 3',                        a:2007, q:'Spider-Man 3' },
+  { id:'asm1', t:'The Amazing Spider-Man',              a:2012, q:'The Amazing Spider-Man' },
+  { id:'asm2', t:'The Amazing Spider-Man 2',            a:2014, q:'The Amazing Spider-Man 2',
+    al:['The Amazing Spider-Man : Le Destin d\'un héros','Le Destin d\'un héros'] },
+  { id:'smh',  t:'Spider-Man: Homecoming',              a:2017, q:'Spider-Man: Homecoming',
+    al:['Homecoming'] },
+  { id:'smsv', t:'Spider-Man: Into the Spider-Verse',   a:2018, q:'Spider-Man: Into the Spider-Verse',
+    al:['Spider-Man : New Generation','New Generation'] },
+  { id:'smf',  t:'Spider-Man: Far From Home',           a:2019, q:'Spider-Man: Far From Home',
+    al:['Spider-Man : Loin des siens','Far From Home'] },
+  { id:'smn',  t:'Spider-Man: No Way Home',             a:2021, q:'Spider-Man: No Way Home',
+    al:['No Way Home'] },
+  { id:'smsv2',t:'Spider-Man: Across the Spider-Verse', a:2023, q:'Spider-Man: Across the Spider-Verse',
+    al:['Across the Spider-Verse'] },
+  { id:'smbnd',t:'Spider-Man: Brand New Day',           a:2026, q:'Spider-Man: Brand New Day',
+    al:['Brand New Day'] },
+];
+
+// ---- Star Wars : la saga au cinéma, dans l'ordre de sortie ----
+const SW_FILMS = [
+  { id:'sw4', t:'Épisode IV — Un nouvel espoir',        a:1977, q:'Star Wars',
+    al:['La Guerre des étoiles','Un nouvel espoir','Star Wars 4','Star Wars : Un nouvel espoir'] },
+  { id:'sw5', t:'Épisode V — L\'Empire contre-attaque',  a:1980, q:'The Empire Strikes Back',
+    al:['L\'Empire contre-attaque','Star Wars 5'] },
+  { id:'sw6', t:'Épisode VI — Le Retour du Jedi',       a:1983, q:'Return of the Jedi',
+    al:['Le Retour du Jedi','Star Wars 6'] },
+  { id:'sw1', t:'Épisode I — La Menace fantôme',        a:1999, q:'Star Wars: The Phantom Menace',
+    al:['La Menace fantôme','Star Wars 1'] },
+  { id:'sw2', t:'Épisode II — L\'Attaque des clones',    a:2002, q:'Star Wars: Attack of the Clones',
+    al:['L\'Attaque des clones','Star Wars 2'] },
+  { id:'sw3', t:'Épisode III — La Revanche des Sith',   a:2005, q:'Star Wars: Revenge of the Sith',
+    al:['La Revanche des Sith','Star Wars 3'] },
+  { id:'swcw',t:'The Clone Wars',                        a:2008, q:'Star Wars: The Clone Wars',
+    al:['Star Wars: The Clone Wars','Star Wars : The Clone Wars','La Guerre des clones'] },
+  { id:'sw7', t:'Épisode VII — Le Réveil de la Force',  a:2015, q:'Star Wars: The Force Awakens',
+    al:['Le Réveil de la Force','Star Wars 7'] },
+  { id:'swr1',t:'Rogue One',                            a:2016, q:'Rogue One',
+    al:['Rogue One: A Star Wars Story','Rogue One : A Star Wars Story'] },
+  { id:'sw8', t:'Épisode VIII — Les Derniers Jedi',     a:2017, q:'Star Wars: The Last Jedi',
+    al:['Les Derniers Jedi','Star Wars 8'] },
+  { id:'swso',t:'Solo',                                 a:2018, q:'Solo: A Star Wars Story',
+    al:['Solo: A Star Wars Story','Solo : A Star Wars Story'] },
+  { id:'sw9', t:'Épisode IX — L\'Ascension de Skywalker',a:2019, q:'Star Wars: The Rise of Skywalker',
+    al:['L\'Ascension de Skywalker','Star Wars 9'] },
+  { id:'swmg',t:'The Mandalorian and Grogu',            a:2026, q:'The Mandalorian and Grogu',
+    al:['Mandalorian and Grogu','The Mandalorian & Grogu'] },
+];
+
+// ---- Avengers : les films d'équipe ----
+const AVG_FILMS = [
+  { id:'av1', t:'Avengers',                  a:2012, q:'The Avengers', al:['The Avengers','Avengers Assemble'] },
+  { id:'av2', t:'Avengers: Age of Ultron',   a:2015, q:'Avengers: Age of Ultron',
+    al:['Avengers : L\'Ère d\'Ultron','L\'Ère d\'Ultron'] },
+  { id:'av3', t:'Avengers: Infinity War',    a:2018, q:'Avengers: Infinity War', al:['Infinity War'] },
+  { id:'av4', t:'Avengers: Endgame',         a:2019, q:'Avengers: Endgame', al:['Endgame'] },
+  { id:'av5', t:'Avengers: Doomsday',        a:2026, q:'Avengers: Doomsday', al:['Doomsday'] },
+];
+
+// ---- Harry Potter : les huit films ----
+const HP_FILMS = [
+  { id:'hp1', t:'Harry Potter à l\'école des sorciers',            a:2001, q:'Harry Potter and the Philosopher\'s Stone',
+    al:['À l\'école des sorciers'] },
+  { id:'hp2', t:'Harry Potter et la Chambre des secrets',         a:2002, q:'Harry Potter and the Chamber of Secrets',
+    al:['La Chambre des secrets'] },
+  { id:'hp3', t:'Harry Potter et le Prisonnier d\'Azkaban',        a:2004, q:'Harry Potter and the Prisoner of Azkaban',
+    al:['Le Prisonnier d\'Azkaban'] },
+  { id:'hp4', t:'Harry Potter et la Coupe de feu',                a:2005, q:'Harry Potter and the Goblet of Fire',
+    al:['La Coupe de feu'] },
+  { id:'hp5', t:'Harry Potter et l\'Ordre du Phénix',              a:2007, q:'Harry Potter and the Order of the Phoenix',
+    al:['L\'Ordre du Phénix'] },
+  { id:'hp6', t:'Harry Potter et le Prince de sang-mêlé',         a:2009, q:'Harry Potter and the Half-Blood Prince',
+    al:['Le Prince de sang-mêlé'] },
+  { id:'hp7', t:'Harry Potter et les Reliques de la Mort, 1re partie', a:2010, q:'Harry Potter and the Deathly Hallows: Part 1',
+    al:['Harry Potter et les Reliques de la Mort - partie 1','Harry Potter et les Reliques de la Mort - 1ère partie',
+        'Les Reliques de la Mort, 1re partie'] },
+  { id:'hp8', t:'Harry Potter et les Reliques de la Mort, 2e partie',  a:2011, q:'Harry Potter and the Deathly Hallows: Part 2',
+    al:['Harry Potter et les Reliques de la Mort - partie 2','Harry Potter et les Reliques de la Mort - 2ème partie',
+        'Les Reliques de la Mort, 2e partie'] },
+];
+
+// ---- registre des défis ----
+// `final` = la carte de fin (le film qu'on attend) ; facultative.
+const DEFIS = [
+  { id:'doomsday',  nom:'Avengers: Doomsday', court:'Doomsday',    ico:'🛡️', coul:'#3ee0a5',
+    sous:'Les 38 films à voir avant le prochain Avengers', films:MCU_FILMS,    final:MCU_FINAL },
+  { id:'spiderman', nom:'Tous les Spider-Man', court:'Spider-Man', ico:'🕷️', coul:'#ff5e7a',
+    sous:'Du Raimi au Spider-Verse',                      films:SPIDER_FILMS, titresFixes:1 },
+  { id:'starwars',  nom:'Toute la saga Star Wars', court:'Star Wars', ico:'🌌', coul:'#ffc24b',
+    sous:'Les neuf épisodes et les films dérivés',         films:SW_FILMS,     titresFixes:1 },
+  { id:'avengers',  nom:'Tous les Avengers',   court:'Avengers',   ico:'🦸', coul:'#56ccff',
+    sous:'Les films d\'équipe, Doomsday compris',          films:AVG_FILMS,    titresFixes:1 },
+  { id:'potter',    nom:'Toute la saga Harry Potter', court:'Harry Potter', ico:'⚡', coul:'#9d8bff',
+    sous:'Les huit films, de Poudlard aux Reliques',       films:HP_FILMS,     titresFixes:1 },
+];
+
+let defiId = 'doomsday';
+const defiActuel = () => DEFIS.find(x => x.id === defiId) || DEFIS[0];
+
+// Progression : le défi Doomsday garde son ancien emplacement (`etat.mcu`) pour ne pas
+// casser les sauvegardes existantes ; les autres vivent dans `etat.defis[id]`.
+function defiCoches(id, source){
+  const d = source || dact();
+  if(id === 'doomsday') return Array.isArray(d.mcu) ? d.mcu : [];
+  return (d.defis && Array.isArray(d.defis[id])) ? d.defis[id] : [];
+}
+function defiEcrire(id, liste){
+  if(id === 'doomsday'){ etat.mcu = liste; return; }
+  if(!etat.defis || typeof etat.defis !== 'object') etat.defis = {};
+  etat.defis[id] = liste;
+}
+function defiAvancement(def, source){
+  const v = new Set(defiCoches(def.id, source));
+  const n = def.films.filter(x => v.has(x.id)).length;
+  return { n, total: def.films.length, pct: def.films.length ? Math.round(n / def.films.length * 100) : 0 };
+}
 
 // ---- affiches (cache local, jamais envoyé au cloud : ça n'alourdit pas la sauvegarde) ----
-const CLE_MCU_AFF = 'cinewawa-mcu-affiches-v2';   // v2 : { id: {u:affiche, fr:titre français, vo:titre original} }
+const CLE_MCU_AFF = 'cinewawa-mcu-affiches-v3';   // v3 : { id: {u:affiche, fr:titre français, vo:titre original} }
 let mcuAff = {};
 try{ mcuAff = JSON.parse(localStorage.getItem(CLE_MCU_AFF) || '{}') || {}; }catch(e){ mcuAff = {}; }
 function mcuSauverAff(){ try{ localStorage.setItem(CLE_MCU_AFF, JSON.stringify(mcuAff)); }catch(e){} }
 
 // ---- lecture / écriture de la progression ----
-function mcuListe(){ const d = dact(); return Array.isArray(d.mcu) ? d.mcu : []; }
-function mcuVus(){ return new Set(mcuListe()); }
+function mcuVus(){ return new Set(defiCoches(defiId)); }
 function mcuBascule(id){
   if(visu) return;                                   // lecture seule quand on visite quelqu'un
-  if(!Array.isArray(etat.mcu)) etat.mcu = [];
-  const i = etat.mcu.indexOf(id);
-  if(i >= 0) etat.mcu.splice(i, 1); else etat.mcu.push(id);
+  const liste = defiCoches(defiId, etat).slice();
+  const i = liste.indexOf(id);
+  if(i >= 0) liste.splice(i, 1); else liste.push(id);
+  defiEcrire(defiId, liste);
   sauver();
 }
-function mcuPct(){ const v = mcuVus(); let n = 0;
-  MCU_FILMS.forEach(x => { if(v.has(x.id)) n++; });
-  return { n, total: MCU_TOTAL, pct: MCU_TOTAL ? Math.round(n / MCU_TOTAL * 100) : 0 };
-}
-
-// ---- bannière d'accueil ----
-function majBanniereMcu(){
-  const b = $('mcuBanBarre'), p = $('mcuBanPct'), s = $('mcuBanSous');
-  if(!b) return;
-  const r = mcuPct();
-  b.style.width = r.pct + '%';
-  p.textContent = r.pct + '%';
-  s.innerHTML = r.n >= r.total
-    ? 'Parcours terminé — tu peux foncer voir le film 🍿'
-    : '<b>' + r.n + '</b> / ' + r.total + ' films cochés · encore <b>' + (r.total - r.n) + '</b> avant le film';
-}
+function mcuPct(){ return defiAvancement(defiActuel()); }
 
 // ---- page du défi ----
-function allerMcu(){
+function allerMcu(id){
+  if(id) defiId = id;
+  const def = defiActuel();
   catCourante = null;
   cacherPages();
   $('pageMcu').classList.remove('cache');
-  document.title = "Ciné'Wawa — Avengers: Doomsday";
+  $('pageMcu').style.setProperty('--dd', def.coul);
+  $('pageMcu').style.setProperty('--dd2', hexRgba(def.coul, .55));
+  $('mcuAvatar').textContent = def.ico;
+  $('mcuAvatar').style.background = 'linear-gradient(135deg,' + def.coul + ',#12321f)';
+  $('mcuNomPage').textContent = def.court;
+  document.title = "Ciné'Wawa — " + def.court;
   rendreMcu();
-  mcuChargerAffiches();
+  mcuChargerAffiches().then(initialiserDefis);
+}
+
+// Première rencontre avec un défi : on coche tout seul ce qui est déjà dans la bibliothèque.
+// Ensuite l'utilisateur est maître de ses cases — on ne repasse plus jamais dessus.
+// Ça tourne dès l'ouverture de l'onglet Défis, pas seulement quand on entre dans un parcours :
+// la liste doit afficher le bon compte tout de suite.
+let defisInitEnCours = false;
+// Signature des données au dernier passage. Sans elle, le redessin de la liste rappelait
+// `initialiserDefis`, qui redessinait la liste… boucle infinie et onglet figé.
+let defisScanSig = '';
+async function initialiserDefis(){
+  if(visu || defisInitEnCours) return;
+  if(String(etat.modif || 0) === defisScanSig) return;   // rien n'a bougé depuis le dernier scan
+  if(!etat.defisInit || typeof etat.defisInit !== 'object') etat.defisInit = {};
+  defisInitEnCours = true;
+  let total = 0;
+  // on repasse sur TOUS les défis : une liste peut s'être allongée, la bibliothèque aussi.
+  // `mcuChargerAffiches` ne fait rien s'il ne manque aucune affiche, donc c'est gratuit ensuite.
+  for(const def of DEFIS){
+    try{ await mcuChargerAffiches(def); }catch(e){}   // titres FR : la comparaison est plus fine avec
+    total += mcuAppliquerDetection(def, true);
+  }
+  // rien de neuf : on range la mémoire sans toucher à l'horodatage de synchro
+  if(total) sauver();
+  else try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+  defisScanSig = String(etat.modif || 0);
+  defisInitEnCours = false;
+  if(!total) return;
+  if(!$('pageSucces').classList.contains('cache')) rendreDefis();
+  if(!$('pageMcu').classList.contains('cache')) rendreMcu();
+  toast('<b>' + total + '</b> film' + (total>1?'s':'') + ' coché' + (total>1?'s':'')
+    + ' automatiquement d\'après ta bibliothèque.', 'ok');
 }
 
 // titre affiché : le titre français officiel de TMDB s'il est connu, sinon mon libellé
 function mcuTitre(x){
+  // un défi « titresFixes » garde mes libellés : les titres TMDB d'une même saga
+  // n'ont aucune cohérence entre eux (« La Guerre des étoiles » à côté de « Star Wars : … »)
+  if(defiActuel().titresFixes || x.nofr) return x.t;
   const c = mcuAff[x.id];
-  return (c && c.fr && !x.nofr) ? c.fr : x.t;
+  return (c && c.fr) ? c.fr : x.t;
 }
 function mcuTuile(x, i, vus){
   const c = mcuAff[x.id];
@@ -5454,6 +5754,43 @@ function mcuSection(cle, ico, nom, liste, vus){
     + '<div class="mcu-grille">' + liste.map((x,i) => mcuTuile(x, i, vus)).join('') + '</div>'
     + '</div>';
 }
+// Où en sont les autres sur ce défi : une seule ligne, chaque membre en pastille
+// dont le fond se remplit à hauteur de sa progression.
+function rendreCommuDefi(def){
+  const z = $('mcuCommu');
+  if(!z) return;
+  const total = def.films.length || 1;
+  const moi = {
+    login: monLogin || '', pseudo: (visu ? 'Moi' : (etat.pseudo || 'Moi')),
+    n: defiAvancement(def, etat).n, mien: true,
+  };
+  const monId = (monLogin || '').toLowerCase();
+  const monPseudo = (etat.pseudo || '').trim().toLowerCase();
+  const autres = (membresCommu || [])
+    .filter(m => m.visible && m.defis && m.defis[def.id] > 0)
+    .filter(m => visu || (monId
+      ? String(m.login).toLowerCase() !== monId
+      : !(monPseudo && String(m.pseudo || '').trim().toLowerCase() === monPseudo)))
+    .map(m => ({ login: m.login, pseudo: m.pseudo, n: m.defis[def.id] }));
+  const liste = (visu ? autres : autres.concat(moi.n > 0 ? [moi] : []))
+    .sort((a, b) => b.n - a.n)
+    .slice(0, 8);
+  if(!liste.length){ z.innerHTML = ''; return; }
+
+  z.innerHTML = '<div class="dc"><span class="dc-lab">👥 La communauté</span>'
+    + liste.map(m => {
+        const pct = Math.round(m.n / total * 100);
+        const pp = m.login
+          ? '<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=44" alt="" onerror="this.remove()">'
+          : '<span class="dc-vide">🎬</span>';
+        return '<span class="dc-m' + (m.mien ? ' mien' : '') + '" title="'
+          + echap(m.pseudo + ' — ' + m.n + '/' + total + ' (' + pct + '%)') + '">'
+          + '<i style="width:' + pct + '%"></i>'
+          + pp + '<b>' + echap(m.pseudo) + '</b><span>' + m.n + '</span></span>';
+      }).join('')
+    + '</div>';
+}
+
 function rendreMcu(){
   const vus = mcuVus();
   const r = mcuPct();
@@ -5464,28 +5801,34 @@ function rendreMcu(){
   j.setAttribute('stroke-dasharray', circ.toFixed(1));
   j.setAttribute('stroke-dashoffset', (circ * (1 - r.pct/100)).toFixed(1));
   $('mcuPctRing').textContent = r.pct + '%';
+  const def = defiActuel();
   $('mcuHeroTitre').textContent = visu
     ? 'Parcours de ' + visu.pseudo
-    : (r.n >= r.total ? 'Prêt pour le Doomsday !' : 'Ta route vers le Doomsday');
+    : (r.n >= r.total ? 'Parcours terminé !' : def.nom);
   $('mcuHeroSous').innerHTML = visu
     ? '<b>' + r.n + '</b> / ' + r.total + ' films vus — lecture seule.'
     : ('<b>' + r.n + '</b> / ' + r.total + ' films cochés. '
-       + (r.n >= r.total ? 'Tout est vu : le film n\'aura aucun secret pour toi.' : 'Clique une affiche pour la cocher — la sauvegarde est automatique.'));
+       + (r.n >= r.total ? 'Tout est vu, rien ne t\'échappera.' : 'Clique une affiche pour la cocher — la sauvegarde est automatique.'));
   $('mcuActions').style.display = visu ? 'none' : '';
 
-  $('mcuSections').innerHTML = mcuSection('films', '🎬', 'Films', MCU_FILMS, vus);
+  rendreCommuDefi(def);
+  $('mcuSections').innerHTML = mcuSection('films', '🎬', 'Films', def.films.slice().sort((a,b) => a.a - b.a), vus);
 
-  // carte finale
+  // carte finale (tous les défis n'en ont pas)
   const reste = r.total - r.n;
-  const aff = mcuAff[MCU_FINAL.id] && mcuAff[MCU_FINAL.id].u;
-  $('mcuFinal').innerHTML = '<div class="mcu-final' + (reste === 0 ? ' pret' : '') + '">'
-    + (aff ? '<img src="' + echap(aff) + '" alt="" style="width:120px;border-radius:10px;margin-bottom:14px;box-shadow:0 10px 26px rgba(0,0,0,.5)">' : '')
-    + (reste === 0 ? '' : '<div class="cadenas">🔒</div>')
-    + '<div class="gros">Avengers: Doomsday</div>'
-    + '<div class="sous">' + (reste === 0
-        ? 'Parcours complet ✓ Tu as tout vu, bonne séance !'
-        : 'Encore <b style="color:#3ee0a5">' + reste + '</b> film' + (reste>1?'s':'') + ' à voir pour tout comprendre.') + '</div>'
-    + '</div>';
+  if(!def.final){
+    $('mcuFinal').innerHTML = '';
+  } else {
+    const aff = mcuAff[def.final.id] && mcuAff[def.final.id].u;
+    $('mcuFinal').innerHTML = '<div class="mcu-final' + (reste === 0 ? ' pret' : '') + '">'
+      + (aff ? '<img src="' + echap(aff) + '" alt="" style="width:120px;border-radius:10px;margin-bottom:14px;box-shadow:0 10px 26px rgba(0,0,0,.5)">' : '')
+      + (reste === 0 ? '' : '<div class="cadenas">🔒</div>')
+      + '<div class="gros">' + echap(def.final.t) + '</div>'
+      + '<div class="sous">' + (reste === 0
+          ? 'Parcours complet ✓ Tu as tout vu, bonne séance !'
+          : 'Encore <b style="color:' + def.coul + '">' + reste + '</b> film' + (reste>1?'s':'') + ' à voir pour tout comprendre.') + '</div>'
+      + '</div>';
+  }
 
   $('mcuSections').querySelectorAll('.mcu-tuile').forEach(b => {
     b.addEventListener('click', () => {
@@ -5502,13 +5845,21 @@ async function mcuAffUne(x, type){
   const q = x.q || x.t;
   const base = 'https://api.themoviedb.org/3/search/' + type + '?api_key=' + TMDB_KEY
     + '&language=fr-FR&include_adult=false&query=' + encodeURIComponent(q);
-  const essais = [base + (type === 'movie' ? '&year=' + x.a : '&first_air_date_year=' + x.a), base];
+  const essais = [
+    base + (type === 'movie' ? '&primary_release_year=' + x.a : '&first_air_date_year=' + x.a),
+    base,
+  ];
+  const annee = v => String(v.release_date || v.first_air_date || '').slice(0, 4);
   for(const url of essais){
     try{
       const r = await fetch(url);
       if(!r.ok) continue;
       const j = await r.json();
-      const trouve = (j.results || []).find(v => v.poster_path);
+      const avecAffiche = (j.results || []).filter(v => v.poster_path);
+      // l'année exacte prime toujours sur l'ordre de pertinence de TMDB
+      const trouve = avecAffiche.find(v => annee(v) === String(x.a))
+        || avecAffiche.find(v => Math.abs(Number(annee(v)) - x.a) <= 1)
+        || null;
       if(trouve) return {
         u:  'https://image.tmdb.org/t/p/w342' + trouve.poster_path,
         fr: trouve.title || trouve.name || '',                    // titre français officiel
@@ -5518,10 +5869,11 @@ async function mcuAffUne(x, type){
   }
   return null;
 }
-async function mcuChargerAffiches(){
+async function mcuChargerAffiches(defArg){
   if(mcuAffEnCours) return;
-  const manquants = MCU_FILMS.map(x => [x,'movie'])
-    .concat([[MCU_FINAL,'movie']])
+  const def = defArg || defiActuel();
+  const manquants = def.films.map(x => [x,'movie'])
+    .concat(def.final ? [[def.final,'movie']] : [])
     .filter(([x]) => !mcuAff[x.id]);
   if(!manquants.length) return;
   mcuAffEnCours = true;
@@ -5544,12 +5896,20 @@ async function mcuChargerAffiches(){
 }
 
 // ---- détection automatique depuis ma bibliothèque ----
+const MCU_ROMAINS = { i:'1', ii:'2', iii:'3', iv:'4', v:'5', vi:'6', vii:'7', viii:'8', ix:'9', x:'10', xi:'11', xii:'12' };
 function mcuNorm(t){
   let s = String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');  // accents
   s = s.replace(/\s*\(\d{4}\)\s*/g,' ');            // « (2014) » à la fin
   s = s.replace(/\bmarvel\s*s?\b|\bstudios\b/g,' '); // « Marvel's Daredevil »
   s = s.replace(/\bvol(ume)?\b/g,' ');                // « Vol. 2 » = « 2 »
+  s = s.replace(/\bepisodes?\b|\bparties?\b|\bpart\b|\bchapitres?\b/g,' '); // « épisode III » = « 3 »
   s = s.replace(/[^a-z0-9]+/g,' ').trim();
+  // chiffres romains et ordinaux ramenés au nombre : « III » = « 3 », « 1re » = « 1 »
+  s = s.split(' ').map(m => {
+    if(MCU_ROMAINS[m]) return MCU_ROMAINS[m];
+    const o = m.match(/^(\d+)(er|ere|re|eme|e|nd|nde)$/);
+    return o ? o[1] : m;
+  }).join(' ');
   return s;
 }
 // signature : les mots vides sautent, pour que « Les Gardiens de la Galaxie » = « Gardiens Galaxie »
@@ -5562,25 +5922,50 @@ function mcuNoms(x){
   const c = mcuAff[x.id] || {};
   return [x.t.replace(/\s*\(.*\)\s*/,'')].concat(x.al || [], c.fr ? [c.fr] : [], c.vo ? [c.vo] : []);
 }
-async function mcuDetecter(){
-  if(visu) return;
-  // les titres français viennent de TMDB : on s'assure qu'ils sont chargés avant de comparer
-  if(MCU_FILMS.some(x => !mcuAff[x.id])){
-    mcuMsg('Récupération des titres français…', true);
-    await mcuChargerAffiches();
-  }
+// Ce que la détection a déjà reconnu une fois pour ce défi.
+// Ancien format (un horodatage) : on retombe sur les cases actuellement cochées.
+function dejaPropose(id){
+  const v = (etat.defisInit || {})[id];
+  return Array.isArray(v) ? v.slice() : [];
+}
+
+// Compare la bibliothèque au défi et coche ce qui correspond.
+// `respecterChoix` : on ne repropose pas un film déjà reconnu par le passé — s'il a été
+// décoché à la main, c'est un choix, on n'insiste pas. Le bouton « Détecter », lui, repasse tout.
+function mcuAppliquerDetection(def, respecterChoix){
   const normes = new Set(), sigs = new Set();
   ['films','series'].forEach(c => (etat[c]||[]).forEach(f => {
     normes.add(mcuNorm(f.titre)); sigs.add(mcuSig(f.titre));
   }));
-  if(!Array.isArray(etat.mcu)) etat.mcu = [];
+  const liste = defiCoches(def.id, etat).slice();
+  const connus = dejaPropose(def.id);
+  const reconnus = [];
   let ajout = 0;
-  MCU_FILMS.forEach(x => {
-    if(etat.mcu.includes(x.id)) return;
+  def.films.forEach(x => {
     const noms = mcuNoms(x);
-    const ok = noms.some(n => n && (normes.has(mcuNorm(n)) || sigs.has(mcuSig(n))));
-    if(ok){ etat.mcu.push(x.id); ajout++; }
+    if(!noms.some(n => n && (normes.has(mcuNorm(n)) || sigs.has(mcuSig(n))))) return;
+    reconnus.push(x.id);
+    if(liste.includes(x.id)) return;
+    if(respecterChoix && connus.includes(x.id)) return;   // déjà proposé puis retiré : on respecte
+    liste.push(x.id); ajout++;
   });
+  if(ajout) defiEcrire(def.id, liste);
+  if(respecterChoix){
+    if(!etat.defisInit || typeof etat.defisInit !== 'object') etat.defisInit = {};
+    etat.defisInit[def.id] = Array.from(new Set(connus.concat(reconnus)));
+  }
+  return ajout;
+}
+
+async function mcuDetecter(){
+  if(visu) return;
+  const def = defiActuel();
+  // les titres français viennent de TMDB : on s'assure qu'ils sont chargés avant de comparer
+  if(def.films.some(x => !mcuAff[x.id])){
+    mcuMsg('Récupération des titres français…', true);
+    await mcuChargerAffiches();
+  }
+  const ajout = mcuAppliquerDetection(def, false);
   if(ajout){ sauver(); rendreMcu(); }
   mcuMsg(ajout ? '✓ ' + ajout + ' titre' + (ajout>1?'s':'') + ' coché' + (ajout>1?'s':'') + ' automatiquement d\'après ta bibliothèque.'
                : 'Aucun nouveau titre trouvé dans ta bibliothèque — les titres doivent être écrits pareil.', !ajout);
@@ -5598,9 +5983,10 @@ function mcuMsg(txt, gris){
 }
 function mcuToutCocher(v){
   if(visu) return;
-  etat.mcu = v ? MCU_FILMS.map(x => x.id) : [];
+  const def = defiActuel();
+  defiEcrire(def.id, v ? def.films.map(x => x.id) : []);
   sauver(); rendreMcu();
-  mcuMsg(v ? '✓ Les ' + MCU_TOTAL + ' films sont cochés.' : 'Parcours remis à zéro.', !v);
+  mcuMsg(v ? '✓ Les ' + def.films.length + ' films sont cochés.' : 'Parcours remis à zéro.', !v);
 }
 
 // ================= branchements =================
@@ -5652,6 +6038,7 @@ $('cfOui').addEventListener('click', () => { const a = confirmAction; fermerConf
 // ---- Échap ferme la fenêtre du dessus ----
 document.addEventListener('keydown', e => {
   if(e.key !== 'Escape') return;
+  if($('overlayNotes').classList.contains('on')) return $('overlayNotes').classList.remove('on');
   if($('overlaySucces').classList.contains('on')) return $('overlaySucces').classList.remove('on');
   if($('overlayConfirm').classList.contains('on')) return fermerConfirm();
   if($('overlaySuivi').classList.contains('on')) return fermerSuivi();
@@ -5699,6 +6086,8 @@ $('btnRetourProfil').addEventListener('click', () => visu ? quitterVisu() : alle
 document.querySelectorAll('#ongletsSucces button').forEach(b => {
   b.addEventListener('click', () => allerTrophees(b.dataset.o));
 });
+$('ntFermer').addEventListener('click', () => $('overlayNotes').classList.remove('on'));
+$('overlayNotes').addEventListener('click', e => { if(e.target === $('overlayNotes')) $('overlayNotes').classList.remove('on'); });
 $('scFermer').addEventListener('click', () => $('overlaySucces').classList.remove('on'));
 $('overlaySucces').addEventListener('click', e => { if(e.target === $('overlaySucces')) $('overlaySucces').classList.remove('on'); });
 // un médaillon, où qu'il soit (profil compris), ouvre la fiche du succès
@@ -5706,7 +6095,6 @@ document.addEventListener('click', e => {
   const m = e.target.closest('.med[data-sc]');
   if(m) ouvrirSucces(m.dataset.sc);
 });
-$('btnMcu').addEventListener('click', allerMcu);
 $('btnRetourMcu').addEventListener('click', () => allerTrophees('defis'));
 $('btnMcuDetect').addEventListener('click', mcuDetecter);
 $('btnMcuTout').addEventListener('click', () => mcuToutCocher(true));
