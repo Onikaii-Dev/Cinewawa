@@ -1153,6 +1153,80 @@
     .pan-btn{padding:7px 10px;font-size:11.5px}
   }
 
+  /* ================= CADRES D'AVATAR ================= */
+  .ava-box{position:relative;display:inline-flex;align-items:center;justify-content:center;
+    flex-shrink:0;vertical-align:middle}
+  .deco-cadre{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
+    width:138%;height:138%;pointer-events:none;overflow:visible;
+    filter:drop-shadow(0 0 6px rgba(0,0,0,.55))}
+  .hero-ava{position:relative;display:block;flex-shrink:0}
+  .pf-ava{overflow:visible}
+  /* avec un cadre, on efface l'anneau d'origine pour ne pas empiler deux bordures */
+  .pf-ava.a-deco,.cp-ava.a-deco{background:none;padding:0;box-shadow:none}
+  .cp-ava.a-deco img,.cp-ava.a-deco .vide{border:2px solid rgba(255,255,255,.12)}
+  .cp-ava{overflow:visible}
+  .pf-ava.a-deco img,.pf-ava.a-deco .vide{border:2px solid rgba(255,255,255,.12)}
+  .pf-ava.a-deco .deco-cadre{width:152%;height:152%}
+  .hero-ava.a-deco .hero-pp{border-color:rgba(255,255,255,.14);box-shadow:none}
+  .hero-ava.a-deco .deco-cadre{width:150%;height:150%}
+
+  .deco-tete{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;
+    font-size:13px;color:var(--muted);
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+    border-radius:var(--r);padding:13px 16px}
+  .deco-compte{font-size:11px;font-weight:800;letter-spacing:.08em;color:var(--gold);
+    background:rgba(255,194,75,.12);border:1px solid rgba(255,194,75,.4);
+    border-radius:99px;padding:5px 12px;flex-shrink:0}
+  .deco-compte b{font-size:14px}
+
+  .deco-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
+  .deco-c{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+    background:linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
+    border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:18px 12px 14px;
+    font-family:inherit;color:var(--txt);text-align:center;
+    transition:transform .18s cubic-bezier(.2,.7,.3,1),border-color .18s ease,box-shadow .18s ease}
+  .deco-c:not(:disabled):hover{transform:translateY(-4px);border-color:var(--dk);
+    box-shadow:0 14px 30px rgba(0,0,0,.45),0 0 26px -10px var(--dk)}
+  .deco-c.actif{border-color:var(--dk);box-shadow:0 0 0 1px var(--dk),0 0 28px -12px var(--dk);
+    background:linear-gradient(170deg,rgba(255,255,255,.09),rgba(255,255,255,.02))}
+  .deco-c.verrou{opacity:.5;cursor:not-allowed}
+  .deco-apercu{position:relative;width:74px;height:74px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+  .deco-rond{width:52px;height:52px;border-radius:50%;
+    background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
+  .deco-lock{position:absolute;font-size:19px;opacity:.7}
+  .deco-nom{font-size:12.5px;font-weight:800;color:var(--dk)}
+  .deco-c.verrou .deco-nom{color:var(--muted)}
+  .deco-cond{font-size:10.5px;color:var(--faint);line-height:1.45}
+  .dc-previews{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
+  .dc-p{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;
+    background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
+    border-radius:12px;padding:10px 4px 9px;opacity:.42;filter:grayscale(.55)}
+  .dc-p.fait{opacity:1;filter:none}
+  .dc-p.actif{border-color:var(--dk);box-shadow:0 0 0 1px var(--dk),0 0 22px -12px var(--dk);
+    background:linear-gradient(170deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}
+  .dc-p-ap{position:relative;width:64px;height:64px;display:flex;align-items:center;justify-content:center}
+  .dc-p-ap .deco-cadre{width:120%;height:120%}
+  .dc-p-rond{width:42px;height:42px;border-radius:50%;
+    background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
+  .dc-p-n{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dk)}
+  .dc-p-v{font-size:9px;color:var(--faint);line-height:1.3}
+  .dc-aide{font-size:11.5px;color:var(--faint);text-align:center;margin-top:11px;line-height:1.45}
+  .dc-p{font-family:inherit;color:var(--txt);cursor:pointer;
+    transition:transform .16s cubic-bezier(.2,.7,.3,1),border-color .16s ease,box-shadow .16s ease}
+  .dc-p:not(:disabled):hover{transform:translateY(-3px);border-color:var(--dk);
+    box-shadow:0 10px 24px rgba(0,0,0,.45),0 0 22px -10px var(--dk)}
+  .dc-p:disabled{cursor:not-allowed}
+  .dc-p-solo{grid-column:1/-1;padding:16px 10px}
+  .dc-p-solo .dc-p-ap{width:96px;height:96px}
+  .dc-p-solo .dc-p-rond{width:66px;height:66px}
+  .dc-p-solo .dc-p-n{font-size:11.5px}
+  @media(max-width:560px){ .dc-previews{grid-template-columns:repeat(3,1fr)} }
+
+  .deco-rang{font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--dk);border:1px solid var(--dk);border-radius:99px;padding:2px 9px;opacity:.9}
+  .deco-porte{font-size:9.5px;font-weight:800;letter-spacing:.14em;text-transform:uppercase;
+    color:var(--dk);border:1px solid var(--dk);border-radius:99px;padding:3px 10px;margin-top:2px}
+
   /* ---- où en sont les autres sur un défi ---- */
   .dc{display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:20px}
   .dc-lab{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--faint);
@@ -1487,9 +1561,11 @@
       <button data-o="succes" class="on">Succès</button>
       <button data-o="classement">Classement</button>
       <button data-o="defis">Défis</button>
+      <button data-o="deco">Décoration</button>
     </div>
     <div id="zoneSucces"></div>
     <div id="zoneClassement" class="cache"></div>
+    <div id="zoneDeco" class="cache"></div>
     <div id="zoneDefis" class="cache"></div>
   </div>
 
@@ -1766,6 +1842,26 @@
   </div>
 </div>
 
+<!-- ======== APERÇU D'UN CADRE, PALIER PAR PALIER ======== -->
+<div id="overlayDeco" class="ovl">
+  <div class="mini-modale" style="max-width:566px">
+    <div class="sc-tete">
+      <div class="sc-med" id="dcIco">🖼️</div>
+      <div style="min-width:0">
+        <h3 id="dcNom" style="margin:0">Cadre</h3>
+        <div id="dcNiveau" class="sc-niveau">—</div>
+      </div>
+    </div>
+    <p id="dcDesc" style="margin:0 0 12px"></p>
+    <div id="dcPreviews" class="dc-previews"></div>
+    <div id="dcAide" class="dc-aide"></div>
+    <div class="actions" style="margin-top:18px">
+      <button class="btn-gold" id="dcPorter" style="flex:1">Porter ce cadre</button>
+      <button class="btn-ghost" id="dcFermer" style="flex:1">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======== DÉTAIL D'UN SUCCÈS ======== -->
 <div id="overlaySucces" class="ovl">
   <div class="mini-modale" style="max-width:430px">
@@ -1837,8 +1933,10 @@
   <div class="modale">
     <h2>Mon Profil</h2>
     <div class="prof-head">
-      <img class="prof-pp" id="pPP" alt="" style="display:none">
-      <span class="prof-pp prof-pp-vide" id="pPPVide">🎬</span>
+      <span class="ava-box">
+        <img class="prof-pp" id="pPP" alt="" style="display:none">
+        <span class="prof-pp prof-pp-vide" id="pPPVide">🎬</span>
+      </span>
       <div style="min-width:0">
         <div class="prof-nom" id="pNom">Moi</div>
         <div class="prof-login" id="pLogin"></div>
@@ -1953,7 +2051,7 @@
 </div>
 
 <script>
-const VERSION = 'v100';
+const VERSION = 'v103';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2040,6 +2138,8 @@ function normaliser(d){
       reactions: (d.reactions && typeof d.reactions === 'object' && !Array.isArray(d.reactions)) ? d.reactions : {},
       mcu: Array.isArray(d.mcu) ? d.mcu : [],        // défi Avengers: Doomsday (ids cochés)
       epingles: Array.isArray(d.epingles) ? d.epingles.slice(0, 3) : [],  // temps forts du profil
+      deco: typeof d.deco === 'string' ? d.deco : '',   // décoration d'avatar choisie
+      decoNiv: Number(d.decoNiv) > 0 ? Math.min(6, Math.round(Number(d.decoNiv))) : 0,   // 0 = suit mon palier
       defis: (d.defis && typeof d.defis === 'object' && !Array.isArray(d.defis)) ? d.defis : {},
       defisInit: (d.defisInit && typeof d.defisInit === 'object' && !Array.isArray(d.defisInit)) ? d.defisInit : {},
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
@@ -2176,12 +2276,15 @@ function majCollage(){
 // Tout est CALCULÉ à partir des données : rien à stocker, rien à synchroniser,
 // et les badges d'un autre utilisateur se déduisent de sa liste publique.
 const NIVEAUX = [
-  { n:'Bronze',  c:'#cd7f32' },
-  { n:'Argent',  c:'#c9c9d6' },
-  { n:'Or',      c:'#ffc24b' },
-  { n:'Platine', c:'#7fe3ff' },
-  { n:'Légende', c:'#ff5e7a' },
+  { n:'Bronze',   c:'#cd7f32' },
+  { n:'Argent',   c:'#c9c9d6' },
+  { n:'Or',       c:'#ffc24b' },
+  { n:'Platine',  c:'#7fe3ff' },
+  { n:'Légende',  c:'#ff5e7a' },
+  { n:'Anomalie', c:'#d9b8ff' },
 ];
+// Le dernier palier vaut le double du précédent : hors catégorie, presque hors d'atteinte.
+const paliersDe = sc => sc.paliers.concat([sc.paliers[sc.paliers.length - 1] * 2]);
 
 const compte = (d, f) => ['films','series','anime','manga'].reduce((t,c) => t + d[c].filter(x => f(x, c)).length, 0);
 
@@ -2269,10 +2372,10 @@ function ouvrirSucces(id){
   $('scIco').textContent = sc.ico;
   $('scIco').style.setProperty('--nc', e.coul);
   $('scNom').textContent = sc.nom;
-  $('scNiveau').textContent = e.niv ? NIVEAUX[e.niv-1].n + ' · palier ' + e.niv + '/' + sc.paliers.length : 'Pas encore débloqué';
+  $('scNiveau').textContent = e.niv ? NIVEAUX[e.niv-1].n + ' · palier ' + e.niv + '/' + paliersDe(sc).length : 'Pas encore débloqué';
   $('scNiveau').style.color = e.niv ? e.coul : 'var(--faint)';
   $('scDesc').textContent = sc.desc;
-  $('scPaliers').innerHTML = sc.paliers.map((p, i) => {
+  $('scPaliers').innerHTML = paliersDe(sc).map((p, i) => {
     const fait = e.v >= p;
     const encours = !fait && i === e.niv;
     return '<div class="pal' + (fait ? ' fait' : '') + (encours ? ' actif' : '') + '" style="--nc:' + NIVEAUX[i].c + '">'
@@ -2290,10 +2393,11 @@ function ouvrirSucces(id){
 // état d'un succès : niveau atteint (0 = verrouillé), progression vers le suivant
 function etatSucces(sc, d){
   const v = sc.val(d);
+  const P = paliersDe(sc);
   let niv = 0;
-  for(let i = 0; i < sc.paliers.length; i++) if(v >= sc.paliers[i]) niv = i + 1;
-  const suivant = niv < sc.paliers.length ? sc.paliers[niv] : null;
-  const base = niv > 0 ? sc.paliers[niv-1] : 0;
+  for(let i = 0; i < P.length; i++) if(v >= P[i]) niv = i + 1;
+  const suivant = niv < P.length ? P[niv] : null;
+  const base = niv > 0 ? P[niv-1] : 0;
   const pct = suivant ? Math.min(100, Math.max(0, (v - base) / (suivant - base) * 100)) : 100;
   return { sc, v, niv, suivant, pct, coul: niv > 0 ? NIVEAUX[niv-1].c : '#4c4079' };
 }
@@ -2313,6 +2417,410 @@ function medaillonsHTML(d, max, statique){
     + e.sc.ico + '<i>' + e.niv + '</i></' + bal + '>'
   ).join('') + '</div>';
 }
+
+// ================= DÉCORATIONS D'AVATAR =================
+// Chaque succès offre son cadre, et ce cadre s'enrichit à mesure qu'on monte de palier :
+// Bronze donne l'anneau et l'emblème, Anomalie ajoute le halo. Les défis, eux, donnent
+// un cadre unique une fois terminés. Tout est dessiné en SVG — aucune image à charger.
+
+function paliersFranchis(d){ return tousSucces(d).reduce((t, e) => t + e.niv, 0); }
+function defiFini(d, id){
+  const def = DEFIS.find(x => x.id === id);
+  if(!def) return false;
+  const r = defiAvancement(def, d);
+  return r.total > 0 && r.n >= r.total;
+}
+
+// `u` est un suffixe unique par rendu : sans lui, tous les dégradés partageraient l'id
+// « g » et chaque cadre de la page irait chercher le premier.
+const F = u => 'url(#g' + u + ')';
+
+// une teinte par palier : le cadre change de métal en même temps que le succès
+const DECO_TEINTES = [
+  ['#f4bd85', '#8a5220'],   // Bronze
+  ['#ffffff', '#7c7c93'],   // Argent
+  ['#fff3cf', '#c98a10'],   // Or
+  ['#f0fdff', '#2f9dc4'],   // Platine
+  ['#ffc4ce', '#c81f45'],   // Légende
+];
+function decoDefs(u, niv){
+  if(niv >= 6) return '<defs><linearGradient id="g' + u + '" x1="0" y1="0" x2="1" y2="1">'
+    + '<stop offset="0" stop-color="#7fe3ff"/><stop offset=".45" stop-color="#d9b8ff"/>'
+    + '<stop offset="1" stop-color="#ff5e7a"/></linearGradient></defs>';
+  const t = DECO_TEINTES[Math.max(0, Math.min(4, niv - 1))];
+  return '<defs><linearGradient id="g' + u + '" x1="0" y1="0" x2="0" y2="1">'
+    + '<stop offset="0" stop-color="' + t[0] + '"/><stop offset="1" stop-color="' + t[1] + '"/></linearGradient></defs>';
+}
+
+// ---------- vocabulaire de dessin ----------
+// Un cadre = une forme d'anneau + un semis répété + un ornement de bas + un jeu de
+// pointes + un emblème. Chaque succès pioche une combinaison différente : deux cadres
+// ne se ressemblent donc jamais, même au même palier.
+const RAD = Math.PI / 180;
+const cerc = (u, r, w, extra) => '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="' + F(u)
+  + '" stroke-width="' + w + '"' + (extra ? ' ' + extra : '') + '/>';
+
+// La forme de l'anneau principal. `r` permet de le redessiner plus loin du centre.
+const ANNEAUX = {
+  plein:     (u, w, r) => cerc(u, r || 47, w),
+  double:    (u, w, r) => cerc(u, (r || 47) - 2.6, w * .58) + cerc(u, (r || 47) + 2.6, w * .58),
+  triple:    (u, w, r) => cerc(u, (r || 47) - 4, w * .34) + cerc(u, r || 47, w * .8) + cerc(u, (r || 47) + 4, w * .34),
+  segments:  (u, w, r) => cerc(u, r || 47, w * 1.3, 'stroke-dasharray="19 5.6" stroke-linecap="butt"'),
+  pointille: (u, w, r) => cerc(u, r || 47, w * .95, 'stroke-dasharray="1.4 6.6" stroke-linecap="round"')
+                          + cerc(u, (r || 47) - 4.5, w * .3),
+  tresse:    (u, w, r) => cerc(u, (r || 47) - 1.6, w * .62, 'stroke-dasharray="12 12"')
+                          + cerc(u, (r || 47) + 1.6, w * .62, 'stroke-dasharray="12 12" stroke-dashoffset="12"'),
+};
+
+// Le motif semé le long de l'anneau. Dessiné « pointe vers le haut » : la rotation
+// l'oriente ensuite vers l'extérieur du cercle.
+const SEMIS = {
+  perfo:   '<rect x="-3.2" y="-4.6" width="6.4" height="9.2" rx="1.6"/>',
+  pixel:   '<rect x="-3.4" y="-3.4" width="6.8" height="6.8" rx="1.4"/>',
+  losange: '<path d="M0 -7 L4.6 0 L0 7 L-4.6 0 Z"/>',
+  page:    '<path d="M-4.6 5.5 L-4.6 -3.5 L0 -6.6 L4.6 -3.5 L4.6 5.5 Z"/>',
+  chainon: '<rect x="-4.2" y="-6" width="8.4" height="12" rx="4.2" fill="none" stroke-width="2.4"/>',
+  etoile:  '<path d="M0 -7.4 L1.9 -2.3 L7.2 -2.3 L2.9 1 L4.5 6.2 L0 3 L-4.5 6.2 L-2.9 1 L-7.2 -2.3 L-1.9 -2.3 Z"/>',
+  goutte:  '<path d="M0 -7.4 Q4.4 -1 0 6.4 Q-4.4 -1 0 -7.4 Z"/>',
+  coche:   '<path d="M-4.4 0 L-1.2 3.6 L4.6 -4.2" fill="none" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>',
+  flamme:  '<path d="M0 -8 Q4.6 -2 2.8 1.6 A3.2 3.2 0 1 1 -2.8 1.6 Q-4.6 -2 0 -8 Z"/>',
+  coeur:   '<path d="M0 6.4 C-6.4 1.2 -6.4 -5 -2.6 -5.6 Q0 -6 0 -2.4 Q0 -6 2.6 -5.6 C6.4 -5 6.4 1.2 0 6.4 Z"/>',
+  carre:   '<rect x="-4.8" y="-4.8" width="9.6" height="9.6" rx="1.6" fill="none" stroke-width="2.2"/>',
+  grad:    '<rect x="-1.3" y="-6.4" width="2.6" height="12.8" rx="1.3"/>',
+  rivet:   '<circle r="3.2"/><circle r="5.6" fill="none" stroke-width="1.5"/>',
+};
+// Le sommet est réservé à l'emblème : aucun angle entre 250° et 290°.
+const ANGLES_6  = [0, 40, 90, 140, 180, 225, 315];
+const ANGLES_10 = [0, 20, 40, 65, 90, 115, 140, 160, 180, 205, 225, 315, 335];
+function semisHTML(u, forme, dense){
+  const sh = SEMIS[forme] || SEMIS.losange;
+  const angles = dense ? ANGLES_10 : ANGLES_6;
+  return '<g fill="' + F(u) + '" stroke="' + F(u) + '" stroke-width="0">'
+    + angles.map(a => '<g transform="translate(' + (60 + Math.cos(a * RAD) * 47).toFixed(1) + ' '
+        + (60 + Math.sin(a * RAD) * 47).toFixed(1) + ') rotate(' + (a + 90) + ')">' + sh + '</g>').join('')
+    + '</g>';
+}
+
+// Deux fabriques d'animation. `fige` les neutralise : sur une liste de trente vignettes,
+// trente boucles repeignent la page sans arrêt pour rien.
+const anim = (fige, attr, vals, dur, extra) => fige ? ''
+  : '<animate attributeName="' + attr + '" values="' + vals + '" dur="' + dur + 's"'
+    + ' repeatCount="indefinite"' + (extra ? ' ' + extra : '') + '/>';
+const animTourne = (fige, de, a, dur) => fige ? ''
+  : '<animateTransform attributeName="transform" type="rotate" from="' + de + ' 60 60" to="'
+    + a + ' 60 60" dur="' + dur + 's" repeatCount="indefinite"/>';
+
+// L'ornement qui lest le bas du cadre.
+const BAS = {
+  laurier: u => '<path d="M7 71 A54 54 0 0 0 60 114 A54 54 0 0 0 113 71" fill="none" stroke="' + F(u)
+    + '" stroke-width="7" stroke-linecap="round"/>'
+    + '<path d="M22 88 L11 84 M31 100 L25 110 M98 88 L109 84 M89 100 L95 110" stroke="' + F(u)
+    + '" stroke-width="4.5" stroke-linecap="round"/>',
+  bandeau: u => '<path d="M20 92 Q60 114 100 92 L103 100 Q60 121 17 100 Z" fill="' + F(u) + '"/>'
+    + '<path d="M20 92 Q60 114 100 92" fill="none" stroke="#00000055" stroke-width="1.4"/>',
+  socle:   u => '<path d="M40 100 H80 L88 112 H32 Z" fill="' + F(u) + '"/>'
+    + '<rect x="26" y="112" width="68" height="6.5" rx="3.2" fill="' + F(u) + '"/>',
+  ailes:   u => '<path d="M14 88 Q32 106 58 111 Q32 114 10 100 Z" fill="' + F(u) + '"/>'
+    + '<path d="M106 88 Q88 106 62 111 Q88 114 110 100 Z" fill="' + F(u) + '"/>'
+    + '<circle cx="60" cy="112" r="4.5" fill="' + F(u) + '"/>',
+  arcs:    u => '<path d="M12 78 A51 51 0 0 0 108 78" fill="none" stroke="' + F(u) + '" stroke-width="5" stroke-linecap="round"/>'
+    + '<path d="M6 74 A57 57 0 0 0 114 74" fill="none" stroke="' + F(u) + '" stroke-width="2.6" stroke-linecap="round" opacity=".8"/>'
+    + '<path d="M20 84 A44 44 0 0 0 100 84" fill="none" stroke="' + F(u) + '" stroke-width="1.6" stroke-linecap="round" opacity=".55"/>',
+  vague:   u => '<path d="M6 78 Q22 98 38 90 Q54 82 60 104 Q66 82 82 90 Q98 98 114 78" fill="none" stroke="' + F(u)
+    + '" stroke-width="5" stroke-linecap="round" stroke-linejoin="round"/>',
+};
+
+// Les grandes pointes du palier Légende.
+const POINTES = {
+  pointes:   [35, 55, 125, 145, 215, 325],
+  cristaux:  [30, 60, 120, 150, 210, 330],
+  plumes:    [25, 65, 115, 155, 205, 335],
+  rayons:    [20, 45, 70, 110, 135, 160, 200, 340],
+  crocs:     [40, 80, 100, 140, 220, 320],
+};
+function pointesHTML(u, forme, fige){
+  const angles = POINTES[forme] || POINTES.pointes;
+  return '<g fill="' + F(u) + '" stroke="' + F(u) + '" stroke-width="0">' + angles.map((a, i) => {
+    const g = '<g transform="translate(' + (60 + Math.cos(a * RAD) * 47).toFixed(1) + ' '
+      + (60 + Math.sin(a * RAD) * 47).toFixed(1) + ') rotate(' + (a + 90) + ')">';
+    // le scintillement part en vague : chaque pointe démarre un peu après la précédente
+    const sc = fige ? '' : '<animate attributeName="opacity" values="1;.3;1" dur="2.6s" begin="'
+      + (i * 0.22).toFixed(2) + 's" repeatCount="indefinite"/>';
+    let f;
+    if(forme === 'cristaux')      f = '<path d="M0 -15 L4.6 -5 L0 2 L-4.6 -5 Z"/>';
+    else if(forme === 'plumes')   f = '<path d="M0 -16 Q6 -8 0 1 Q-6 -8 0 -16 Z"/><path d="M0 -14 V0" stroke-width="1" stroke="#00000044"/>';
+    else if(forme === 'rayons')   f = '<rect x="-1.4" y="-16" width="2.8" height="17" rx="1.4"/>';
+    else if(forme === 'crocs')    f = '<path d="M-4 1 Q-2 -12 3 -16 Q0 -8 4 1 Z"/>';
+    else                          f = '<path d="M0 -14 L5 1 L-5 1 Z"/>';
+    return g + f + sc + '</g>';
+  }).join('') + '</g>';
+}
+
+// L'emblème posé au sommet, propre à chaque succès. Tracé dans une boîte d'environ
+// 34x26 centrée en x=60, entre y=2 et y=28.
+const DECO_MOTIFS = {
+  films:   '<rect x="44" y="11" width="32" height="16" rx="2.5"/><path d="M44.5 11 L48 3.5 H77 L73.5 11"/><path d="M54 3.5 L50.5 11 M63 3.5 L59.5 11 M72 3.5 L68.5 11"/>',
+  series:  '<rect x="44" y="8" width="32" height="19" rx="3"/><path d="M52 1 L60 8 M68 1 L60 8"/>',
+  anime:   '<path d="M42 9 H78 M46 15 H74 M52 9 V27 M68 9 V27"/><path d="M41 5 Q60 0 79 5"/>',
+  manga:   '<path d="M60 10 Q52 4 44 6 V24 Q52 22 60 27 Q68 22 76 24 V6 Q68 4 60 10 Z"/><path d="M60 10 V27"/>',
+  total:   '<rect x="44" y="15" width="14" height="12" rx="2"/><rect x="62" y="15" width="14" height="12" rx="2"/><rect x="53" y="2" width="14" height="12" rx="2"/>',
+  notes:   '<path d="M60 2 L65.4 13.3 L77.5 15 L68.7 23.4 L70.8 34.5 L60 29 L49.2 34.5 L51.3 23.4 L42.5 15 L54.6 13.3 Z"/>',
+  avis:    '<path d="M77 3 Q52 6 47 27"/><path d="M77 3 Q80 24 58 27"/><path d="M50 20 H68"/>',
+  fini:    '<circle cx="60" cy="15" r="12.5"/><path d="M53 15.5 L58 20.5 L67.5 9.5"/>',
+  encours: '<path d="M60 2 Q71 12 68.5 19 A9 9 0 1 1 51.5 19 Q49 12 60 2 Z"/><path d="M60 14 Q65 19 63 23 A4 4 0 1 1 57 23 Q55 19 60 14 Z"/>',
+  coeur:   '<path d="M60 28 C44 18 44 5 52.5 4 Q60 3.5 60 11 Q60 3.5 67.5 4 C76 5 76 18 60 28 Z"/>',
+  affiche: '<rect x="44" y="4" width="32" height="23" rx="3"/><path d="M44.5 22 L54 13 L60 18.5 L67 10 L75.5 20"/><circle cx="52.5" cy="11" r="2.6"/>',
+  age:     '<path d="M47 3 H73 M47 27 H73"/><path d="M50 3 Q50 12 60 15 Q50 18 50 27"/><path d="M70 3 Q70 12 60 15 Q70 18 70 27"/>',
+  mcu:     '<path d="M60 2 L74.5 7 Q74.5 21 60 28 Q45.5 21 45.5 7 Z"/><path d="M60 10 V21 M54.5 15 H65.5"/>',
+};
+const motifDe = (u, id) => '<g fill="none" stroke="' + F(u) + '" stroke-width="3" stroke-linecap="round"'
+  + ' stroke-linejoin="round">' + (DECO_MOTIFS[id] || DECO_MOTIFS.total) + '</g>';
+
+// La parure de chaque succès : c'est elle qui donne à chaque cadre son identité.
+const PARURES = {
+  films:   { anneau:'double',    semis:'perfo',   bas:'ailes',   pointes:'pointes'  },
+  series:  { anneau:'plein',     semis:'pixel',   bas:'socle',   pointes:'cristaux' },
+  anime:   { anneau:'segments',  semis:'losange', bas:'laurier', pointes:'pointes'  },
+  manga:   { anneau:'tresse',    semis:'page',    bas:'arcs',    pointes:'plumes'   },
+  total:   { anneau:'segments',  semis:'chainon', bas:'bandeau', pointes:'cristaux' },
+  notes:   { anneau:'plein',     semis:'etoile',  bas:'laurier', pointes:'rayons'   },
+  avis:    { anneau:'pointille', semis:'goutte',  bas:'vague',   pointes:'plumes'   },
+  fini:    { anneau:'double',    semis:'coche',   bas:'arcs',    pointes:'pointes'  },
+  encours: { anneau:'plein',     semis:'flamme',  bas:'vague',   pointes:'crocs'    },
+  coeur:   { anneau:'triple',    semis:'coeur',   bas:'ailes',   pointes:'plumes'   },
+  affiche: { anneau:'triple',    semis:'carre',   bas:'socle',   pointes:'cristaux' },
+  age:     { anneau:'plein',     semis:'grad',    bas:'bandeau', pointes:'rayons'   },
+  mcu:     { anneau:'segments',  semis:'rivet',   bas:'socle',   pointes:'crocs'    },
+};
+
+// Les couches, empilées selon le palier atteint. Chacune ajoute un cran de détail.
+function cadreSucces(u, niv, id, fige){
+  const n = Math.max(1, Math.min(6, niv));
+  const p = PARURES[id] || PARURES.total;
+  let g = decoDefs(u, n);
+
+  // 1 - l'anneau, dans la forme propre au succès
+  g += ANNEAUX[p.anneau](u, n >= 4 ? 5 : 4);
+
+  // 2 - l'ornement qui lest le bas
+  if(n >= 2) g += BAS[p.bas](u);
+
+  // 3 - le semis autour de l'anneau (il se densifie au palier suivant)
+  if(n >= 3) g += semisHTML(u, p.semis, n >= 4);
+
+  // 4 - un second anneau, plus loin, et un liseré intérieur. Il respire, doucement.
+  if(n >= 4) g += '<g opacity=".85">' + ANNEAUX[p.anneau](u, 1.8, 57)
+      + anim(fige, 'opacity', '.42;1;.42', 5) + animTourne(fige, 0, 360, 55) + '</g>'
+    + '<g>' + cerc(u, 40, 1.2, 'opacity=".45"') + anim(fige, 'opacity', '.25;.7;.25', 5, 'begin="1.2s"') + '</g>';
+
+  // 5 - les grandes pointes, qui scintillent en vague, et un fil qui tourne à l'envers
+  if(n >= 5) g += pointesHTML(u, p.pointes, fige)
+    + '<g opacity=".55">' + cerc(u, 53, 1.5, 'stroke-dasharray="5 11" stroke-linecap="round"')
+    + animTourne(fige, 360, 0, 32) + '</g>';
+
+  // 6 - le halo d'Anomalie, qui tourne sans fin (figé sur les vignettes)
+  if(n >= 6){
+    const tourne = (de, a, d) => fige ? ''
+      : '<animateTransform attributeName="transform" type="rotate" from="' + de + ' 60 60" to="'
+        + a + ' 60 60" dur="' + d + 's" repeatCount="indefinite"/>';
+    g += '<circle cx="60" cy="60" r="59.5" fill="none" stroke="' + F(u) + '" stroke-width="2.6"'
+      + ' stroke-dasharray="10 14" opacity=".9">' + tourne(0, 360, 18) + '</circle>'
+      + '<circle cx="60" cy="60" r="52" fill="none" stroke="' + F(u) + '" stroke-width="1" opacity=".5"'
+      + ' stroke-dasharray="3 7">' + tourne(360, 0, 26) + '</circle>';
+  }
+
+  return g + motifDe(u, id);
+}
+
+// ---- les cadres de défi : dessin unique, obtenu en terminant le défi ----
+const degDefi = (u, c1, c2) =>
+  '<defs><linearGradient id="g' + u + '" x1="0" y1="0" x2="0" y2="1">'
+  + '<stop offset="0" stop-color="' + c1 + '"/><stop offset="1" stop-color="' + c2 + '"/></linearGradient></defs>';
+const anneauDefi = (u, ep) =>
+  '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#g' + u + ')" stroke-width="' + (ep || 4) + '"/>';
+
+// Une lumière qui fait le tour de l'anneau : un tiret court sur un pointillé très long.
+function lumiereAnneau(u, r, w, dur, fige){
+  const c = 2 * Math.PI * r;
+  return '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="' + F(u) + '" stroke-width="' + w
+    + '" stroke-linecap="round" stroke-dasharray="' + (c * .12).toFixed(1) + ' ' + c.toFixed(1) + '"'
+    + ' opacity="' + (fige ? '0' : '.95') + '">'
+    + (fige ? '' : '<animate attributeName="stroke-dashoffset" values="0;' + (-c).toFixed(1) + '" dur="'
+        + dur + 's" repeatCount="indefinite"/>')
+    + '</circle>';
+}
+
+// Un sabre laser : un halo large qui palpite, une lame blanche au centre, une garde.
+// Un sabre posé sur un flanc du cadre : garde en bas, lame qui monte le long de l'anneau.
+// La lame « sort » en dessinant un trait dont on rétracte le pointillé — le même principe
+// que la toile de Spider-Man, pour que les deux cadres se répondent.
+function sabreLaser(x, coul, retard, fige){
+  const bas = 84, haut = 22, L = bas - haut;
+  const lame = (w, c, op) =>
+    '<path d="M' + x + ' ' + bas + ' L' + x + ' ' + haut + '" fill="none" stroke="' + c + '" stroke-width="' + w
+    + '" stroke-linecap="round" opacity="' + op + '" stroke-dasharray="' + L + ' ' + L + '"'
+    + ' stroke-dashoffset="' + (fige ? 0 : L) + '">'
+    + (fige ? '' : '<animate attributeName="stroke-dashoffset" values="' + L + ';0;0;' + L + ';' + L + '"'
+        + ' keyTimes="0;.16;.6;.8;1" dur="7s" begin="' + retard + 's" repeatCount="indefinite"/>')
+    + '</path>';
+  return lame(15, coul, .28) + lame(9, coul, .8) + lame(3.6, '#f4fbff', 1)
+    // la garde, dessinée après : elle masque proprement le pied de la lame
+    + '<rect x="' + (x - 7) + '" y="' + (bas - 4) + '" width="14" height="22" rx="4" fill="#9aa0b4"/>'
+    + '<rect x="' + (x - 7) + '" y="' + (bas - 4) + '" width="14" height="4" rx="2" fill="#d7dbe6"/>'
+    + '<rect x="' + (x - 4.5) + '" y="' + (bas + 5) + '" width="9" height="2.6" rx="1.3" fill="#565c70"/>'
+    + '<rect x="' + (x - 4.5) + '" y="' + (bas + 10) + '" width="9" height="2.6" rx="1.3" fill="#565c70"/>';
+}
+
+const DECOS_DEFI = [
+  { id:'defi:doomsday', nom:'Bouclier Doomsday', coul:'#3ee0a5', cond:'Termine le défi Avengers: Doomsday.',
+    test:d => defiFini(d, 'doomsday'),
+    svg:(u, niv, fige) => degDefi(u, '#b6ffe8', '#0f8a62') + anneauDefi(u, 4.5)
+      + lumiereAnneau(u, 47, 4.5, 5, fige)
+      + '<g>'
+      +   '<path d="M60 0 L80 8 C80 26 72 36 60 41 C48 36 40 26 40 8 Z" fill="' + F(u) + '"/>'
+      +   '<path d="M60 12 L60 33 M50 20 L70 20" stroke="#0c2a22" stroke-width="4" stroke-linecap="round"/>'
+      +   anim(fige, 'opacity', '.75;1;.75', 2.8)
+      + '</g>'
+      + '<path d="M14 78 A50 50 0 0 0 60 116 A50 50 0 0 0 106 78" fill="none" stroke="' + F(u)
+      +   '" stroke-width="6" stroke-linecap="round" opacity=".85"/>' },
+
+  { id:'defi:spiderman', nom:'Toile tissée', coul:'#ff5e7a', cond:'Termine le défi Spider-Man.',
+    test:d => defiFini(d, 'spiderman'),
+    // la toile se tisse depuis l'anneau, tient un instant, puis se rétracte : le temps
+    // de la voir, et le temps de voir la photo dessous
+    svg:(u, niv, fige) => degDefi(u, '#ffb3c1', '#c1123a') + anneauDefi(u, 4)
+      + '<g transform="translate(60 60)" fill="none" stroke="' + F(u) + '" stroke-linecap="round">'
+      + [0, 45, 90, 135, 180, 225, 270, 315].map(a => {
+          const t = a * RAD;
+          const x1 = (6 * Math.cos(t)).toFixed(1), y1 = (6 * Math.sin(t)).toFixed(1);
+          const x2 = (45 * Math.cos(t)).toFixed(1), y2 = (45 * Math.sin(t)).toFixed(1);
+          return '<path d="M' + x2 + ' ' + y2 + ' L' + x1 + ' ' + y1 + '" stroke-width="2.4"'
+            + ' stroke-dasharray="40 40" stroke-dashoffset="' + (fige ? 0 : 40) + '">'
+            + (fige ? '' : '<animate attributeName="stroke-dashoffset" values="40;0;0;40;40"'
+                + ' keyTimes="0;.22;.55;.8;1" dur="8s" repeatCount="indefinite"/>') + '</path>';
+        }).join('')
+      + [16, 27, 38].map((r, k) => {
+          const c = (2 * Math.PI * r).toFixed(1);
+          return '<circle r="' + r + '" stroke-width="1.9" opacity=".6" stroke-dasharray="' + c + ' ' + c + '"'
+            + ' stroke-dashoffset="' + (fige ? 0 : c) + '">'
+            + (fige ? '' : '<animate attributeName="stroke-dashoffset" values="' + c + ';0;0;' + c + ';' + c + '"'
+                + ' keyTimes="0;.26;.55;.8;1" dur="8s" begin="' + (0.3 + k * 0.18).toFixed(2)
+                + 's" repeatCount="indefinite"/>') + '</circle>';
+        }).join('')
+      + '</g>' },
+
+  { id:'defi:starwars', nom:'Lame de lumière', coul:'#ffc24b', cond:'Termine le défi Star Wars.',
+    test:d => defiFini(d, 'starwars'),
+    svg:(u, niv, fige) => degDefi(u, '#fff4cd', '#d08a00') + anneauDefi(u, 4)
+      + sabreLaser(13,  '#4aa8ff', 0,   fige)
+      + sabreLaser(107, '#ff3b4e', 0.5, fige) },
+
+  { id:'defi:avengers', nom:'Insigne Avengers', coul:'#56ccff', cond:'Termine le défi Avengers.',
+    test:d => defiFini(d, 'avengers'),
+    svg:(u, niv, fige) => degDefi(u, '#dcf3ff', '#1f7fb5') + anneauDefi(u, 4.5)
+      + lumiereAnneau(u, 47, 4.5, 4.2, fige)
+      + '<g>'
+      +   '<path d="M60 0 L78 34 L68 34 L60 18 L52 34 L42 34 Z" fill="' + F(u) + '"/>'
+      +   anim(fige, 'opacity', '.7;1;.7', 2.4)
+      + '</g>'
+      + '<path d="M24 90 A46 46 0 0 0 96 90" fill="none" stroke="' + F(u) + '" stroke-width="7" stroke-linecap="round"/>'
+      + '<path d="M96 90 L108 82 L104 96 Z" fill="' + F(u) + '"/>' },
+
+  { id:'defi:potter', nom:'Éclair de sorcier', coul:'#9d8bff', cond:'Termine le défi Harry Potter.',
+    test:d => defiFini(d, 'potter'),
+    // l'éclair claque comme un vrai : long calme, deux coupures très brèves
+    svg:(u, niv, fige) => degDefi(u, '#e6ddff', '#5b45c4') + anneauDefi(u, 4)
+      + '<g>'
+      +   '<path d="M70 0 L46 28 L60 28 L50 50 L78 20 L64 20 Z" fill="' + F(u) + '"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values="1;1;.2;1;.35;1"'
+            + ' keyTimes="0;.62;.66;.71;.75;1" dur="4.5s" repeatCount="indefinite"/>')
+      + '</g>'
+      + [[12, 76, 0], [108, 76, 0.6], [60, 115, 1.2]].map(p =>
+          '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="' + F(u) + '">'
+          + anim(fige, 'opacity', '.3;1;.3', 3, 'begin="' + p[2] + 's"') + '</circle>').join('') },
+];
+
+// Aucune, puis un cadre par succès, puis un cadre par défi
+const DECOS = [{ id:'', nom:'Aucune', coul:'#7a719a', cond:'Toujours disponible.', test:() => true,
+    svg:u => degDefi(u, '#8177a8', '#4a3f74') + anneauDefi(u, 2.5) }]
+  .concat(SUCCES.map(sc => ({
+    id:'sc:' + sc.id,
+    nom:sc.nom,
+    ico:sc.ico,
+    succes:sc,
+    coul:NIVEAUX[0].c,
+    cond:'Débloque le succès « ' + sc.nom + ' » : ' + paliersDe(sc)[0] + ' ' + sc.unite + '.',
+    test:d => etatSucces(sc, d).niv >= 1,
+    niv:d => etatSucces(sc, d).niv,
+    svg:(u, niv, fige) => cadreSucces(u, niv, sc.id, fige),
+  })))
+  .concat(DECOS_DEFI);
+
+const decoDe = id => DECOS.find(x => x.id === (id || '')) || DECOS[0];
+function decoDebloquee(d, deco){ try{ return !!deco.test(d); }catch(e){ return false; } }
+// un cadre de succès se porte au palier du moment : il monte et redescend tout seul
+function decoNiveau(d, deco){
+  if(!deco || !deco.niv) return 6;
+  try{ return deco.niv(d); }catch(e){ return 1; }
+}
+// Le palier affiché : celui qu'on a choisi, sans jamais dépasser celui qu'on a débloqué.
+function decoNiveauPorte(d, deco){
+  const max = decoNiveau(d, deco);
+  const choisi = Number(d && d.decoNiv) || 0;
+  return choisi ? Math.min(choisi, max) : max;
+}
+function maDeco(d){
+  const dd = d || dact();
+  const deco = decoDe(dd.deco);
+  return decoDebloquee(dd, deco) ? deco : DECOS[0];   // perdu si la condition ne tient plus
+}
+// chaque rendu porte son propre suffixe : deux cadres identiques cohabitent sur une page
+let decoSeq = 0;
+// `anime` n'est vrai que là où le cadre est le sujet : la galerie, l'aperçu, mon avatar.
+function decoSVG(deco, niv, anime){
+  if(!deco || !deco.id) return '';
+  return '<svg class="deco-cadre" viewBox="0 0 120 120" aria-hidden="true">'
+    + deco.svg('x' + (++decoSeq), niv || 6, !anime) + '</svg>';
+}
+function decoHTML(d){
+  const dd = d || dact();
+  const deco = maDeco(dd);
+  return deco.id ? decoSVG(deco, decoNiveauPorte(dd, deco), true) : '';
+}
+// Pour les avatars posés directement dans le HTML : on glisse le cadre à côté de l'image,
+// dans son parent, et on le remplace à chaque mise à jour.
+function majDecoBoite(img, d, max){
+  if(!img || !img.parentNode) return;
+  const p = img.parentNode;
+  const vieux = p.querySelector(':scope > .deco-cadre');
+  if(vieux) vieux.remove();
+  const deco = maDeco(d);
+  const html = deco.id ? decoSVG(deco, Math.min(decoNiveauPorte(d, deco), max || 6), true) : '';
+  if(!html) { p.classList.remove('a-deco'); return; }
+  p.classList.add('a-deco');
+  p.insertAdjacentHTML('beforeend', html);
+}
+
+// Le cadre d'un membre, retrouvé dans les données déjà chargées de la communauté.
+// Le mien se calcule en direct : il doit changer à la seconde où je le choisis.
+// `max` plafonne le nombre de couches : sur une vignette de 24 px, les pointes et le
+// semis ne font plus qu'une tache — on garde l'anneau, sa couleur et l'emblème.
+function decoLogin(login, max){
+  if(!login) return '';
+  const l = String(login).toLowerCase();
+  const mien = typeof monLogin === 'string' && monLogin && l === monLogin.toLowerCase();
+  let deco, niv;
+  if(mien){ deco = maDeco(etat); niv = decoNiveau(etat, deco); }
+  else {
+    const m = membresCommu.find(x => String(x.login || '').toLowerCase() === l);
+    if(!m || !m.deco) return '';
+    deco = decoDe(m.deco); niv = m.dnv || 1;
+  }
+  if(!deco.id) return '';
+  return decoSVG(deco, max ? Math.min(niv, max) : niv);
+}
+// un avatar et son cadre, dans une même boîte : le cadre se cale dessus tout seul
+const avecDeco = (html, login, max) => '<span class="ava-box">' + html + decoLogin(login, max) + '</span>';
 
 // ================= navigation =================
 function allerAccueil(){
@@ -2353,9 +2861,142 @@ function allerTrophees(onglet, origine){
   $('zoneSucces').classList.toggle('cache', ongletTrophees !== 'succes');
   $('zoneClassement').classList.toggle('cache', ongletTrophees !== 'classement');
   $('zoneDefis').classList.toggle('cache', ongletTrophees !== 'defis');
+  $('zoneDeco').classList.toggle('cache', ongletTrophees !== 'deco');
   rendreSucces();
   rendreClassement();
   rendreDefis();
+  rendreDeco();
+}
+
+// Aperçu d'un cadre : les six paliers côte à côte, pour voir ce que chacun ajoute.
+let decoApercu = '';
+function ouvrirApercuDeco(id){
+  const x = decoDe(id);
+  if(!x || !x.id) return;
+  decoApercu = x.id;
+  const d = dact();
+  const ok = decoDebloquee(d, x);
+  const niv = decoNiveau(d, x);            // le plus haut palier atteint
+  const porteId = maDeco(d).id === x.id;
+  const porteNiv = porteId ? decoNiveauPorte(d, x) : 0;   // celui qu'on affiche en ce moment
+
+  $('dcIco').textContent = x.ico || '🖼️';
+  $('dcIco').style.setProperty('--nc', x.succes
+    ? NIVEAUX[Math.max(0, Math.min(NIVEAUX.length - 1, niv - 1))].c : x.coul);
+  $('dcNom').textContent = x.nom;
+  $('dcNiveau').textContent = x.succes
+    ? (ok ? NIVEAUX[niv - 1].n + ' · palier ' + niv + '/' + NIVEAUX.length : 'Pas encore débloqué')
+    : (ok ? 'Débloqué' : 'Verrouillé');
+  $('dcNiveau').style.color = ok ? (x.succes ? NIVEAUX[niv - 1].c : x.coul) : 'var(--faint)';
+  $('dcDesc').textContent = sousTexteDeco(d, x, ok, niv);
+
+  // un cadre de défi n'a qu'un seul dessin : on le montre en grand plutôt qu'en six
+  const cases = x.succes
+    ? NIVEAUX.map((nv, k) => {
+        const dispo = niv >= k + 1;
+        const porte = porteNiv === k + 1;
+        return '<button type="button" class="dc-p' + (dispo ? ' fait' : '') + (porte ? ' actif' : '') + '"'
+          + (dispo && !visu ? ' data-niv="' + (k + 1) + '"' : ' disabled')
+          + ' style="--dk:' + nv.c + '" title="' + (dispo ? 'Porter ce palier' : 'Pas encore atteint') + '">'
+          + '<span class="dc-p-ap">' + decoSVG(x, k + 1, true) + '<span class="dc-p-rond"></span></span>'
+          + '<span class="dc-p-n">' + nv.n + '</span>'
+          + '<span class="dc-p-v">' + paliersDe(x.succes)[k] + ' ' + x.succes.unite + '</span>'
+          + '</button>';
+      }).join('')
+    : '<div class="dc-p fait actif dc-p-solo" style="--dk:' + x.coul + '">'
+        + '<span class="dc-p-ap">' + decoSVG(x, 6, true) + '<span class="dc-p-rond"></span></span>'
+        + '<span class="dc-p-n">Cadre de défi</span>'
+        + '<span class="dc-p-v">un seul dessin</span></div>';
+  $('dcPreviews').innerHTML = cases;
+  if(x.succes && !visu){
+    $('dcPreviews').querySelectorAll('[data-niv]').forEach(b => {
+      b.addEventListener('click', () => porterDeco(x.id, Number(b.dataset.niv)));
+    });
+  }
+
+  const b = $('dcPorter');
+  b.disabled = !ok || !!visu;
+  b.textContent = 'Porter';
+  $('dcAide').textContent = x.succes
+    ? (ok ? 'Clique un palier pour le figer, ou laisse le cadre suivre ta progression.'
+          : 'Franchis le premier palier pour débloquer ce cadre.')
+    : '';
+  $('overlayDeco').classList.add('on');
+}
+// `niv` à 0 : le cadre suit la progression et monte tout seul au palier suivant.
+function porterDeco(id, niv){
+  if(visu) return;
+  etat.deco = id;
+  etat.decoNiv = niv || 0;
+  sauver();
+  rendreDeco();
+  majBoutonProfil();
+  if(id) ouvrirApercuDeco(id); else $('overlayDeco').classList.remove('on');
+  toast(niv ? 'Cadre équipé en ' + NIVEAUX[niv - 1].n + ' ✓' : 'Cadre équipé ✓', 'ok');
+}
+$('dcPorter').addEventListener('click', () => { if(decoApercu) porterDeco(decoApercu, 0); });
+
+// Sous chaque cadre : ce qu'il reste à faire pour l'enrichir, ou pour l'obtenir.
+function sousTexteDeco(d, x, ok, niv){
+  if(!x.succes) return x.cond;
+  const e = etatSucces(x.succes, d);
+  if(!ok) return x.cond + ' Tu en es à ' + e.v + '.';
+  if(!e.suivant) return 'Palier maximum atteint. Le cadre est à son plus haut niveau de détail.';
+  return 'Palier ' + niv + '/' + NIVEAUX.length + ' — ' + NIVEAUX[niv].n + ' à '
+    + e.suivant + ' ' + x.succes.unite + ' (encore ' + (e.suivant - e.v) + ').';
+}
+
+// La galerie de cadres : ce qui est débloqué se choisit, le reste dit comment l'obtenir.
+function rendreDeco(){
+  const z = $('zoneDeco');
+  if(!z) return;
+  const d = dact();
+  const choisi = maDeco(d).id;
+  const nb = DECOS.filter(x => x.id && decoDebloquee(d, x)).length;
+  const qui = visu ? (visu.pseudo || visu.login) : 'toi';
+
+  z.innerHTML = '<div class="deco-tete">'
+    + '<span class="deco-compte"><b>' + nb + '</b> / ' + (DECOS.length - 1) + '</span>'
+    + '<span>' + (visu
+        ? 'Les cadres débloqués par ' + echap(qui) + ' — celui qu\'il porte est en surbrillance.'
+        : 'Chaque succès donne son cadre, et ce cadre s\'enrichit à chaque palier franchi. Clique un cadre pour voir ses six paliers et le porter.')
+      + '</span></div>'
+    + '<div class="deco-grille">' + DECOS.map(x => {
+        const ok = decoDebloquee(d, x);
+        const actif = x.id === choisi;
+        const atteint = decoNiveau(d, x);
+        const niv = (x.id === choisi) ? decoNiveauPorte(d, x) : atteint;
+        // un cadre de succès prend la couleur de son palier ; les autres gardent la leur
+        const coul = x.succes ? NIVEAUX[Math.max(0, Math.min(NIVEAUX.length - 1, niv - 1))].c : x.coul;
+        const rang = (x.succes && ok)
+          ? '<span class="deco-rang">' + NIVEAUX[niv - 1].n + '</span>' : '';
+        return '<button class="deco-c' + (ok ? '' : ' verrou') + (actif ? ' actif' : '') + '"'
+          + (x.id ? ' data-voir="' + x.id + '"' : (visu ? ' disabled' : ' data-deco=""'))
+          + ' style="--dk:' + coul + '">'
+          + '<span class="deco-apercu">'
+          +   (ok ? decoSVG(x.id ? x : Object.assign({}, x, { id:'aucune' }), niv, true) : '<span class="deco-lock">🔒</span>')
+          +   '<span class="deco-rond"></span>'
+          + '</span>'
+          + '<span class="deco-nom">' + (x.ico ? x.ico + ' ' : '') + echap(x.nom) + '</span>'
+          + rang
+          + '<span class="deco-cond">' + echap(sousTexteDeco(d, x, ok, atteint)) + '</span>'
+          + (actif ? '<span class="deco-porte">Porté</span>' : '')
+          + '</button>';
+      }).join('') + '</div>';
+
+  z.querySelectorAll('[data-voir]').forEach(b => {
+    b.addEventListener('click', () => ouvrirApercuDeco(b.dataset.voir));
+  });
+  z.querySelectorAll('[data-deco]').forEach(b => {
+    b.addEventListener('click', () => {
+      etat.deco = b.dataset.deco;
+      etat.decoNiv = 0;
+      sauver();
+      rendreDeco();
+      majBoutonProfil();
+      toast('Cadre retiré.', 'ok');
+    });
+  });
 }
 
 function rendreDefis(){
@@ -2391,7 +3032,7 @@ function rendreSucces(){
   const gagnes = liste.filter(e => e.niv > 0);
   // total de paliers franchis, tous succès confondus : c'est la vraie mesure de progression
   const franchis = liste.reduce((t,e) => t + e.niv, 0);
-  const maxi = SUCCES.reduce((t,sc) => t + sc.paliers.length, 0);
+  const maxi = SUCCES.reduce((t,sc) => t + paliersDe(sc).length, 0);
   const pct = Math.round(franchis / maxi * 100);
   $('succesCompteur').textContent = gagnes.length + '/' + SUCCES.length;
 
@@ -2444,9 +3085,9 @@ function rendreClassement(){
       .slice(0, 3);
     const lignes = podium.length
       ? podium.map((m,i) => {
-          const pp = m.login
+          const pp = avecDeco(m.login
             ? '<img class="cl-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=48" alt="" onerror="this.remove()">'
-            : '<span class="cl-pp cl-pp-vide">🎬</span>';
+            : '<span class="cl-pp cl-pp-vide">🎬</span>', m.login, 2);
           return '<div class="cl-l' + (m.mien ? ' mien' : '') + '"' + (m.login && !m.mien ? ' data-login="' + echap(m.login) + '"' : '') + '>'
             + '<span class="cl-r r' + (i+1) + '">' + (i+1) + '</span>' + pp
             + '<span class="cl-nom">' + echap(m.pseudo) + '</span>'
@@ -2466,7 +3107,7 @@ function rendreClassement(){
 }
 
 function carteBadge(e){
-  const niveau = e.niv > 0 ? NIVEAUX[e.niv-1].n : 'Verrouillé';
+  const niveau = e.niv > 0 ? NIVEAUX[e.niv-1].n : 'Verrouillé';   // 6 paliers : Bronze → Anomalie
   const prog = e.suivant
     ? '<b>' + e.v + '</b> / ' + e.suivant + ' ' + e.sc.unite
     : '<b>' + e.v + '</b> ' + e.sc.unite + ' · au maximum';
@@ -2489,8 +3130,11 @@ function allerCategorie(c){
   $('catAvatar').textContent = conf.ico;
   $('catAvatar').style.background = 'linear-gradient(135deg,'+conf.couleur+',#1e1834)';
   $('recherche').value = '';
+  $('filtreStatut').innerHTML = '<option value="">Statut : tous</option>'
+    + (c === 'films' ? STATUTS_FILM : Object.keys(STATUTS))
+        .map(k => '<option value="' + k + '">' + nomStatut(c, k) + '</option>').join('');
   $('filtreStatut').value = '';
-  $('filtreStatut').classList.toggle('cache', c === 'films');
+  $('filtreStatut').classList.remove('cache');
   $('btnAjouter').style.display = visu ? 'none' : '';
   $('wrapOutils').style.display = visu ? 'none' : '';
   $('labNotes').textContent = (c === 'anime' || c === 'manga') ? 'Les notes MyAnimeList' : 'Les notes du public (IMDb)';
@@ -2547,9 +3191,9 @@ function rendreHero(){
   const moy = moyennePerso(d);
   const enCours = ['series','anime','manga'].reduce((t,c) => t + d[c].filter(f => f.statut === 'encours').length, 0);
 
-  const pp = login
+  const pp = '<span class="hero-ava' + (maDeco(d).id ? ' a-deco' : '') + '">' + (login
     ? '<img class="hero-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=140" alt="" onerror="this.outerHTML=\'<div class=&quot;hero-pp hero-pp-vide&quot;>🎬</div>\'">'
-    : '<div class="hero-pp hero-pp-vide">🎬</div>';
+    : '<div class="hero-pp hero-pp-vide">🎬</div>') + decoHTML(d) + '</span>';
 
   let sous;
   if(!total){
@@ -2592,7 +3236,10 @@ function rendreAccueil(){
     const n = nbOeuvres(c);
     const enCours = dact()[c].filter(f => f.statut === 'encours').length;
     // une seule information sous le chiffre, et seulement si elle apprend quelque chose
-    const sousTexte = enCours ? '<b>' + enCours + '</b> en cours' : '';
+    const prevus = dact()[c].filter(f => f.statut === 'prevu').length;
+    const sousTexte = c === 'films'
+      ? (prevus ? '<b>' + prevus + '</b> prévu' + (prevus > 1 ? 's' : '') : '')
+      : (enCours ? '<b>' + enCours + '</b> en cours' : '');
     return '<button class="cat" data-cat="'+c+'" style="--cc:'+conf.couleur+';--ccg:'+hexRgba(conf.couleur,.45)+'">'
       + '<span class="liseret"></span>'
       + '<div class="ico">'+conf.ico+'</div>'
@@ -2773,7 +3420,7 @@ function rendreNotifs(){
   zone.innerHTML = liste.slice(0, 25).map(r => {
     const cible = cibleReac(r.cle);
     const pp = r.login
-      ? '<img class="notif-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=48" alt="" onerror="this.remove()">'
+      ? avecDeco('<img class="notif-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=48" alt="" onerror="this.remove()">', r.login, 2)
       : '';
     return '<div class="notif-row' + (r.neuf ? ' neuf' : '') + '">'
       + (r.neuf ? '<span class="notif-neuf-pt"></span>' : '')
@@ -2837,7 +3484,7 @@ function bandeReac(cle, forcerBouton){
   const bulles = [];
   const puces = l.map(r => {
     const pp = r.login
-      ? '<img class="reac-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=32" alt="" onerror="this.remove()">'
+      ? avecDeco('<img class="reac-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=32" alt="" onerror="this.remove()">', r.login, 1)
       : '';
     let attr = '', marque = '';
     if(r.msg){
@@ -2959,6 +3606,7 @@ function rendreMembres(panneau){
       return '<button class="mb-carte" data-login="' + echap(m.login) + '" title="' + echap(m.pseudo) + '">'
         + '<span class="mb-ava">'
         +   '<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=110" alt="" onerror="this.style.visibility=\'hidden\'">'
+        +   decoLogin(m.login)
         +   '<span class="pt' + (m.enLigne ? ' on' : '') + '" title="' + (m.enLigne ? 'en ligne' : 'hors ligne') + '"></span>'
         + '</span>'
         + '<span class="mb-nom">' + echap(m.pseudo) + '</span>'
@@ -3044,9 +3692,9 @@ function ligneEvenement(e, opts){
   const o = opts || {};
   const coul = CATS[e.c] ? CATS[e.c].couleur : '#9d8bff';
   const ico = CATS[e.c] ? CATS[e.c].ico : '🎬';
-  const ava = e.login
+  const ava = avecDeco(e.login
     ? '<img class="fr-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(e.login) + '.png?size=64" alt="" onerror="this.replaceWith(document.createTextNode(\'\'))">'
-    : '<span class="fr-pp fr-pp-vide">🎬</span>';
+    : '<span class="fr-pp fr-pp-vide">🎬</span>', e.login, 3);
 
   let action, droite, infoBulle = '';
   if(e.prog){
@@ -3584,10 +4232,16 @@ async function chargerNotesCommu(force){
         // avancement sur chaque défi : deux entiers par parcours, c'est négligeable au cache
         const dfs = {};
         try{ DEFIS.forEach(def => { dfs[def.id] = defiAvancement(def, d).n; }); }catch(e){}
+        // le cadre porté : on retient l'identifiant ET le palier, calculés ici une fois
+        let dco = '', dnv = 0;
+        try{
+          const kd = decoDe(d.deco);
+          if(kd.id && decoDebloquee(d, kd)){ dco = kd.id; dnv = decoNiveauPorte(d, kd); }
+        }catch(e){}
         membres.push({
           login, pseudo: d.pseudo || login, visible,
           total: visible ? nb.films + nb.series + nb.anime + nb.manga : 0,
-          nb, defis: dfs, enLigne: !!(d.vu && Date.now() - d.vu < EN_LIGNE_MS),
+          nb, defis: dfs, deco: dco, dnv, enLigne: !!(d.vu && Date.now() - d.vu < EN_LIGNE_MS),
         });
         if(!visible) continue;
         // scores de chaque succès : le classement se calcule ici, une fois, pas à l'affichage
@@ -3926,7 +4580,8 @@ function rendreListe(){
   const q = $('recherche').value.toLowerCase();
   const fs = $('filtreStatut').value;
   let liste = items.filter(f => f.titre.toLowerCase().includes(q));
-  if(c !== 'films' && fs) liste = liste.filter(f => (f.statut||'') === fs);
+  // un film sans statut est un film vu : c'est l'état par défaut, historique
+  if(fs) liste = liste.filter(f => (f.statut || (c === 'films' ? 'termine' : '')) === fs);
 
   const noteOu = (f,d) => sansNote(f) ? d : f.note;
   // moyenne de la communauté sur ce titre — calculée avant le tri pour pouvoir trier dessus
@@ -4023,12 +4678,13 @@ function rendreListe(){
         + '👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</button></span>');
     }
     const barreNotes = '<div class="notes-bar">' + cellules.join('<span class="note-sep"></span>') + '</div>';
-    const st = (c !== 'films' && f.statut && STATUTS[f.statut])
-      ? '<span class="badge statut" style="color:'+STATUTS[f.statut].couleur+'">'+STATUTS[f.statut].nom+'</span>'
+    const montrerStatut = f.statut && STATUTS[f.statut] && (c !== 'films' || f.statut === 'prevu');
+    const st = montrerStatut
+      ? '<span class="badge statut" style="color:'+STATUTS[f.statut].couleur+'">'+nomStatut(c, f.statut)+'</span>'
       : '';
     const prog = texteProgression(f, c);
     const progHTML = prog ? '<span class="progression">'+prog+'</span>' : '';
-    const dateVu = f.date ? '<span class="date">'+(c==='films'?'Vu le ':'Le ')+fmtDate(f.date)+'</span>' : '';
+    const dateVu = f.date ? '<span class="date">'+(c==='films'?(f.statut==='prevu'?'Ajouté le ':'Vu le '):'Le ')+fmtDate(f.date)+'</span>' : '';
     // réactions de la communauté sur ce titre (fil propre à l'œuvre, séparé du feed)
     const bande = cloudActif() ? bandeReac(cleReacOeuvre(visu ? visu.login : monLogin, c, f.titre), true) : '';
     const reacsHTML = bande ? '<div class="card-reacs">'+bande+'</div>' : '';
@@ -4299,10 +4955,14 @@ function majApercu(){
 }
 
 // ---- statut : des boutons plutôt qu'un menu déroulant ----
-function construireStatuts(){
+// Un film ne se suit pas épisode par épisode : deux états suffisent, vu ou prévu.
+const STATUTS_FILM = ['termine', 'prevu'];
+const nomStatut = (c, k) => (c === 'films' && k === 'termine') ? 'Vu' : STATUTS[k].nom;
+function construireStatuts(c){
   const z = $('segStatut');
-  z.innerHTML = Object.entries(STATUTS)
-    .map(([k, v]) => '<button type="button" data-st="' + k + '">' + v.nom + '</button>').join('');
+  const cles = (c === 'films') ? STATUTS_FILM : Object.keys(STATUTS);
+  z.innerHTML = cles
+    .map(k => '<button type="button" data-st="' + k + '">' + nomStatut(c, k) + '</button>').join('');
   z.querySelectorAll('button').forEach(b => {
     b.addEventListener('click', () => { $('fStatut').value = b.dataset.st; majStatuts(); });
   });
@@ -4316,6 +4976,8 @@ function majStatuts(){
     b.style.setProperty('--sc', hexRgba(coul, .16));
     b.style.setProperty('--sc2', coul);
   });
+  const lb = $('labelDate');
+  if(lb && catCourante === 'films') lb.textContent = (val === 'prevu') ? 'Ajouté le' : 'Vu le';
 }
 
 // ---- choix du rayon, quand on ajoute depuis l'accueil ----
@@ -4359,7 +5021,8 @@ function ouvrirModale(id){
   $('labTitre').textContent = (ro || f) ? 'Titre' : 'Titre — tape 3 lettres, le site trouve le reste';
 
   // champs spécifiques à la catégorie — et masqués aussi en lecture seule
-  $('blocStatut').classList.toggle('cache', ro || c === 'films');
+  construireStatuts(c);
+  $('blocStatut').classList.toggle('cache', ro);
   $('blocProgression').classList.toggle('cache', ro || !conf.progression);
   if(conf.progression){
     $('labelP1').textContent = conf.progression[0];
@@ -4368,7 +5031,7 @@ function ouvrirModale(id){
   $('labelDate').textContent = conf.labelDate;
 
   $('fTitre').value  = f ? f.titre : '';
-  $('fStatut').value = f ? (f.statut || 'encours') : 'encours';
+  $('fStatut').value = f ? (f.statut || (c === 'films' ? 'termine' : 'encours')) : (c === 'films' ? 'termine' : 'encours');
   $('fFreq').value   = f ? String(f.freq === undefined ? '7' : f.freq) : '7';
   $('fP1').value     = f ? (f.p1 || '') : '';
   $('fP2').value     = f ? (f.p2 || '') : '';
@@ -4467,8 +5130,8 @@ function enregistrer(){
       : ((c === 'anime' || c === 'manga') ? 'MAL' : 'IMDb');
     if(notePubTemp && notePubTemp.note === nPub && notePubTemp.ref) item.ref = notePubTemp.ref;
   }
+  item.statut = $('fStatut').value;
   if(c !== 'films'){
-    item.statut = $('fStatut').value;
     item.freq = $('fFreq').value;
     item.p1 = $('fP1').value.trim();
     item.p2 = $('fP2').value.trim();
@@ -4618,7 +5281,7 @@ async function allerUtilisateurs(){
     const carte = document.createElement('div');
     carte.className = 'user-card';
     carte.innerHTML = '<div class="uc-head">'
-      + '<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">'
+      + avecDeco('<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">', login, 3)
       + '<div class="uc-id"><div class="uc-pseudo">' + echap(login) + '</div><div class="uc-login">@' + echap(login) + '</div></div>'
       + '</div>'
       + '<div class="uc-bio"></div>'
@@ -4815,9 +5478,9 @@ function afficherRecap(login, d){
   const mien  = w => estMoi ? ('Mon '  + w) : ('Son ' + w);
   const miens = w => estMoi ? ('Mes '  + w) : ('Ses ' + w);
   const pseudoAff = d.pseudo || login || 'Moi';
-  const ppTag = login
+  const ppTag = (login
     ? '<img src="https://github.com/' + encodeURIComponent(login) + '.png?size=200" alt="" onerror="this.outerHTML=\'<span class=&quot;vide&quot;>🎬</span>\'">'
-    : '<span class="vide">🎬</span>';
+    : '<span class="vide">🎬</span>') + decoHTML(d);
 
   // en-tête de la page
   $('pgTitre').textContent = estMoi ? 'Mon profil' : pseudoAff;
@@ -4834,7 +5497,7 @@ function afficherRecap(login, d){
     + '<div class="panneau pleine">'
     +   '<div class="pan-corps" style="padding:18px">'
     +     '<div class="pf-tete">'
-    +       '<div class="pf-ava">' + ppTag + '</div>'
+    +       '<div class="pf-ava' + (maDeco(d).id ? ' a-deco' : '') + '">' + ppTag + '</div>'
     +       '<div class="pf-id"><div class="pf-nom">' + echap(pseudoAff) + '</div>'
     +         (login ? '<div class="pf-login">@' + echap(login) + '</div>' : '')
     +         (d.bio ? '<div class="pf-bio">' + echap(d.bio) + '</div>' : '')
@@ -4955,14 +5618,14 @@ function rendreLienProfil(){
   const moy = notes.length ? Math.round(notes.reduce((a,b)=>a+b,0)/notes.length*10)/10 : null;
   const gagnes = tousSucces(d).filter(e => e.niv > 0).length;
 
-  const pp = login
+  const pp = (login
     ? '<img src="https://github.com/' + encodeURIComponent(login) + '.png?size=120" alt="" onerror="this.outerHTML=\'<span class=&quot;vide&quot;>🎬</span>\'">'
-    : '<span class="vide">🎬</span>';
+    : '<span class="vide">🎬</span>') + decoHTML(d);
 
   const sec = document.createElement('div');
   sec.className = 'cav-section';
   sec.innerHTML = '<button class="carte-profil" id="btnVersProfil">'
-    + '<span class="cp-ava">' + pp + '</span>'
+    + '<span class="cp-ava' + (maDeco(d).id ? ' a-deco' : '') + '">' + pp + '</span>'
     + '<span class="cp-t"><span class="cp-nom">' + echap(visu ? pseudoAff : 'Mon profil') + '</span>'
     +   '<span class="cp-sous"><span><b>' + total + '</b> œuvres</span>'
     +     (moy != null ? '<span>moyenne <b>' + showNote(moy) + '</b></span>' : '')
@@ -5375,9 +6038,11 @@ function ouvrirConf(){
   $('pNom').textContent = etat.pseudo || 'Moi';
   $('pLogin').textContent = monLogin ? '@' + monLogin : '';
   $('pBio').textContent = etat.bio || '';
+  majDecoBoite($('pPP'), etat, 3);
   const img = $('pPP'), vide = $('pPPVide');
   if(monLogin){
-    img.src = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=120';
+    const url = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=120';
+    if(img.getAttribute('src') !== url) img.src = url;
     img.style.display = ''; vide.style.display = 'none';
     img.onerror = () => { img.style.display = 'none'; vide.style.display = ''; };
   } else { img.style.display = 'none'; vide.style.display = ''; }
@@ -5781,7 +6446,7 @@ function rendreCommuDefi(def){
     + liste.map(m => {
         const pct = Math.round(m.n / total * 100);
         const pp = m.login
-          ? '<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=44" alt="" onerror="this.remove()">'
+          ? avecDeco('<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=44" alt="" onerror="this.remove()">', m.login, 3)
           : '<span class="dc-vide">🎬</span>';
         return '<span class="dc-m' + (m.mien ? ' mien' : '') + '" title="'
           + echap(m.pseudo + ' — ' + m.n + '/' + total + ' (' + pct + '%)') + '">'
@@ -6001,7 +6666,6 @@ $('fNote').addEventListener('input', majApercu);
 
 // ---- recherche assistée dans la fiche ----
 construireEtoiles();
-construireStatuts();
 $('fTitre').addEventListener('input', lancerRecherche);
 $('fTitre').addEventListener('focus', () => { if($('fTitre').value.trim().length >= 2 && !visu) lancerRecherche(); });
 $('fTitre').addEventListener('keydown', e => {
@@ -6039,6 +6703,7 @@ $('cfOui').addEventListener('click', () => { const a = confirmAction; fermerConf
 document.addEventListener('keydown', e => {
   if(e.key !== 'Escape') return;
   if($('overlayNotes').classList.contains('on')) return $('overlayNotes').classList.remove('on');
+  if($('overlayDeco').classList.contains('on')) return $('overlayDeco').classList.remove('on');
   if($('overlaySucces').classList.contains('on')) return $('overlaySucces').classList.remove('on');
   if($('overlayConfirm').classList.contains('on')) return fermerConfirm();
   if($('overlaySuivi').classList.contains('on')) return fermerSuivi();
@@ -6086,6 +6751,8 @@ $('btnRetourProfil').addEventListener('click', () => visu ? quitterVisu() : alle
 document.querySelectorAll('#ongletsSucces button').forEach(b => {
   b.addEventListener('click', () => allerTrophees(b.dataset.o));
 });
+$('dcFermer').addEventListener('click', () => $('overlayDeco').classList.remove('on'));
+$('overlayDeco').addEventListener('click', e => { if(e.target === $('overlayDeco')) $('overlayDeco').classList.remove('on'); });
 $('ntFermer').addEventListener('click', () => $('overlayNotes').classList.remove('on'));
 $('overlayNotes').addEventListener('click', e => { if(e.target === $('overlayNotes')) $('overlayNotes').classList.remove('on'); });
 $('scFermer').addEventListener('click', () => $('overlaySucces').classList.remove('on'));
@@ -6159,10 +6826,14 @@ function majBoutonProfil(){
     pt.textContent = n > 9 ? '9+' : (n || '');
     $('btnProfil').title = n ? n + ' nouvelle' + (n > 1 ? 's' : '') + ' réaction' + (n > 1 ? 's' : '') : 'Mon profil';
   }
+  majDecoBoite($('profilPP'), etat);
   const img = $('profilPP'), vide = $('profilVide');
   if(!img || !vide) return;
   if(monLogin){
-    img.src = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=64';
+    // réassigner src rechargeait la photo à chaque appel : l'avatar clignotait, et le
+    // cadre semblait mettre du temps à suivre. On n'y touche que si l'adresse change.
+    const url = 'https://github.com/' + encodeURIComponent(monLogin) + '.png?size=64';
+    if(img.getAttribute('src') !== url) img.src = url;
     img.style.display = ''; vide.style.display = 'none';
     img.onerror = () => { img.style.display = 'none'; vide.style.display = ''; };
   } else { img.style.display = 'none'; vide.style.display = ''; }
