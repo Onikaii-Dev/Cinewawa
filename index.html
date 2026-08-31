@@ -976,6 +976,21 @@
     .fiche-apercu .fa-btns .btn-mini{min-width:0}
   }
 
+  /* ---- fiche en lecture seule ---- */
+  #blocLecture{margin-bottom:16px}
+  .lect-note{display:flex;align-items:center;gap:12px;flex-wrap:wrap;
+    background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.07);
+    border-radius:var(--r-sm);padding:13px 15px}
+  .lect-lab{font-size:10px;text-transform:uppercase;letter-spacing:.15em;color:var(--faint);font-weight:800}
+  .lect-val{font-family:'Bebas Neue',sans-serif;font-size:34px;line-height:.9;letter-spacing:.02em}
+  .lect-val small{font-size:15px;opacity:.6}
+  .lect-rien{font-size:13px;color:var(--faint);font-style:italic}
+  .lect-chips{display:flex;flex-wrap:wrap;gap:7px;margin-top:11px}
+  .lect-chip{font-size:11.5px;font-weight:700;color:var(--muted);background:rgba(255,255,255,.04);
+    border:1px solid var(--border);border-radius:99px;padding:5px 12px}
+  .lect-avis{margin-top:13px;font-size:13.5px;color:#c3b9d6;font-style:italic;line-height:1.6;
+    padding-left:13px;border-left:2px solid rgba(255,194,75,.45)}
+
   /* ---- notation par etoiles cliquables ---- */
   .note-pick{display:flex;align-items:center;gap:13px;flex-wrap:wrap;background:rgba(255,255,255,.03);
     border:1px solid var(--border);border-radius:var(--r-sm);padding:13px 14px}
@@ -1014,8 +1029,8 @@
   .repli-corps .champ:last-child{margin-bottom:0}
 
   /* ---- bandeau membres de la communaute ---- */
-  #membresPanel{display:flex;flex-direction:column;gap:12px;flex:1 1 auto;min-height:0}
-  .mb-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(78px,1fr));gap:11px}
+  #membresPanel{display:flex;flex-direction:column;justify-content:center;flex:1 1 auto;min-height:0}
+  .mb-grille{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-content:center}
   .mb-carte{display:flex;flex-direction:column;align-items:center;gap:7px;background:transparent;border:none;
     padding:6px 2px;cursor:pointer;font-family:inherit;color:var(--txt);border-radius:var(--r-sm);
     transition:background .15s ease,transform .15s ease}
@@ -1029,8 +1044,6 @@
   .mb-ava .pt.on{background:#3ee0a5;box-shadow:0 0 9px rgba(62,224,165,.9)}
   .mb-nom{font-size:11.5px;font-weight:700;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
   .mb-sous{font-size:10px;color:var(--faint);text-align:center}
-  .mb-pied{display:flex;align-items:center;gap:10px;flex-wrap:wrap;padding-top:4px;border-top:1px solid rgba(255,255,255,.06)}
-  .mb-pied .info{font-size:11.5px;color:var(--faint);flex:1;min-width:120px}
   .mb-vide{font-size:12.5px;color:var(--faint);line-height:1.6;text-align:center;padding:18px 10px}
 
   /* ---- ligne « moi » dans la barre du haut ---- */
@@ -1158,6 +1171,33 @@
   .pal-v{font-size:12px;color:var(--muted);margin-left:auto}
   .pal-reste{font-size:10.5px;font-weight:800;color:var(--gold);background:rgba(255,194,75,.13);
     border-radius:99px;padding:3px 9px;margin-left:9px}
+
+  /* ---- classement : un podium par succès ---- */
+  .clst{background:linear-gradient(150deg,rgba(29,22,54,.94),rgba(17,13,32,.96));
+    border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:13px 14px 10px}
+  .clst-tete{display:flex;align-items:center;gap:9px;margin-bottom:11px}
+  .clst-ico{width:28px;height:28px;border-radius:9px;display:flex;align-items:center;justify-content:center;
+    font-size:14px;background:rgba(255,255,255,.05);border:1px solid var(--nc);flex-shrink:0}
+  .clst-nom{font-size:13.5px;font-weight:800;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .clst-u{margin-left:auto;font-size:9.5px;text-transform:uppercase;letter-spacing:.11em;
+    color:var(--faint);font-weight:800;white-space:nowrap}
+  .cl-l{display:flex;align-items:center;gap:9px;padding:6px 8px;border-radius:var(--r-xs);margin-bottom:4px;
+    background:rgba(255,255,255,.025);border:1px solid transparent;transition:background .14s ease,border-color .14s ease}
+  .cl-l[data-login]{cursor:pointer}
+  .cl-l[data-login]:hover{background:rgba(255,255,255,.06);border-color:var(--border-h)}
+  .cl-l.mien{background:rgba(255,194,75,.1);border-color:rgba(255,194,75,.32)}
+  .cl-r{width:19px;height:19px;border-radius:6px;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;font-size:10.5px;font-weight:800;background:rgba(255,255,255,.06);color:var(--faint)}
+  .cl-r.r1{background:linear-gradient(135deg,#ffd680,#ffc24b);color:#241a05}
+  .cl-r.r2{background:#d6cfe4;color:#241a05}
+  .cl-r.r3{background:#cd7f32;color:#241a05}
+  .cl-pp{width:24px;height:24px;border-radius:50%;object-fit:cover;flex-shrink:0;background:var(--bg2);
+    border:1px solid rgba(255,255,255,.1)}
+  .cl-pp-vide{display:flex;align-items:center;justify-content:center;font-size:12px}
+  .cl-nom{flex:1;min-width:0;font-size:12.5px;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .cl-l.mien .cl-nom{color:var(--gold-vif)}
+  .cl-v{font-family:'Bebas Neue',sans-serif;font-size:19px;letter-spacing:.02em;color:var(--txt);flex-shrink:0}
+  .cl-vide{font-size:12px;color:var(--faint);font-style:italic;padding:8px 4px}
 
   /* médaillons compacts (profil) */
   .med-rang{display:flex;gap:8px;flex-wrap:wrap}
@@ -1333,9 +1373,11 @@
     </header>
     <div class="onglets" id="ongletsSucces">
       <button data-o="succes" class="on">Succès</button>
+      <button data-o="classement">Classement</button>
       <button data-o="defis">Défis</button>
     </div>
     <div id="zoneSucces"></div>
+    <div id="zoneClassement" class="cache"></div>
     <div id="zoneDefis" class="cache">
       <button class="mcu-banner" id="btnMcu" title="Défi Avengers: Doomsday">
         <div class="mcu-b-ico">🛡️</div>
@@ -1442,7 +1484,7 @@
     </div>
 
     <!-- 1. le titre : on cherche, le site remplit le reste -->
-    <div class="champ">
+    <div class="champ" id="blocTitre">
       <label id="labTitre">Titre — tape 3 lettres, le site trouve le reste</label>
       <div class="champ-recherche" id="blocRecherche">
         <span class="loupe">🔍</span>
@@ -1466,8 +1508,11 @@
     </div>
     <div class="res-affiches" id="resAffiches"></div>
 
+    <!-- la version « lecture seule » : la fiche de quelqu'un d'autre se lit, ne se remplit pas -->
+    <div id="blocLecture" class="cache"></div>
+
     <!-- 3. ma note -->
-    <div class="champ">
+    <div class="champ" id="blocNote">
       <label>Ma note</label>
       <div class="note-pick">
         <div class="np-etoiles" id="npEtoiles"></div>
@@ -1500,18 +1545,18 @@
       </div>
     </div>
 
-    <div class="champ">
+    <div class="champ" id="blocDate">
       <label id="labelDate">Vu le</label>
       <input id="fDate" type="date">
     </div>
 
-    <div class="champ">
+    <div class="champ" id="blocAvis">
       <label>Avis rapide (optionnel)</label>
       <textarea id="fAvis" placeholder="Un mot dessus…"></textarea>
     </div>
 
     <!-- 5. le reste, replié : personne n'en a besoin tous les jours -->
-    <details class="repli">
+    <details class="repli" id="repliAvance">
       <summary>⚙️ Réglages avancés</summary>
       <div class="repli-corps">
         <div class="champ" id="blocNotePub">
@@ -1792,7 +1837,7 @@
 </div>
 
 <script>
-const VERSION = 'v88';
+const VERSION = 'v89';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2145,8 +2190,10 @@ function allerTrophees(onglet, origine){
   if(onglet) ongletTrophees = onglet;
   document.querySelectorAll('#ongletsSucces button').forEach(b => b.classList.toggle('on', b.dataset.o === ongletTrophees));
   $('zoneSucces').classList.toggle('cache', ongletTrophees !== 'succes');
+  $('zoneClassement').classList.toggle('cache', ongletTrophees !== 'classement');
   $('zoneDefis').classList.toggle('cache', ongletTrophees !== 'defis');
   rendreSucces();
+  rendreClassement();
   majBanniereMcu();
 }
 
@@ -2175,6 +2222,58 @@ function rendreSucces(){
     + '<div class="badges-grille">' + liste.map(carteBadge).join('') + '</div>';
   $('zoneSucces').querySelectorAll('.badge-c').forEach(b => {
     b.addEventListener('click', () => ouvrirSucces(b.dataset.sc));
+  });
+}
+
+// ================= CLASSEMENT =================
+// Pour chaque succès, le podium des membres. Les valeurs des autres sont calculées
+// une fois pour toutes au chargement de la communauté (`classementCommu`), les miennes en direct.
+function rendreClassement(){
+  const z = $('zoneClassement');
+  const moi = (monLogin || '').toLowerCase();
+  const mesVals = {};
+  SUCCES.forEach(sc => { mesVals[sc.id] = sc.val(etat); });
+
+  // Se retirer de la liste des autres avant de s'ajouter : par login quand il est connu,
+  // sinon par pseudo — sans cloud on ne connait pas son login et on apparaissait en double.
+  const monPseudo = (etat.pseudo || '').trim().toLowerCase();
+  const joueurs = (classementCommu || [])
+    .filter(m => moi
+      ? String(m.login).toLowerCase() !== moi
+      : !(monPseudo && String(m.pseudo || '').trim().toLowerCase() === monPseudo))
+    .concat([{ login: monLogin || '', pseudo: etat.pseudo || 'Moi', vals: mesVals, mien: true }]);
+
+  if(joueurs.length < 2){
+    z.innerHTML = '<div class="pf-vide">Le classement se remplit avec les listes publiques de la communauté.'
+      + '<br>Reviens dans un instant, ou branche le cloud pour y figurer.</div>';
+    return;
+  }
+
+  z.innerHTML = '<div class="badges-grille">' + SUCCES.map(sc => {
+    const podium = joueurs
+      .filter(m => (m.vals[sc.id] || 0) > 0)
+      .sort((a,b) => (b.vals[sc.id] || 0) - (a.vals[sc.id] || 0))
+      .slice(0, 3);
+    const lignes = podium.length
+      ? podium.map((m,i) => {
+          const pp = m.login
+            ? '<img class="cl-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=48" alt="" onerror="this.remove()">'
+            : '<span class="cl-pp cl-pp-vide">🎬</span>';
+          return '<div class="cl-l' + (m.mien ? ' mien' : '') + '"' + (m.login && !m.mien ? ' data-login="' + echap(m.login) + '"' : '') + '>'
+            + '<span class="cl-r r' + (i+1) + '">' + (i+1) + '</span>' + pp
+            + '<span class="cl-nom">' + echap(m.pseudo) + '</span>'
+            + '<span class="cl-v">' + (m.vals[sc.id] || 0) + '</span></div>';
+        }).join('')
+      : '<div class="cl-vide">Personne pour l\'instant.</div>';
+    return '<div class="clst" style="--nc:' + (etatSucces(sc, etat).coul) + '">'
+      + '<div class="clst-tete"><span class="clst-ico">' + sc.ico + '</span>'
+      +   '<span class="clst-nom">' + sc.nom + '</span>'
+      +   '<span class="clst-u">' + sc.unite + '</span></div>'
+      + lignes + '</div>';
+  }).join('') + '</div>';
+
+  z.querySelectorAll('.cl-l[data-login]').forEach(l => {
+    l.addEventListener('click', () => ouvrirMembre(l.dataset.login));
   });
 }
 
@@ -2645,13 +2744,11 @@ function rendreFeed(panneau){
 function rendreMembres(panneau){
   const membres = (membresCommu || []).slice();
   if(!membres.length){
-    panneau.innerHTML = '<div class="mb-vide">🧭 L\'annuaire se charge…</div>'
-      + '<div class="mb-pied"><button class="btn-mini" id="mbTous" style="margin-left:auto">Ouvrir l\'annuaire</button></div>';
-    panneau.querySelector('.mb-vide').style.flex = '1 1 auto';
+    panneau.innerHTML = '<div class="mb-vide">🧭 L\'annuaire se charge…</div>';
   } else {
     // en ligne d'abord, puis les listes visibles, puis le reste
     membres.sort((a,b) => (b.enLigne?1:0)-(a.enLigne?1:0) || (b.total||0)-(a.total||0));
-    const grille = membres.slice(0, 12).map(m => {
+    const grille = membres.slice(0, 9).map(m => {
       const sous = m.visible ? (m.total + ' titre' + (m.total>1?'s':'')) : '🔒 privé';
       return '<button class="mb-carte" data-login="' + echap(m.login) + '" title="' + echap(m.pseudo) + '">'
         + '<span class="mb-ava">'
@@ -2662,14 +2759,11 @@ function rendreMembres(panneau){
         + '<span class="mb-sous">' + sous + '</span>'
         + '</button>';
     }).join('');
-    panneau.innerHTML = '<div class="mb-grille">' + grille + '</div>'
-      + '<div class="mb-pied"><button class="btn-mini" id="mbTous" style="margin-left:auto">Comparer nos goûts →</button></div>';
+    panneau.innerHTML = '<div class="mb-grille">' + grille + '</div>';
     panneau.querySelectorAll('.mb-carte').forEach(b => {
       b.addEventListener('click', () => ouvrirMembre(b.dataset.login));
     });
   }
-  const t = panneau.querySelector('#mbTous');
-  if(t) t.addEventListener('click', allerUtilisateurs);
 }
 
 async function ouvrirMembre(login){
@@ -2697,13 +2791,11 @@ function rendreCommunaute(){
     +   '</div>'
     +   '<div class="panneau">'
     +     panTete('👥', 'Les membres', '', '#3ee0a5',
-                  (enLigne ? '<span class="pan-chip chaud">' + enLigne + ' en ligne</span>' : (nb ? '<span class="pan-chip">' + nb + '</span>' : ''))
-                  + '<button class="pan-btn" id="btnTousMembres">Annuaire →</button>')
+                  (enLigne ? '<span class="pan-chip chaud">' + enLigne + ' en ligne</span>' : (nb ? '<span class="pan-chip">' + nb + '</span>' : '')))
     +     '<div class="pan-corps"><div id="membresPanel"></div></div>'
     +   '</div>'
     + '</div>';
   z.appendChild(sec);
-  sec.querySelector('#btnTousMembres').addEventListener('click', allerUtilisateurs);
   rendreFeed(sec.querySelector('#feedPanel'));
   rendreMembres(sec.querySelector('#membresPanel'));
 }
@@ -2982,6 +3074,8 @@ let feedAutres = null;  // activité des AUTRES utilisateurs (mise en cache)
 // c'est lui qui permet de pré-remplir une fiche instantanément, sans appeler la moindre API.
 let catalogueCommu = [];
 let membresCommu = [];  // [{login, pseudo, visible, total, enLigne}] — pour le bandeau de l'accueil
+// valeurs de chaque succès par membre, calculées une fois au chargement : c'est la matière du classement
+let classementCommu = [];
 
 // mes propres notes, toujours recalculées en direct → jamais de décalage après une modif
 function mesNotes(){
@@ -3164,10 +3258,10 @@ async function chargerNotesCommu(force){
     const cache = JSON.parse(localStorage.getItem('cinewawa-commu') || 'null');
     if(!force && cache && Date.now() - cache.ts < 60e3){
       notesAutres = cache.data; feedAutres = cache.feed || []; reactionsAutres = cache.reacs || {};
-      catalogueCommu = cache.cat || []; membresCommu = cache.membres || [];
+      catalogueCommu = cache.cat || []; membresCommu = cache.membres || []; classementCommu = cache.clst || [];
       rafraichir(); return;
     }
-    if(cache){ catalogueCommu = cache.cat || []; membresCommu = cache.membres || []; }
+    if(cache){ catalogueCommu = cache.cat || []; membresCommu = cache.membres || []; classementCommu = cache.clst || []; }
   }catch(e){}
   chargementCommu = true;
   try{
@@ -3177,6 +3271,7 @@ async function chargerNotesCommu(force){
     const feed = [];
     const reacs = {};
     const membres = [];
+    const classement = [];
     const cata = {};   // clé de titre -> fiche partagée
     const moi = (await obtenirMonLogin()).toLowerCase();
     for(const login of logins){
@@ -3201,6 +3296,10 @@ async function chargerNotesCommu(force){
           enLigne: !!(d.vu && Date.now() - d.vu < EN_LIGNE_MS),
         });
         if(!visible) continue;
+        // scores de chaque succès : le classement se calcule ici, une fois, pas à l'affichage
+        const vals = {};
+        SUCCES.forEach(sc => { try{ vals[sc.id] = sc.val(d); }catch(e){ vals[sc.id] = 0; } });
+        classement.push({ login, pseudo: d.pseudo || login, vals });
         // catalogue partagé : sert à pré-remplir une fiche d'un seul clic
         ['films','series','anime','manga'].forEach(c => d[c].forEach(f => {
           if(!f.titre) return;
@@ -3232,9 +3331,10 @@ async function chargerNotesCommu(force){
     feedAutres = feed.slice(0, 40);
     reactionsAutres = reacs;
     membresCommu = membres;
+    classementCommu = classement;
     // les fiches les plus partagées d'abord, et on plafonne pour ne pas gonfler la sauvegarde locale
     catalogueCommu = Object.values(cata).sort((a,b) => b.n - a.n).slice(0, 1500);
-    try{ localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres, reacs, cat: catalogueCommu, membres })); }catch(e){}
+    try{ localStorage.setItem('cinewawa-commu', JSON.stringify({ ts: Date.now(), data: agg, feed: feedAutres, reacs, cat: catalogueCommu, membres, clst: classement })); }catch(e){}
     rafraichir();
   }catch(e){}
   finally{ chargementCommu = false; }
@@ -3924,6 +4024,7 @@ function ouvrirModale(id){
   $('addSous').textContent = conf.nom + (ro ? ' · lecture seule' : '');
   $('btnSave').textContent = f ? 'Enregistrer' : 'Ajouter à ma liste';
   $('btnSave').style.display = ro ? 'none' : '';
+  $('btnCancel').textContent = ro ? 'Fermer' : 'Annuler';
   $('btnDelete').classList.toggle('on', !!f && !ro);
   ['fTitre','fStatut','fFreq','fP1','fP2','fNote','fNotePub','fDate','fAffiche','fAvis'].forEach(i => $(i).disabled = ro);
   $('btnChercherAffiche').style.display = ro ? 'none' : '';
@@ -3955,12 +4056,41 @@ function ouvrirModale(id){
   $('infoNotePub').innerHTML = notePubTemp ? 'Source actuelle : <b style="color:#cdc4e0">' + echap(notePubTemp.src) + '</b>' : '';
   $('btnNotePub').textContent = (c === 'anime' || c === 'manga') ? '📊 Note MAL' : '📊 Note IMDb';
   $('erreur').style.display = 'none';
+  // fiche de quelqu'un d'autre : rien n'est modifiable, donc rien n'est affiché en champ.
+  // On remplace tout le formulaire par un récapitulatif lisible.
+  ['blocTitre','blocNote','blocStatut','blocProgression','blocDate','blocAvis','repliAvance','fichePreview']
+    .forEach(i => $(i).classList.toggle('cache', ro && i !== 'fichePreview'));
+  $('blocLecture').classList.toggle('cache', !ro);
+  if(ro) remplirLecture(f, c);
   majStatuts();
   majApercu();
   majFichePreview();
   $('overlay').classList.add('on');
   if(!ro) setTimeout(() => $('fTitre').focus(), 30);
 }
+// récapitulatif d'une fiche qu'on ne peut pas modifier : sa note, où il en est, son avis
+function remplirLecture(f, c){
+  if(!f){ $('blocLecture').innerHTML = ''; return; }
+  const conf = CATS[c];
+  const note = sansNote(f)
+    ? '<div class="lect-note vide"><span class="lect-lab">Sa note</span><span class="lect-rien">Pas encore noté</span></div>'
+    : '<div class="lect-note"><span class="lect-lab">Sa note</span>'
+      + '<span class="lect-val" style="color:' + couleurNote(f.note) + '">' + showNote(f.note) + '<small>/10</small></span>'
+      + etoilesHTML(f.note, 19) + '</div>';
+
+  const chips = [];
+  if(c !== 'films' && f.statut && STATUTS[f.statut])
+    chips.push('<span class="lect-chip" style="color:' + STATUTS[f.statut].couleur
+      + ';border-color:currentColor">' + STATUTS[f.statut].nom + '</span>');
+  const prog = texteProgression(f, c);
+  if(prog) chips.push('<span class="lect-chip">' + prog + '</span>');
+  if(f.date) chips.push('<span class="lect-chip">' + conf.labelDate.toLowerCase() + ' ' + fmtDate(f.date) + '</span>');
+
+  $('blocLecture').innerHTML = note
+    + (chips.length ? '<div class="lect-chips">' + chips.join('') + '</div>' : '')
+    + (f.avis ? '<div class="lect-avis">« ' + echap(f.avis) + ' »</div>' : '');
+}
+
 function fermerModale(){ $('overlay').classList.remove('on'); fermerSugg(); enEdition = null; }
 
 function enregistrer(){
