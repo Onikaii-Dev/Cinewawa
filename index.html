@@ -347,6 +347,16 @@
   .notif-em{font-size:19px;flex-shrink:0}
   .notif-neuf-pt{width:7px;height:7px;border-radius:50%;background:#ff5e7a;flex-shrink:0;box-shadow:0 0 8px rgba(255,94,122,.8)}
   .notif-vide{font-size:12.5px;color:var(--faint);font-style:italic;padding:6px 2px}
+  /* ---- la fenêtre des notifications ---- */
+  .nt-sous{font-size:12.5px;color:var(--faint);margin:-6px 0 14px}
+  .ntf-liste{display:flex;flex-direction:column;gap:8px;max-height:52vh;overflow:auto;padding-right:2px}
+  .ntf-sect{font-size:10px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
+    color:var(--faint);margin:10px 2px 2px;display:flex;align-items:center;gap:8px}
+  .ntf-sect:first-child{margin-top:0}
+  .ntf-sect b{color:var(--gold);font-weight:800}
+  .ntf-ico{width:30px;height:30px;border-radius:50%;flex-shrink:0;display:flex;align-items:center;
+    justify-content:center;font-size:15px;background:rgba(255,194,75,.14);border:1px solid rgba(255,194,75,.34)}
+  .notif-quand{font-size:10.5px;color:var(--faint);flex-shrink:0;white-space:nowrap}
 
   .profil-vide{width:33px;height:33px;border-radius:50%;background:linear-gradient(135deg,#ffc24b,#ff5e7a);
     display:flex;align-items:center;justify-content:center;font-size:16px;flex-shrink:0}
@@ -1893,6 +1903,19 @@
   </div>
 </div>
 
+<!-- ======== NOTIFICATIONS ======== -->
+<div id="overlayNotifs" class="ovl">
+  <div class="modale" style="max-width:520px">
+    <h2>Notifications</h2>
+    <p class="nt-sous" id="ntfSous"></p>
+    <div id="ntfListe" class="ntf-liste"></div>
+    <div class="actions" style="margin-top:16px">
+      <button class="btn-gold" id="ntfLu" style="flex:1">✓ Tout marquer comme lu</button>
+      <button class="btn-ghost" id="ntfFermer">Fermer</button>
+    </div>
+  </div>
+</div>
+
 <!-- ======== QUI A NOTÉ ======== -->
 <div id="overlayNotes" class="ovl">
   <div class="mini-modale" style="max-width:400px">
@@ -2013,12 +2036,6 @@
       <button class="btn-mini" id="btnConfVersCloud" style="display:block;margin-top:12px;width:100%">☁️ Ouvrir la fenêtre Cloud</button>
     </div>
     <div id="confChamps">
-    <div class="champ" id="blocNotifs" style="display:none">
-      <label style="display:flex;align-items:center;gap:8px">🔔 Réactions reçues
-        <button class="btn-mini" id="btnNotifsVues" style="margin-left:auto;display:none">✓ Marquer comme vu</button>
-      </label>
-      <div id="listeNotifs"></div>
-    </div>
     <div class="champ">
       <label>Pseudo affiché</label>
       <input id="cPseudo" placeholder="Ex : Wawa" maxlength="24" autocomplete="off">
@@ -2115,7 +2132,7 @@
 </div>
 
 <script>
-const VERSION = 'v139';
+const VERSION = 'v140';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -4260,6 +4277,11 @@ function jalonTexte(j, tu){
     if(!sc) return '';
     return passe + ' <b>' + nv.n + '</b> sur <b>' + sc.nom + '</b>';
   }
+  if(j.k === 'df'){
+    const def = DEFIS.find(x => x.id === j.id);
+    if(!def) return '';
+    return (tu ? 'as terminé' : 'a terminé') + ' le défi <b>' + def.court + '</b>';
+  }
   const x = decoDe(j.id);
   if(!x || !x.id) return '';
   if(x.cat){
@@ -4271,10 +4293,11 @@ function jalonTexte(j, tu){
 }
 // L'instantané de ce qui est acquis en ce moment.
 function jalonEtat(d){
-  const sc = {}, dc = {};
+  const sc = {}, dc = {}, df = {};
   SUCCES.forEach(x => { try{ sc[x.id] = etatSucces(x, d).niv; }catch(e){ sc[x.id] = 0; } });
   DECOS.forEach(x => { if(x.id && !x.succes && decoDebloquee(d, x)) dc[x.id] = 1; });
-  return { sc, dc };
+  DEFIS.forEach(x => { try{ if(defiFini(d, x.id)) df[x.id] = 1; }catch(e){} });
+  return { sc, dc, df };
 }
 let jalonsEnCours = false;
 function verifierJalons(){
@@ -4287,17 +4310,25 @@ function verifierJalons(){
     // tout ce qui a été gagné avant remonterait d'un coup.
     if(!vus || !vus.sc){
       etat.jalonsVus = neuf;
-      etat.jalonsLus = Date.now();
+      etat.jalonsLus = Date.now() - 1;
       try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
       return;
     }
+    // le champ des défis est apparu après coup : sans ça, tous ceux déjà finis
+    // remonteraient d'un bloc à la première ouverture
+    if(!vus.df) vus.df = neuf.df;
     const t = Date.now();
     const nouveaux = [];
     SUCCES.forEach(x => {
       const av = Number(vus.sc[x.id]) || 0;
       if((neuf.sc[x.id] || 0) > av) nouveaux.push({ t, k: 'sc', id: x.id, niv: neuf.sc[x.id] });
     });
+    Object.keys(neuf.df).forEach(id => {
+      if(!vus.df[id]) nouveaux.push({ t, k: 'df', id });
+    });
     Object.keys(neuf.dc).forEach(id => {
+      // le cadre d'un défi tombe avec le défi : « tu as terminé le défi » suffit
+      if(String(id).indexOf('defi:') === 0) return;
       if(!(vus.dc && vus.dc[id])) nouveaux.push({ t, k: 'dc', id });
     });
     etat.jalonsVus = neuf;
@@ -4305,6 +4336,7 @@ function verifierJalons(){
     etat.jalons = nouveaux.concat(etat.jalons || []).slice(0, JALON_MAX);
     sauver();
     montrerJalons();
+    majBoutonProfil();
   } finally { jalonsEnCours = false; }
 }
 
@@ -4917,21 +4949,18 @@ function reactionsRecues(){
   return out.sort((a, b) => (a.neuf === b.neuf) ? 0 : (a.neuf ? -1 : 1));
 }
 function nbReacsNouvelles(){ return reactionsRecues().filter(r => r.neuf).length; }
+// ce qui n'a pas encore été lu, toutes sources confondues
+function nbJalonsNeufs(){
+  const lu = Number(etat.jalonsLus) || 0;
+  return (etat.jalons || []).filter(j => j.t > lu).length;
+}
+function nbNotifs(){ return nbReacsNouvelles() + nbJalonsNeufs(); }
 function marquerReacsVues(){
   reacsVues = reactionsRecues().map(r => r.sig).slice(-300);
   try{ localStorage.setItem(CLE_REACS_VUES, JSON.stringify(reacsVues)); }catch(e){}
 }
 // archive les réactions actuellement affichées : elles disparaissent du profil
 // (une NOUVELLE réaction du même utilisateur, avec un autre emoji, réapparaîtra)
-function archiverReacs(){
-  const sigs = reactionsRecues().map(r => r.sig);
-  const set = new Set(reacsMasq.concat(sigs));
-  reacsMasq = Array.from(set).slice(-500);
-  try{ localStorage.setItem(CLE_REACS_MASQ, JSON.stringify(reacsMasq)); }catch(e){}
-  marquerReacsVues();
-  rendreNotifs();
-  majBoutonProfil();
-}
 // retrouve le vrai titre (et ce qui a été visé) à partir d'une clé de réaction
 function cibleReac(cle){
   const p = cle.split('#');
@@ -4946,22 +4975,32 @@ function cibleReac(cle){
     : (suf === 'n' ? 'ta fiche de' : 'ta note sur');
   return { titre, quoi, c: CATS[c] ? c : 'films' };
 }
+// Deux sources, une seule fenêtre : ce que les autres m'ont laissé, et ce que j'ai
+// franchi de mon côté (palier de succès, cadre débloqué, défi terminé).
 function rendreNotifs(){
-  const toutes = reactionsRecues();
-  const liste = toutes.filter(r => !reacsMasq.includes(r.sig));
-  const zone = $('listeNotifs');
-  const bloc = $('blocNotifs');
-  const btn = $('btnNotifsVues');
-  if(btn) btn.style.display = liste.length ? '' : 'none';
-  if(!liste.length){
-    bloc.style.display = cloudActif() ? '' : 'none';
-    zone.innerHTML = '<div class="notif-vide">' + (toutes.length
-      ? 'Tout est à jour ✨ Les nouvelles réactions apparaîtront ici.'
-      : 'Personne n\'a encore réagi à ton activité.') + '</div>';
+  const zone = $('ntfListe');
+  if(!zone) return;
+  const reacs = reactionsRecues().filter(r => !reacsMasq.includes(r.sig));
+  const jalons = (etat.jalons || []).slice();
+  const lu = Number(etat.jalonsLus) || 0;
+  const nR = reacs.filter(r => r.neuf).length;
+  const nJ = jalons.filter(j => j.t > lu).length;
+
+  const sous = $('ntfSous');
+  if(sous) sous.textContent = (nR + nJ)
+    ? (nR + nJ) + ' nouveauté' + (nR + nJ > 1 ? 's' : '') + ' depuis ton dernier passage.'
+    : 'Tout est à jour. Les réactions des autres et tes nouveaux paliers arrivent ici.';
+  const btn = $('ntfLu');
+  if(btn) btn.style.display = (nR + nJ) ? '' : 'none';
+
+  if(!reacs.length && !jalons.length){
+    zone.innerHTML = '<div class="notif-vide">' + (cloudActif()
+      ? 'Rien pour l\'instant. Dès que quelqu\'un réagit à ton activité, ou que tu franchis un palier, ça s\'affiche ici.'
+      : 'Branche le cloud pour recevoir les réactions des autres membres.') + '</div>';
     return;
   }
-  bloc.style.display = '';
-  zone.innerHTML = liste.slice(0, 25).map(r => {
+
+  const ligneReac = r => {
     const cible = cibleReac(r.cle);
     const pp = r.login
       ? avecDeco('<img class="notif-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=48" alt="" onerror="this.remove()">', r.login)
@@ -4973,8 +5012,34 @@ function rendreNotifs(){
       + (r.msg ? '<span class="notif-msg">« ' + echap(r.msg) + ' »</span>' : '') + '</span>'
       + '<span class="notif-em">' + r.emoji + '</span>'
       + '</div>';
-  }).join('');
+  };
+  const ligneJalon = j => {
+    const txt = jalonTexte(j, true);
+    if(!txt) return '';
+    const ico = j.k === 'sc' ? '🏆' : (j.k === 'df' ? '🎯' : '✨');
+    return '<div class="notif-row' + (j.t > lu ? ' neuf' : '') + '">'
+      + (j.t > lu ? '<span class="notif-neuf-pt"></span>' : '')
+      + '<span class="ntf-ico">' + ico + '</span>'
+      + '<span class="notif-txt">Tu ' + txt + '</span>'
+      + '<span class="notif-quand">' + ilYA(j.t) + '</span>'
+      + '</div>';
+  };
+
+  zone.innerHTML =
+    (jalons.length
+      ? '<div class="ntf-sect">Mes paliers et mes défis' + (nJ ? ' <b>' + nJ + '</b>' : '') + '</div>'
+        + jalons.slice(0, 25).map(ligneJalon).join('')
+      : '')
+    + (reacs.length
+      ? '<div class="ntf-sect">Réactions reçues' + (nR ? ' <b>' + nR + '</b>' : '') + '</div>'
+        + reacs.slice(0, 25).map(ligneReac).join('')
+      : '');
 }
+function ouvrirNotifs(){
+  rendreNotifs();
+  $('overlayNotifs').classList.add('on');
+}
+function fermerNotifs(){ $('overlayNotifs').classList.remove('on'); }
 // toutes les réactions d'une entrée : celles des autres + la mienne
 function reactionsDe(cle){
   const l = (reactionsAutres[cle] || []).slice();
@@ -7079,12 +7144,12 @@ function afficherRecap(login, d){
 
   // en-tête de la page
   $('pgTitre').textContent = estMoi ? 'Mon profil' : pseudoAff;
-  const nNeuves = estMoi ? nbReacsNouvelles() : 0;
+  const nNeuves = estMoi ? nbNotifs() : 0;
   $('pgActions').innerHTML = estMoi
     // toujours affiché, même à zéro : sinon l'historique des réactions devient introuvable
     ? '<button class="pan-btn" id="pgNotifs"'
       + (nNeuves ? ' style="border-color:rgba(255,94,122,.5);color:#ffa9b6"' : '')
-      + '>🔔 Réactions' + (nNeuves ? ' <b>' + nNeuves + '</b>' : '') + '</button>'
+      + '>🔔 Notifications' + (nNeuves ? ' <b>' + nNeuves + '</b>' : '') + '</button>'
       + '<button class="pan-btn" id="pgTrophees">🏆 Trophées</button>'
       + '<button class="pan-btn" id="pgEditer">✏️ Modifier</button>'
     : '<button class="pan-btn" id="pgTrophees">🏆 Ses trophées</button>';
@@ -7190,11 +7255,7 @@ function afficherRecap(login, d){
   const be = document.getElementById('pgEditer');
   if(be) be.addEventListener('click', ouvrirConf);
   const bn = document.getElementById('pgNotifs');
-  if(bn) bn.addEventListener('click', () => {
-    ouvrirConf();
-    const bloc = $('blocNotifs');
-    if(bloc) setTimeout(() => bloc.scrollIntoView({ block:'nearest', behavior:'smooth' }), 80);
-  });
+  if(bn) bn.addEventListener('click', ouvrirNotifs);
   const bt = document.getElementById('pgTrophees');
   if(bt) bt.addEventListener('click', () => allerTrophees('succes', 'profil'));
   $('zoneProfil').querySelectorAll('.tf-x').forEach(b => {
@@ -8514,10 +8575,10 @@ function majBoutonProfil(){
   // pastille rouge clignotante : réactions reçues pas encore consultées
   const pt = $('notifPt');
   if(pt){
-    const n = nbReacsNouvelles();
+    const n = nbNotifs();
     pt.classList.toggle('on', n > 0);
     pt.textContent = n > 9 ? '9+' : (n || '');
-    $('btnProfil').title = n ? n + ' nouvelle' + (n > 1 ? 's' : '') + ' réaction' + (n > 1 ? 's' : '') : 'Mon profil';
+    $('btnProfil').title = n ? n + ' notification' + (n > 1 ? 's' : '') : 'Mon profil';
   }
   majDecoBoite($('profilPP'), etat);
   const img = $('profilPP'), vide = $('profilVide');
@@ -8612,7 +8673,18 @@ if(cloudActif()){
   obtenirMonLogin().then(majBoutonProfil);  // photo GitHub du bouton profil
 }
 $('btnConfVersCloud').addEventListener('click', () => { $('overlayConf').style.display = 'none'; ouvrirCloud(); });
-$('btnNotifsVues').addEventListener('click', archiverReacs);
+$('ntfFermer').addEventListener('click', fermerNotifs);
+$('overlayNotifs').addEventListener('click', e => { if(e.target.id === 'overlayNotifs') fermerNotifs(); });
+$('ntfLu').addEventListener('click', () => {
+  marquerReacsVues();
+  etat.jalonsLus = Date.now();
+  try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+  rendreNotifs();
+  montrerJalons();
+  majBoutonProfil();
+  if(!$('pageProfil').classList.contains('cache')) allerProfil();
+  toast('Notifications marquées comme lues.', 'ok');
+});
 // Une PWA reste ouverte des jours : sans ça, les comptes à rebours resteraient
 // figés sur le jour d'ouverture. On surveille le changement de date.
 let jourAffiche = aujourdhui();
