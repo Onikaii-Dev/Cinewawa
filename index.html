@@ -643,7 +643,10 @@
   @media (max-width:460px){.cp-sous{font-size:11px}.cp-nom{font-size:22px}}
 
   /* ---- page Communauté : une carte par membre, dans la charte des panneaux ---- */
-  .users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:16px}
+  /* `grid-auto-rows:1fr` : toutes les rangées à la même hauteur, donc toutes les cartes
+     identiques d'un bout à l'autre de la page, avec ou sans description. */
+  .users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:16px;
+    grid-auto-rows:1fr}
   .user-card{position:relative;display:flex;flex-direction:column;gap:13px;overflow:hidden;
     background:linear-gradient(170deg,rgba(255,255,255,.055),rgba(255,255,255,.014));
     border:1px solid var(--border);border-radius:var(--r);padding:17px 17px 15px;
@@ -654,17 +657,22 @@
   .user-card:hover{transform:translateY(-4px);border-color:var(--border-h);
     box-shadow:0 18px 36px -20px rgba(0,0,0,.75),0 0 28px -14px rgba(157,139,255,.85)}
   .user-card.indispo{opacity:.5}
-  .uc-head{display:flex;align-items:center;gap:12px;min-width:0}
+  .uc-head{display:flex;align-items:center;gap:19px;min-width:0}
   .uc-pp{width:50px;height:50px;border-radius:50%;flex-shrink:0;background:var(--bg2);
     object-fit:cover;border:1px solid var(--border)}
-  .uc-id{min-width:0;flex:1}
+  /* certains cadres débordent largement de la photo : le nom passe devant, et son ombre
+     le garde lisible quand un trait du cadre lui court derrière */
+  .uc-id{min-width:0;flex:1;position:relative;z-index:1;text-shadow:0 1px 7px rgba(16,12,28,.95)}
   .uc-pseudo{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:.05em;line-height:1.05;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .uc-login{font-size:11px;color:var(--faint);font-family:ui-monospace,'SF Mono',Menlo,monospace;
     margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .uc-bio{display:none;font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.5;
+  /* La description occupe toujours deux lignes, remplies ou non : sans cette réserve,
+     elle poussait les compteurs et le bouton plus bas que sur les autres cartes. */
+  .uc-bio{display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;
+    font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.5;min-height:38px;
     border-left:2px solid var(--neon-soft);padding-left:10px}
-  .uc-bio.on{display:block}
+  .uc-bio:not(.on){opacity:0}
   .uc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
     padding-top:13px;border-top:1px solid rgba(255,255,255,.07)}
   .uc-stats.uc-muet{display:block;font-size:12.5px;color:var(--faint);font-style:italic}
@@ -673,7 +681,16 @@
     border-radius:var(--r-xs);padding:8px 4px}
   .uc-stat b{font-size:16px;font-weight:800;line-height:1}
   .uc-stat span{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
-  .uc-pied{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
+  /* les cinq meilleurs succès : de quoi juger d'un coup d'œil où en est le membre */
+  .uc-succes{display:none;flex-direction:column;align-items:flex-start;gap:8px}
+  .uc-succes.on{display:flex}
+  .uc-sc-t{font-size:9.5px;font-weight:800;letter-spacing:.08em;text-transform:uppercase;color:var(--faint)}
+  .uc-sc-t b{color:var(--gold);font-weight:800}
+  .uc-succes .med-rang{gap:7px}
+  .uc-succes .med{width:29px;height:29px;font-size:13.5px;cursor:default}
+  .uc-succes .med i{min-width:12px;height:12px;font-size:7.5px;border-width:1.5px;right:-2px;bottom:-2px}
+  /* le pied colle au bas : les boutons sont alignés d'une carte à l'autre */
+  .uc-pied{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:auto;padding-top:2px}
   .uc-encours{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:#6ff0c0}
   .uc-voir{margin-left:auto;background:linear-gradient(135deg,var(--gold-vif),var(--gold));
     color:var(--ink);border:none;border-radius:var(--r-xs);padding:10px 17px;font-size:13px;
@@ -741,24 +758,23 @@
   .fr-cat{position:absolute;right:-5px;bottom:-5px;width:23px;height:23px;border-radius:50%;
     display:flex;align-items:center;justify-content:center;font-size:12px;
     border:2.5px solid #16102a;box-shadow:0 2px 8px rgba(0,0,0,.5)}
-  .fr-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
-  /* le titre d'abord, l'action ensuite : on cherche l'œuvre, pas le verbe */
-  .fr-l1{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
-    order:2}
+  .fr-txt{flex:1;min-width:0;display:flex;align-items:center;gap:9px}
+  /* Une entrée = une phrase = UNE ligne, comme les paliers. Le titre est simplement mis
+     en avant dedans ; le découpage en deux lignes doublait la hauteur pour rien. */
+  .fr-l1{flex:1;min-width:0;font-size:13.5px;color:var(--muted);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fr-l1 b{color:var(--txt);font-weight:800}
-  .fr-l2{display:flex;align-items:baseline;gap:9px;min-width:0;order:1}
-  .fr-titre{font-size:15px;font-weight:800;color:var(--txt);letter-spacing:.01em;
-    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
-  /* le mot laissé en réaction : posé juste après le titre, il tient sur la même ligne */
-  .fr-mot{display:flex;align-items:center;gap:5px;flex-shrink:1;min-width:0;
+  .fr-titre{font-weight:800;color:var(--txt);letter-spacing:.01em}
+  /* le mot laissé en réaction : posé au bout de la phrase, sur la même ligne */
+  .fr-mot{display:flex;align-items:center;gap:5px;flex-shrink:0;max-width:38%;min-width:0;
     font-size:12px;font-style:italic;color:#e2d3b4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
     background:rgba(255,194,75,.1);border:1px solid rgba(255,194,75,.28);border-radius:99px;padding:2px 10px}
   .fr-mot i{font-style:normal;font-size:12px;flex-shrink:0}
-  .feed-row.ouvert .fr-l1{white-space:normal;overflow:visible;line-height:1.4}
-  .feed-row.ouvert .fr-l2{flex-wrap:wrap}
-  .feed-row.ouvert .fr-titre,.feed-row.ouvert .fr-mot{white-space:normal;overflow:visible}
+  .feed-row.ouvert .fr-txt{flex-wrap:wrap;align-items:flex-start}
+  .feed-row.ouvert .fr-l1{white-space:normal;overflow:visible;line-height:1.5}
+  .feed-row.ouvert .fr-mot{white-space:normal;overflow:visible;max-width:100%}
   .feed-row.ouvert .fr-main{align-items:flex-start}
-  .fr-d{display:flex;flex-direction:column;align-items:flex-end;gap:4px;flex-shrink:0}
+  .fr-d{display:flex;align-items:center;gap:9px;flex-shrink:0}
   .fr-d .badge{font-size:12px}
   .f-quand{color:var(--faint);font-size:10.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
   .f-evol{font-size:12px;font-weight:800;cursor:default}
@@ -791,13 +807,16 @@
   .reac-pp{width:17px;height:17px;border-radius:50%;object-fit:cover;background:#161029;flex-shrink:0}
   .reac-em{font-size:13px}
   .reac-mot{font-size:9px;opacity:.85;margin-left:1px}
-  .reac-add{display:flex;align-items:center;gap:1px;background:transparent;border:1px dashed #403466;color:#7a719a;
-    border-radius:99px;padding:3px 9px;font-size:12px;cursor:pointer;font-family:inherit;line-height:1.4;
-    opacity:.5;transition:opacity .14s ease,border-color .14s ease,color .14s ease}
-  .reac-add span{font-size:11px;font-weight:800}
+  /* le bouton doit se voir sans avoir à le chercher : plein, doré, avec son libellé */
+  .reac-add{display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,194,75,.12);border:1px solid rgba(255,194,75,.34);color:var(--gold);
+    border-radius:99px;padding:3px 11px 3px 8px;font-size:10.5px;font-weight:800;
+    letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;line-height:1.6;
+    opacity:.82;transition:opacity .14s ease,background .14s ease,border-color .14s ease,transform .12s ease}
+  .reac-add svg{width:16px;height:16px;flex-shrink:0;display:block}
   .feed-row:hover .reac-add{opacity:1}
-  .reac-add:hover{border-color:var(--gold);color:var(--gold);opacity:1}
-  @media (hover:none){.reac-add{opacity:.85}}
+  .reac-add:hover{background:rgba(255,194,75,.24);border-color:var(--gold);opacity:1;transform:translateY(-1px)}
+  @media (hover:none){.reac-add{opacity:1}}
   /* bande de réactions dans une carte de la liste */
   .card-reacs{position:relative;z-index:3;margin-top:10px}
   .card-reacs .fr-reacs{padding-left:0;margin-top:0}
@@ -1204,8 +1223,9 @@
   .deco-c.verrou{opacity:.5}
   .deco-apercu{position:relative;width:74px;height:74px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
   .deco-apercu .deco-cadre{width:124%;height:auto}
-  .deco-rond{width:52px;height:52px;border-radius:50%;
+  .deco-rond{width:52px;height:52px;border-radius:50%;overflow:hidden;
     background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
+  .deco-rond img,.dc-p-rond img{width:100%;height:100%;object-fit:cover;display:block}
   .deco-lock{position:absolute;font-size:19px;opacity:.7}
   .deco-nom{font-size:12.5px;font-weight:800;color:var(--dk)}
 
@@ -1234,7 +1254,7 @@
     background:linear-gradient(170deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}
   .dc-p-ap{position:relative;width:64px;height:64px;display:flex;align-items:center;justify-content:center}
   .dc-p-ap .deco-cadre{width:120%;height:auto}
-  .dc-p-rond{width:42px;height:42px;border-radius:50%;
+  .dc-p-rond{width:42px;height:42px;border-radius:50%;overflow:hidden;
     background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
   .dc-p-n{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dk)}
   .dc-p-v{font-size:9px;color:var(--faint);line-height:1.3}
@@ -2088,7 +2108,7 @@
 </div>
 
 <script>
-const VERSION = 'v134';
+const VERSION = 'v136';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2452,7 +2472,9 @@ function nbSuccesDebloques(d){ return tousSucces(d).filter(e => e.niv > 0).lengt
 // `statique` rend des <span> : indispensable quand ils sont posés DANS un bouton
 // (un bouton imbriqué dans un bouton est du HTML invalide, le navigateur casse la mise en page).
 function medaillonsHTML(d, max, statique){
-  const gagnes = tousSucces(d).filter(e => e.niv > 0).sort((a,b) => b.niv - a.niv);
+  // à palier égal, celui qui est le plus près du palier suivant passe devant
+  const gagnes = tousSucces(d).filter(e => e.niv > 0)
+    .sort((a,b) => (b.niv - a.niv) || (b.pct - a.pct));
   if(!gagnes.length) return statique ? '' : '<div class="med-vide">Aucun succès débloqué pour l\'instant.</div>';
   const bal = statique ? 'span' : 'button';
   return '<div class="med-rang">' + gagnes.slice(0, max || 12).map(e =>
@@ -4197,14 +4219,14 @@ function ouvrirApercuDeco(id, choix){
         return '<button type="button" class="dc-p' + (dispo ? ' fait' : '') + (choisi ? ' actif' : '') + '"'
           + (dispo && !visu ? ' data-niv="' + (k + 1) + '"' : ' disabled')
           + ' style="--dk:' + nv.c + '" title="' + (dispo ? 'Choisir ce palier' : 'Pas encore atteint') + '">'
-          + '<span class="dc-p-ap">' + decoSVG(x, k + 1, true) + '<span class="dc-p-rond"></span></span>'
+          + '<span class="dc-p-ap">' + decoSVG(x, k + 1, true) + ppApercu('dc-p-rond') + '</span>'
           + '<span class="dc-p-n">' + nv.n + '</span>'
           + '<span class="dc-p-v">' + paliersDe(x.succes)[k] + ' ' + x.succes.unite + '</span>'
           + (porte ? '<span class="dc-p-porte">porté</span>' : '')
           + '</button>';
       }).join('')
     : '<div class="dc-p fait actif dc-p-solo" style="--dk:' + x.coul + '">'
-        + '<span class="dc-p-ap">' + decoSVG(x, 6, true) + '<span class="dc-p-rond"></span></span>'
+        + '<span class="dc-p-ap">' + decoSVG(x, 6, true) + ppApercu('dc-p-rond') + '</span>'
         + '<span class="dc-p-n">' + (x.soloNom || 'Cadre de défi') + '</span></div>';
   $('dcPreviews').innerHTML = cases;
   // un clic choisit le palier ; c'est le bouton Porter qui l'équipe
@@ -4261,6 +4283,16 @@ function sousTexteDeco(d, x, ok, niv){
     + e.suivant + ' ' + x.succes.unite + ' (encore ' + (e.suivant - e.v) + ').';
 }
 
+// Au centre d'un aperçu de cadre, on met la VRAIE photo de profil : c'est le seul moyen
+// de voir tout de suite ce que le cadre donnera une fois porté.
+function ppApercu(cls){
+  const l = visu ? visu.login : (typeof monLogin === 'string' ? monLogin : '');
+  return '<span class="' + cls + '">' + (l
+    ? '<img loading="lazy" src="https://github.com/' + encodeURIComponent(l)
+      + '.png?size=128" alt="" onerror="this.remove()">'
+    : '') + '</span>';
+}
+
 // La galerie de cadres : ce qui est débloqué se choisit, le reste dit comment l'obtenir.
 function rendreDeco(){
   const z = $('zoneDeco');
@@ -4293,7 +4325,7 @@ function rendreDeco(){
           + ' style="--dk:' + coul + '">'
           + '<span class="deco-apercu">'
           +   (ok ? decoSVG(x.id ? x : Object.assign({}, x, { id:'aucune' }), niv, true) : '<span class="deco-lock">🔒</span>')
-          +   '<span class="deco-rond"></span>'
+          +   ppApercu('deco-rond')
           + '</span>'
           + '<span class="deco-nom">' + (x.ico ? x.ico + ' ' : '') + echap(x.nom) + '</span>'
           + rang
@@ -4798,6 +4830,17 @@ function ouvrirChoixReac(cle){
   $('overlayReac').style.display = 'flex';
 }
 // bande de réactions affichée sous une ligne du feed
+// Un visage souriant avec un petit « + » : dessiné en SVG plutôt qu'en emoji, pour qu'il
+// prenne la couleur du bouton et reste net quelle que soit la machine.
+const ICO_REAC = '<svg viewBox="0 0 24 24" aria-hidden="true">'
+  + '<circle cx="10.2" cy="12.4" r="7.6" fill="none" stroke="currentColor" stroke-width="1.9"/>'
+  + '<circle cx="7.7" cy="10.6" r="1.15" fill="currentColor"/>'
+  + '<circle cx="12.7" cy="10.6" r="1.15" fill="currentColor"/>'
+  + '<path d="M7.1 14.8a3.7 3.7 0 0 0 6.2 0" fill="none" stroke="currentColor" stroke-width="1.9"'
+  + ' stroke-linecap="round"/>'
+  + '<path d="M19.3 1.6v6.4M16.1 4.8h6.4" fill="none" stroke="currentColor" stroke-width="2.4"'
+  + ' stroke-linecap="round"/></svg>';
+
 function bandeReac(cle, forcerBouton){
   const l = reactionsDe(cle);
   const bulles = [];
@@ -4816,7 +4859,8 @@ function bandeReac(cle, forcerBouton){
       + ' title="' + echap(r.pseudo || '') + (r.msg ? ' — clique pour lire son message' : '') + '">'
       + pp + '<span class="reac-em">' + r.emoji + '</span>' + marque + '</button>';
   }).join('');
-  const bouton = (visu && !forcerBouton) ? '' : '<button class="reac-add" data-cle="' + echap(cle) + '" title="Réagir">☺<span>+</span></button>';
+  const bouton = (visu && !forcerBouton) ? '' : '<button class="reac-add" data-cle="' + echap(cle)
+    + '" title="Réagir">' + ICO_REAC + '<span>Réagir</span></button>';
   if(!puces && !bouton) return '';
   return '<div class="fr-reacs">' + puces + bouton + '</div>'
     + (bulles.length ? '<div class="fr-bulles">' + bulles.join('') + '</div>' : '');
@@ -4891,9 +4935,12 @@ function rendreFeed(panneau){
       e.stopPropagation();
       const c = b.dataset.c, fid = Number(b.dataset.fid), type = b.dataset.type, jour = b.dataset.jour;
       const f = (dact()[c] || []).find(x => x.id === fid);
+      // il faut dire clairement que l'entrée quitte le fil de TOUT LE MONDE, pas le mien
       confirmer('Retirer du fil ?',
-        'Cette activité disparaîtra de ton fil' + (f ? ' pour « ' + f.titre + ' »' : '')
-        + '. Ta fiche et ta note ne bougent pas.',
+        (f ? '<b>' + echap(f.titre) + '</b> ne s\'affichera plus dans le fil'
+           : 'Cette activité ne s\'affichera plus dans le fil')
+        + ' — ni chez toi, ni chez les autres membres. '
+        + 'Ta fiche et ta note, elles, ne bougent pas.',
         'Retirer', () => effacerEntreeFeed(c, fid, type, jour));
     });
   });
@@ -4981,34 +5028,36 @@ function ligneEvenement(e, opts){
   const o = opts || {};
   const coul = CATS[e.c] ? CATS[e.c].couleur : '#9d8bff';
   const ico = CATS[e.c] ? CATS[e.c].ico : '🎬';
+  // les cadres du fil sont animés : c'est là qu'on regarde passer les autres, ils méritent
+  // de vivre au même titre que sur la page Communauté
   const ava = avecDeco(e.login
     ? '<img class="fr-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(e.login) + '.png?size=64" alt="" onerror="this.replaceWith(document.createTextNode(\'\'))">'
-    : '<span class="fr-pp fr-pp-vide">🎬</span>', e.login);
+    : '<span class="fr-pp fr-pp-vide">🎬</span>', e.login, 0, true);
+  // le titre fait partie de la phrase — c'est ce qui la garde sur une seule ligne
+  const titre = '<span class="fr-titre">' + echap(e.titre) + '</span>';
 
-  let action, droite, infoBulle = '';
+  let action, droite, infoBulle = '', pastille = coul, emoji = ico;
   if(e.jalon){
-    // un jalon n'a pas de titre : la phrase se suffit, on la met sur la première ligne
-    return '<div class="fr-main">'
-      + '<span class="fr-ava">' + ava + '<span class="fr-cat" style="background:#ffc24b">🏆</span></span>'
-      + '<span class="fr-txt"><span class="fr-l1"><b>' + echap(e.p) + '</b> ' + jalonTexte(e.jalon) + '</span></span>'
-      + '<span class="fr-d">' + (o.quand === false ? '' : '<span class="f-quand">' + ilYA(e.t) + '</span>') + '</span>'
-      + '</div>';
-  }
-  if(e.prog){
+    // un jalon n'a pas de titre : la phrase se suffit à elle-même
+    action = jalonTexte(e.jalon);
+    droite = '';
+    pastille = '#ffc24b';
+    emoji = '🏆';
+  } else if(e.prog){
     const unite = e.c === 'manga' ? 'chapitre' : 'épisode';
     const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
     if(e.prog.n > 1){
       // séance marathon : le compte suffit, aligner les numéros noierait le fil
-      action = verbe + ' <b>' + e.prog.n + '</b> ' + unite + 's de';
+      action = verbe + ' <b>' + e.prog.n + '</b> ' + unite + 's de ' + titre;
       if(e.prog.e) infoBulle = ' title="jusqu\'au ' + unite + ' ' + e.prog.e + '"';
     } else if(e.prog.e){
-      action = verbe + ' l\'' + unite + ' <b>' + e.prog.e + '</b> de';
+      action = verbe + ' l\'' + unite + ' <b>' + e.prog.e + '</b> de ' + titre;
     } else {
-      action = verbe + ' <b>1</b> ' + unite + ' de';
+      action = verbe + ' <b>1</b> ' + unite + ' de ' + titre;
     }
     droite = '';
   } else {
-    action = 'a noté';
+    action = 'a noté ' + titre;
     droite = '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '</span>'
       + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="'
           + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation')
@@ -5016,15 +5065,13 @@ function ligneEvenement(e, opts){
   }
 
   return '<div class="fr-main">'
-    + '<span class="fr-ava">' + ava + '<span class="fr-cat" style="background:' + coul + '">' + ico + '</span></span>'
+    + '<span class="fr-ava">' + ava + '<span class="fr-cat" style="background:' + pastille + '">' + emoji + '</span></span>'
     + '<span class="fr-txt">'
     +   '<span class="fr-l1"' + infoBulle + '><b>' + echap(e.p) + '</b> ' + action + '</span>'
-    +   '<span class="fr-l2"><span class="fr-titre">' + echap(e.titre) + '</span>'
-    +     (o.mot
+    +   (o.mot
         ? '<span class="fr-mot" title="' + echap((o.mot.pseudo || '') + ' : ' + o.mot.msg) + '">'
           + '<i>' + o.mot.emoji + '</i>« ' + echap(o.mot.msg) + ' »</span>'
         : '')
-    +   '</span>'
     + '</span>'
     + '<span class="fr-d">' + droite
     +   (o.quand === false ? '' : '<span class="f-quand">' + ilYA(e.t) + '</span>') + '</span>'
@@ -6588,10 +6635,12 @@ async function allerUtilisateurs(){
       + '</div>'
       + '<div class="uc-bio"></div>'
       + '<div class="uc-stats">Chargement…</div>'
+      + '<div class="uc-succes"></div>'
       + '<div class="uc-pied"></div>';
     grille.appendChild(carte);
     const bio = carte.querySelector('.uc-bio');
     const stats = carte.querySelector('.uc-stats');
+    const succes = carte.querySelector('.uc-succes');
     const pied = carte.querySelector('.uc-pied');
 
     chargerProfilPublic(login).then(d => {
@@ -6620,6 +6669,13 @@ async function allerUtilisateurs(){
         '<span class="uc-stat"><b style="color:' + CATS[c].couleur + '">' + nb[c] + '</b>'
         + '<span>' + (c === 'manga' ? 'manga' : CATS[c].nom.toLowerCase()) + '</span></span>'
       ).join('');
+      // ses cinq meilleurs succès : le palier atteint se lit sur la pastille
+      const gagnes = tousSucces(d).filter(e => e.niv > 0);
+      succes.classList.add('on');
+      succes.innerHTML = gagnes.length
+        ? '<span class="uc-sc-t">Meilleurs succès <b>' + gagnes.length + '</b>/' + SUCCES.length + '</span>'
+          + medaillonsHTML(d, 5, true)
+        : '<span class="uc-sc-t">Aucun succès débloqué</span>';
       const enCours = ['series','anime','manga'].reduce((t,c) => t + (d[c]||[]).filter(f=>f.statut==='encours').length, 0);
       const btn = document.createElement('button');
       btn.className = 'uc-voir';
