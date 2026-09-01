@@ -1156,8 +1156,15 @@
   /* ================= CADRES D'AVATAR ================= */
   .ava-box{position:relative;display:inline-flex;align-items:center;justify-content:center;
     flex-shrink:0;vertical-align:middle}
+  /* Une image en ligne réserve la place du jambage sous sa ligne : la boîte devient plus
+     haute que la photo, son centre descend, et le cadre avec. On coupe cet espace sur
+     toutes les boîtes qui portent un cadre. */
+  .ava-box,.hero-ava,.pf-ava,.cp-ava,.mb-ava,.profil-ava,.deco-apercu,.dc-p-ap{line-height:0}
+  .ava-box>img{display:block}
+  /* `height` en pourcentage suivrait la hauteur du parent : sur un parent non carré, le
+     SVG ne l'est plus et son dessin se décale. `aspect-ratio` le garde carré. */
   .deco-cadre{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);
-    width:138%;height:138%;pointer-events:none;overflow:visible;
+    width:138%;height:auto;aspect-ratio:1;pointer-events:none;overflow:visible;
     filter:drop-shadow(0 0 6px rgba(0,0,0,.55))}
   .hero-ava{position:relative;display:block;flex-shrink:0}
   .pf-ava{overflow:visible}
@@ -1166,9 +1173,9 @@
   .cp-ava.a-deco img,.cp-ava.a-deco .vide{border:2px solid rgba(255,255,255,.12)}
   .cp-ava{overflow:visible}
   .pf-ava.a-deco img,.pf-ava.a-deco .vide{border:2px solid rgba(255,255,255,.12)}
-  .pf-ava.a-deco .deco-cadre{width:152%;height:152%}
+  .pf-ava.a-deco .deco-cadre{width:152%;height:auto}
   .hero-ava.a-deco .hero-pp{border-color:rgba(255,255,255,.14);box-shadow:none}
-  .hero-ava.a-deco .deco-cadre{width:150%;height:150%}
+  .hero-ava.a-deco .deco-cadre{width:150%;height:auto}
 
   .deco-tete{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:18px;
     font-size:13px;color:var(--muted);
@@ -1180,41 +1187,57 @@
   .deco-compte b{font-size:14px}
 
   .deco-sect{grid-column:1/-1;font-size:10.5px;font-weight:800;letter-spacing:.13em;
-    text-transform:uppercase;color:var(--faint);margin:22px 2px 0;position:relative;z-index:2;
+    text-transform:uppercase;color:var(--faint);margin:40px 2px 8px;position:relative;z-index:2;
     display:flex;align-items:center;gap:11px}
   .deco-sect::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.09)}
   .deco-sect:first-child{margin-top:0}
   .deco-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
   .deco-c{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
-    /* les cadres les plus hauts (chevelures, cornes) sortent de leur vignette :
-       sans cette réserve, ils venaient recouvrir l'intertitre de la section */
-    padding-top:30px;
     background:linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
-    border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:18px 12px 14px;
+    border:1px solid rgba(255,255,255,.07);border-radius:var(--r);
+    /* la réserve du haut est DANS le raccourci : posée avant lui, elle était écrasée.
+       Les cadres les plus hauts (chevelures, cornes) sortent loin de leur vignette et
+       venaient recouvrir l'intertitre de la section. */
+    padding:56px 12px 14px;
     font-family:inherit;color:var(--txt);text-align:center;
     transition:transform .18s cubic-bezier(.2,.7,.3,1),border-color .18s ease,box-shadow .18s ease}
   .deco-c:not(:disabled):hover{transform:translateY(-4px);border-color:var(--dk);
     box-shadow:0 14px 30px rgba(0,0,0,.45),0 0 26px -10px var(--dk)}
   .deco-c.actif{border-color:var(--dk);box-shadow:0 0 0 1px var(--dk),0 0 28px -12px var(--dk);
     background:linear-gradient(170deg,rgba(255,255,255,.09),rgba(255,255,255,.02))}
-  .deco-c.verrou{opacity:.5;cursor:not-allowed}
+  .deco-c.verrou{opacity:.5}
   .deco-apercu{position:relative;width:74px;height:74px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
-  .deco-apercu .deco-cadre{width:124%;height:124%}
+  .deco-apercu .deco-cadre{width:124%;height:auto}
   .deco-rond{width:52px;height:52px;border-radius:50%;
     background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
   .deco-lock{position:absolute;font-size:19px;opacity:.7}
   .deco-nom{font-size:12.5px;font-weight:800;color:var(--dk)}
+
+  /* ---- l'annonce d'un nouveau palier ---- */
+  .jal-carte{display:flex;align-items:flex-start;gap:13px;
+    background:linear-gradient(120deg,rgba(255,194,75,.13),rgba(255,255,255,.03));
+    border:1px solid rgba(255,194,75,.4);border-radius:var(--r);padding:14px 16px;
+    box-shadow:0 10px 26px -14px rgba(255,194,75,.5)}
+  .jal-ico{font-size:20px;line-height:1.1;flex-shrink:0}
+  .jal-txt{flex:1;min-width:0}
+  .jal-t{font-size:11px;font-weight:800;letter-spacing:.1em;text-transform:uppercase;
+    color:var(--gold);margin-bottom:5px}
+  .jal-l{font-size:13px;color:var(--txt);line-height:1.5}
+  .jal-l b{color:var(--gold)}
+  .jal-x{background:transparent;border:none;color:var(--faint);font-size:15px;cursor:pointer;
+    padding:2px 4px;line-height:1;flex-shrink:0;font-family:inherit}
+  .jal-x:hover{color:var(--txt)}
   .deco-c.verrou .deco-nom{color:var(--muted)}
   .deco-cond{font-size:10.5px;color:var(--faint);line-height:1.45}
   .dc-previews{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
   .dc-p{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;
     background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
-    border-radius:12px;padding:10px 4px 9px;opacity:.42;filter:grayscale(.55)}
+    border-radius:12px;padding:26px 4px 9px;opacity:.42;filter:grayscale(.55)}
   .dc-p.fait{opacity:1;filter:none}
   .dc-p.actif{border-color:var(--dk);box-shadow:0 0 0 1px var(--dk),0 0 22px -12px var(--dk);
     background:linear-gradient(170deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}
   .dc-p-ap{position:relative;width:64px;height:64px;display:flex;align-items:center;justify-content:center}
-  .dc-p-ap .deco-cadre{width:120%;height:120%}
+  .dc-p-ap .deco-cadre{width:120%;height:auto}
   .dc-p-rond{width:42px;height:42px;border-radius:50%;
     background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
   .dc-p-n{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dk)}
@@ -1229,7 +1252,7 @@
   .dc-p:not(:disabled):hover{transform:translateY(-3px);border-color:var(--dk);
     box-shadow:0 10px 24px rgba(0,0,0,.45),0 0 22px -10px var(--dk)}
   .dc-p:disabled{cursor:not-allowed}
-  .dc-p-solo{grid-column:1/-1;padding:16px 10px}
+  .dc-p-solo{grid-column:1/-1;padding:56px 10px 20px;gap:11px}
   .dc-p-solo .dc-p-ap{width:96px;height:96px}
   .dc-p-solo .dc-p-rond{width:66px;height:66px}
   .dc-p-solo .dc-p-n{font-size:11.5px}
@@ -1526,6 +1549,7 @@
 
   <!-- ======== ACCUEIL ======== -->
   <div id="pageAccueil">
+    <div id="jalonsBox" class="cache"></div>
     <div id="alerteSync"></div>
     <div id="heroAccueil"></div>
     <div class="grille-cat" id="grilleCat"></div>
@@ -2064,7 +2088,7 @@
 </div>
 
 <script>
-const VERSION = 'v121';
+const VERSION = 'v128';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2153,6 +2177,9 @@ function normaliser(d){
       epingles: Array.isArray(d.epingles) ? d.epingles.slice(0, 3) : [],  // temps forts du profil
       deco: typeof d.deco === 'string' ? d.deco : '',   // décoration d'avatar choisie
       decoNiv: Number(d.decoNiv) > 0 ? Math.min(6, Math.round(Number(d.decoNiv))) : 0,   // 0 = suit mon palier
+      jalons: Array.isArray(d.jalons) ? d.jalons.slice(0, 25) : [],   // paliers et cadres franchis
+      jalonsVus: (d.jalonsVus && typeof d.jalonsVus === 'object') ? d.jalonsVus : null,
+      jalonsLus: Number(d.jalonsLus) || 0,
       defis: (d.defis && typeof d.defis === 'object' && !Array.isArray(d.defis)) ? d.defis : {},
       defisInit: (d.defisInit && typeof d.defisInit === 'object' && !Array.isArray(d.defisInit)) ? d.defisInit : {},
       visibilite: d.visibilite || (d.prive ? 'prive' : 'public'),
@@ -2301,12 +2328,18 @@ const paliersDe = sc => sc.paliers.concat([sc.paliers[sc.paliers.length - 1] * 2
 
 const compte = (d, f) => ['films','series','anime','manga'].reduce((t,c) => t + d[c].filter(x => f(x, c)).length, 0);
 
+// « Prévu » = pas encore vu ni lu : ces titres sont exclus de tout ce qui mesure un volume
+// d'œuvres (succès de quantité, paliers de collection). Ils restent comptés là où c'est
+// une action qu'on mesure : une note posée, un avis écrit, une affiche complétée.
+const vus = liste => (liste || []).filter(f => f.statut !== 'prevu');
+const nbVus = (d, c) => nbGroupe(vus(d[c]), c);
+
 // Une bibliothèque ne remonte souvent qu'à un an — mais les cases cochées dans les défis
 // disent bien qu'on a vu ces films. Pour les succès et le classement, on compte l'union
 // des deux, dédoublonnée sur le titre normalisé (un même film peut figurer dans deux défis).
 function nomsFilmsVus(d){
   const noms = new Set();
-  d.films.forEach(f => { if(f.titre) noms.add(mcuNorm(f.titre)); });
+  vus(d.films).forEach(f => { if(f.titre) noms.add(mcuNorm(f.titre)); });
   DEFIS.forEach(def => {
     const coches = new Set(defiCoches(def.id, d));
     if(!coches.size) return;
@@ -2316,16 +2349,16 @@ function nomsFilmsVus(d){
 }
 const nbFilmsVus = d => nomsFilmsVus(d).size;
 // total d'œuvres : on remplace le compte de films par celui qui inclut les défis
-const nbOeuvresVues = d => totalOeuvres(d) - d.films.length + nbFilmsVus(d);
+const nbOeuvresVues = d => nbFilmsVus(d) + vus(d.series).length + vus(d.anime).length + vus(d.manga).length;
 
 const SUCCES = [
   { id:'films',  ico:'🎬', nom:'Cinéphile',    unite:'films',       paliers:[10,25,50,100,250], val:d => nbFilmsVus(d),
     desc:'Tes films vus : ceux de ta section Films, plus ceux que tu as cochés dans les défis (sans doublon).' },
-  { id:'series', ico:'📺', nom:'Sériephile',   unite:'séries',      paliers:[5,15,30,60,100],   val:d => nbGroupe(d.series,'series'),
+  { id:'series', ico:'📺', nom:'Sériephile',   unite:'séries',      paliers:[5,15,30,60,100],   val:d => nbVus(d, 'series'),
     desc:'Le nombre de séries suivies. Les saisons d\'une même série ne comptent que pour une.' },
-  { id:'anime',  ico:'⛩️', nom:'Otaku',        unite:'anime',       paliers:[10,25,50,100,250], val:d => nbGroupe(d.anime,'anime'),
+  { id:'anime',  ico:'⛩️', nom:'Otaku',        unite:'anime',       paliers:[10,25,50,100,250], val:d => nbVus(d, 'anime'),
     desc:'Le nombre d\'anime enregistrés. Là aussi, les saisons d\'un même titre sont regroupées.' },
-  { id:'manga',  ico:'📖', nom:'Grand lecteur', unite:'manga',      paliers:[5,15,30,60,120],   val:d => d.manga.length,
+  { id:'manga',  ico:'📖', nom:'Grand lecteur', unite:'manga',      paliers:[5,15,30,60,120],   val:d => vus(d.manga).length,
     desc:'Le nombre de manga et manhwa dans ta bibliothèque.' },
   { id:'total',  ico:'🗂️', nom:'Collectionneur', unite:'œuvres',    paliers:[50,100,250,500,1000], val:d => nbOeuvresVues(d),
     desc:'Tout ce que tu as vu : les quatre rayons, plus les films cochés dans les défis.' },
@@ -2793,38 +2826,37 @@ function ssjCheveux(u){
                   [286,90,14],[303,98,11],[320,74,13],[336,58,11]];
   const borne = v => Math.max(A0 + 2, Math.min(A1 - 2, v));
   let d = 'M' + dcPt(A0, 47);
+  let creuxPrec = A0;
   meches.forEach((m, k) => {
     const a = m[0], r = m[1], w = m[2];
     const creuxA = (k < meches.length - 1) ? (a + meches[k + 1][0]) / 2 : A1 - 6;
-    // les points de contrôle restent près du sommet : trop bas et trop écartés, la
-    // courbe se retournait et laissait un petit crochet à la pointe de la mèche
-    d += ' Q' + dcPt(borne(a - w), r * .76) + ' ' + dcPt(borne(a + pencher), r);
-    d += ' Q' + dcPt(borne(a + pencher + w * .8), r * .74) + ' ' + dcPt(borne(creuxA), 64);
+    // Chaque contrôle reste STRICTEMENT entre le creux d'avant et celui d'après. Sans
+    // cette borne, la descente d'une mèche tombait au-delà de son creux : la courbe
+    // repassait derrière elle-même et le contour dessinait une boucle dans la masse —
+    // ce sont les petits crochets qu'on voyait à l'intérieur des mèches.
+    const monte = Math.max(creuxPrec + 1.5, Math.min(a - 1.5, a - w));
+    const desc  = Math.min(creuxA - 1.5, Math.max(a + pencher + 1.5, a + pencher + w * .8));
+    d += ' Q' + dcPt(borne(monte), r * .76) + ' ' + dcPt(borne(a + pencher), r);
+    d += ' Q' + dcPt(borne(desc), r * .74) + ' ' + dcPt(borne(creuxA), 64);
+    creuxPrec = creuxA;
   });
   d += ' L' + dcPt(A1, 47) + ' A47 47 0 0 0 ' + dcPt(A0, 47) + ' Z';
   // La frange passe dessous : sa base disparaît sous la masse, plus de couture visible.
   return ssjFrange(u)
     + '<path d="' + d + '" fill="#7a4a02" transform="translate(0 2)" opacity=".55"/>'
-    + '<path d="' + d + '" fill="url(#gh' + u + ')" stroke="#8a5200" stroke-width="1.6" stroke-linejoin="round"/>'
-    // quelques nervures : sans elles la masse reste un aplat
-    + '<path d="M' + dcPt(229, 84) + ' L' + dcPt(222, 52) + ' M' + dcPt(247, 88) + ' L' + dcPt(240, 52)
-    +   ' M' + dcPt(264, 92) + ' L' + dcPt(257, 52) + ' M' + dcPt(279, 90) + ' L' + dcPt(272, 52)
-    +   ' M' + dcPt(294, 88) + ' L' + dcPt(287, 52) + ' M' + dcPt(311, 82) + ' L' + dcPt(304, 52) + '"'
-    +   ' stroke="#8a5200" stroke-width="1.5" opacity=".45" stroke-linecap="round"/>';
+    + '<path d="' + d + '" fill="url(#gh' + u + ')" stroke="#8a5200" stroke-width="1.6" stroke-linejoin="round"/>';
 }
-// La frange : cinq pointes descendantes, de longueurs inégales, accrochées à la ligne
-// de cheveux. Sans elles, la chevelure flotte au-dessus du crâne au lieu de le coiffer.
+
+// La frange : des pointes larges et courtes qui coiffent le haut du visage.
 function ssjFrange(u){
-  // larges et courtes : fines, elles pendaient comme des dents sous la ligne de cheveux
   const pointes = [[233,9],[251,13],[269,9],[287,13],[303,8]];
   const d = pointes.map(p => {
     const a = p[0], lg = p[1];
     return 'M' + dcPt(a - 15, 62) + ' L' + dcPt(a + 2, 47 - lg) + ' L' + dcPt(a + 15, 62) + ' Z';
   }).join(' ');
   return '<path d="' + d + '" fill="url(#gh' + u + ')" stroke="#c98a10" stroke-width=".9"'
-    + ' stroke-linejoin="round"/>';   // trait clair : foncé, la frange se lisait en piques
+    + ' stroke-linejoin="round"/>';
 }
-
 // Un éclair : tracé « pointe vers le haut », la rotation l'oriente vers l'extérieur.
 const ssjEclair = (a, r, coul, retard, ech, fige) =>
   '<g transform="translate(' + dcPt(a, r) + ') rotate(' + (a + 90) + ') scale(' + ech + ')">'
@@ -2900,7 +2932,7 @@ const DECOS_COLLECTION = [
   { id:'col:anime:10', groupe:'collection', cat:'anime', nom:'Super Saiyan', ico:'⚡',
     coul:'#ffd54a', soloNom:'Cadre de collection',
     cond:'10 anime dans ta bibliothèque.',
-    test:d => nbGroupe(d.anime, 'anime') >= 10,
+    test:d => nbVus(d, 'anime') >= 10,
     svg:(u, niv, fige) =>
       '<defs><linearGradient id="gh' + u + '" x1="0" y1="0" x2="0" y2="1">'
       + '<stop offset="0" stop-color="#fff6c6"/><stop offset=".5" stop-color="#ffd23f"/>'
@@ -2917,10 +2949,10 @@ const DECOS_COLLECTION = [
       + ssjCheveux(u) },
 
   // ---------- 25 anime : le chapeau de paille ----------
-  { id:'col:anime:25', groupe:'collection', cat:'anime', nom:'Le chapeau de paille', ico:'🏴‍☠️',
+  { id:'col:anime:25', groupe:'collection', cat:'anime', nom:'Mugiwara', ico:'🏴‍☠️',
     coul:'#f2c86a', soloNom:'Cadre de collection',
     cond:'25 anime dans ta bibliothèque.',
-    test:d => nbGroupe(d.anime, 'anime') >= 25,
+    test:d => nbVus(d, 'anime') >= 25,
     svg:(u, niv, fige) =>
       '<defs><linearGradient id="gp' + u + '" x1="0" y1="0" x2="0" y2="1">'
       + '<stop offset="0" stop-color="#ffe6a8"/><stop offset="1" stop-color="#d99b32"/></linearGradient>'
@@ -2936,7 +2968,7 @@ const DECOS_COLLECTION = [
       + '</g>'
       + '<g>'
       +   (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
-          + ' values="-2.2 60 34;2.2 60 34;-2.2 60 34" dur="4.2s" repeatCount="indefinite"'
+          + ' values="-4 60 34;4 60 34;-4 60 34" dur="3.4s" repeatCount="indefinite"'
           + ' calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>')
       +   '<path d="M60 2 C74 2 82 12 84 26 L36 26 C38 12 46 2 60 2 Z" fill="url(#gp' + u + ')"/>'
       +   '<path d="M60 26 C88 26 106 30 106 34 C106 39 86 43 60 43 C34 43 14 39 14 34 C14 30 32 26 60 26 Z"'
@@ -2946,10 +2978,10 @@ const DECOS_COLLECTION = [
       + '</g>' },
 
   // ---------- 50 anime : bandeau de Konoha et queues du renard ----------
-  { id:'col:anime:50', groupe:'collection', cat:'anime', nom:'Le bandeau et les neuf queues', ico:'🍥',
+  { id:'col:anime:50', groupe:'collection', cat:'anime', nom:'Konoha', ico:'🍥',
     coul:'#ff8a3d', soloNom:'Cadre de collection',
     cond:'50 anime dans ta bibliothèque.',
-    test:d => nbGroupe(d.anime, 'anime') >= 50,
+    test:d => nbVus(d, 'anime') >= 50,
     svg:(u, niv, fige) =>
       '<defs><linearGradient id="gq' + u + '" x1="0" y1="0" x2="1" y2="1">'
       + '<stop offset="0" stop-color="#ffd08a"/><stop offset=".5" stop-color="#ff8a3d"/>'
@@ -2979,7 +3011,7 @@ const DECOS_COLLECTION = [
   { id:'col:anime:80', groupe:'collection', cat:'anime', nom:'Menacing', ico:'🕶️',
     coul:'#b07cff', soloNom:'Cadre de collection',
     cond:'80 anime dans ta bibliothèque.',
-    test:d => nbGroupe(d.anime, 'anime') >= 80,
+    test:d => nbVus(d, 'anime') >= 80,
     svg:(u, niv, fige) =>
       '<defs><linearGradient id="gj' + u + '" x1="0" y1="0" x2="0" y2="1">'
       + '<stop offset="0" stop-color="#cdb6ff"/><stop offset="1" stop-color="#5b3fa8"/></linearGradient></defs>'
@@ -2992,7 +3024,7 @@ const DECOS_COLLECTION = [
   { id:'col:anime:100', groupe:'collection', cat:'anime', nom:'Vasto Lorde', ico:'💀',
     coul:'#e9e4d8', soloNom:'Cadre de collection',
     cond:'100 anime dans ta bibliothèque.',
-    test:d => nbGroupe(d.anime, 'anime') >= 100,
+    test:d => nbVus(d, 'anime') >= 100,
     svg:(u, niv, fige) => {
       // le masque s'ouvre en deux comme une visière, tient ouvert, puis se referme
       const bat = (sens) => fige
@@ -3101,58 +3133,68 @@ const csDent = (a, r) => '<g transform="translate(' + dcPt(a, r) + ') rotate(' +
   + '<path d="M-4 3 L-4 -3 L1 -6 L4 -1 L4 3 Z" fill="#cfd6e2" stroke="#6f7a8c" stroke-width=".7"/></g>';
 
 const DECOS_MANGA = [
-  // ---------- 5 manga : les marques de Sukuna ----------
-  { id:'col:manga:5', groupe:'collection', cat:'manga', nom:'Im-Sama', ico:'👑',
+  // ---------- 5 manga : Im-Sama ----------
+  { id:'col:manga:5', groupe:'collection', cat:'manga', nom:'Imu', ico:'👑',
     coul:'#d1201d', soloNom:'Cadre de collection',
     cond:'5 manga dans ta bibliothèque.',
-    test:d => d.manga.length >= 5,
+    test:d => vus(d.manga).length >= 5,
     svg:(u, niv, fige) => {
-      const arc = (a1, a2, r, ep, coul, extra) =>
-        '<path d="M' + dcPt(a1, r) + ' A' + r + ' ' + r + ' 0 0 1 ' + dcPt(a2, r) + '"'
-        + ' fill="none" stroke="' + coul + '" stroke-width="' + ep + '" stroke-linecap="round"'
-        + (extra ? ' ' + extra : '') + '/>';
-      // deux traits parallèles : le tatouage se lit à ça, jamais à un seul
-      const marque = (a, ouv, retard) =>
-        '<g>' + arc(a - ouv, a + ouv, 44.4, 3.4, '#4d4d5c')
-        + arc(a - ouv, a + ouv, 49.6, 3.4, '#4d4d5c')
-        + (fige ? '' : '<animate attributeName="opacity" values=".8;1;.8" dur="3.2s" begin="'
-            + retard + 's" repeatCount="indefinite"/>') + '</g>';
+      // une nappe de brume : un contour extérieur ondulé et un trou au milieu, dans un
+      // seul chemin en `evenodd`. Deux nappes qui tournent en sens inverse suffisent à
+      // faire respirer le fond sans jamais le rendre lisible.
+      const brume = (r0, amp, n, coul, op, dur, sens) => {
+        let d = 'M' + dcPt(0, r0 + amp);
+        for(let k = 1; k <= n; k++){
+          const a = k * 360 / n, mil = a - 180 / n;
+          d += ' Q' + dcPt(mil, r0 + amp * (k % 2 ? 2.4 : .1)) + ' '
+            + dcPt(a, r0 + amp * (k % 2 ? .1 : 2.4));
+        }
+        d += ' Z M' + dcPt(0, 43) + ' A43 43 0 1 1 ' + dcPt(180, 43)
+          + ' A43 43 0 1 1 ' + dcPt(0, 43) + ' Z';
+        return '<g opacity="' + op + '"><path d="' + d + '" fill-rule="evenodd" fill="' + coul + '"/>'
+          + (fige ? '' : '<animateTransform attributeName="transform" type="rotate" from="'
+              + (sens > 0 ? 0 : 360) + ' 60 60" to="' + (sens > 0 ? 360 : 0) + ' 60 60" dur="'
+              + dur + 's" repeatCount="indefinite"/>')
+          + '</g>';
+      };
       // un œil : fente sombre, iris rouge, pupille fendue — posé à plat sur l'anneau
-      const oeil = (a, retard) => '<g transform="translate(' + dcPt(a, 47) + ') rotate(' + (a + 90) + ')">'
-        + '<path d="M-13 0 L0 -7.5 L13 0 L0 7.5 Z" fill="#17171e"/>'
-        + '<path d="M-9.5 0 L0 -5 L9.5 0 L0 5 Z" fill="#d1201d">'
-        +   (fige ? '' : '<animate attributeName="opacity" values="1;1;.05;1;1"'
-              + ' keyTimes="0;.44;.48;.53;1" dur="3.8s" begin="' + retard
+      const oeil = (a, ech, retard) =>
+        '<g transform="translate(' + dcPt(a, 47) + ') rotate(' + (a + 90) + ') scale(' + ech + ')">'
+        + '<path d="M-11 0 L0 -6.4 L11 0 L0 6.4 Z" fill="#0a0a0f"/>'
+        + '<path d="M-8 0 L0 -4.2 L8 0 L0 4.2 Z" fill="#d1201d">'
+        +   (fige ? '' : '<animate attributeName="opacity" values="1;1;.04;1;1"'
+              + ' keyTimes="0;.42;.47;.52;1" dur="3.6s" begin="' + retard
               + 's" repeatCount="indefinite"/>')
         + '</path>'
-        + '<path d="M0 -4.2 L2 0 L0 4.2 L-2 0 Z" fill="#17171e"/></g>';
-      return '<defs><linearGradient id="gk' + u + '" x1="0" y1="0" x2="0" y2="1">'
-        + '<stop offset="0" stop-color="#2b2b35"/><stop offset="1" stop-color="#08080d"/></linearGradient></defs>'
+        + '<path d="M0 -3.4 L1.7 0 L0 3.4 L-1.7 0 Z" fill="#0a0a0f"/></g>';
+      return ''
+        // la brume, deux nappes en sens contraire
+        + brume(56, 5, 13, '#120c1c', '.85', 46, 1)
+        + brume(52, 4, 11, '#1c1430', '.6', 62, -1)
         // le halo rouge, qui respire
-        + '<g><circle cx="60" cy="60" r="56" fill="none" stroke="#d1201d" stroke-width="3.5" opacity=".25"/>'
-        +   (fige ? '' : '<animate attributeName="opacity" values=".35;.9;.35" dur="2.6s" repeatCount="indefinite"/>')
+        + '<g><circle cx="60" cy="60" r="55" fill="none" stroke="#d1201d" stroke-width="3" opacity=".2"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".25;.7;.25" dur="2.8s" repeatCount="indefinite"/>')
         + '</g>'
-        // l'anneau de peau, cerné de noir
-        + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gk' + u + ')" stroke-width="9.5"/>'
-        + '<circle cx="60" cy="60" r="52" fill="none" stroke="#4d4d5c" stroke-width="1.8"/>'
-        + '<circle cx="60" cy="60" r="42.2" fill="none" stroke="#4d4d5c" stroke-width="1.8"/>'
-        // les tatouages, par paires, tout autour
-        + [[0,13,0],[30,13,.35],[150,13,.7],[180,13,1.05],[210,13,1.4],[330,13,1.75]]
-            .map(m => marque(m[0], m[1], m[2])).join('')
-        // les quatre yeux : deux en haut, deux un peu plus bas sur les flancs
-        + oeil(252, 0) + oeil(288, .4) + oeil(216, .8) + oeil(324, 1.2)
-        // la bouche cousue, en bas
-        + arc(64, 116, 47, 7.5, '#0a0a10')
-        + [66, 76, 86, 96, 106, 114].map(a => '<path d="M' + dcPt(a, 41.5) + ' L' + dcPt(a, 52.5)
-            + '" stroke="#4d4d5c" stroke-width="3" stroke-linecap="round"/>').join('')
-        + arc(68, 112, 47, 1.6, '#d1201d', 'opacity=".55"');
+        // l'anneau noir, cerné de gris
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="#0c0c12" stroke-width="10"/>'
+        + '<circle cx="60" cy="60" r="52" fill="none" stroke="#3c3c48" stroke-width="1.6"/>'
+        + '<circle cx="60" cy="60" r="42" fill="none" stroke="#3c3c48" stroke-width="1.6"/>'
+        // les cornes, pointues, au sommet
+        + '<path d="M40 24 C38 8 34 -6 26 -20 C34 -12 42 -2 50 12 Z" fill="#0c0c12"'
+        +   ' stroke="#3c3c48" stroke-width="1.2" stroke-linejoin="round"/>'
+        + '<path d="M80 24 C82 8 86 -6 94 -20 C86 -12 78 -2 70 12 Z" fill="#0c0c12"'
+        +   ' stroke="#3c3c48" stroke-width="1.2" stroke-linejoin="round"/>'
+        // les yeux, tout le long de l'anneau, qui clignent en désordre
+        + [[8,1,0],[40,.85,.5],[72,1,1],[104,.85,1.5],[140,1,2],[172,.85,.3],
+           [208,1,.8],[240,.85,1.3],[300,1,1.8],[332,.85,2.3]]
+            .map(o => oeil(o[0], o[1], o[2])).join('');
     } },
 
   // ---------- 12 manga : Chainsaw Man ----------
   { id:'col:manga:12', groupe:'collection', cat:'manga', nom:'Chainsaw Man', ico:'🪚',
     coul:'#e8a33d', soloNom:'Cadre de collection',
     cond:'12 manga dans ta bibliothèque.',
-    test:d => d.manga.length >= 12,
+    test:d => vus(d.manga).length >= 12,
     svg:(u, niv, fige) =>
       '<defs><linearGradient id="gc' + u + '" x1="0" y1="0" x2="0" y2="1">'
       + '<stop offset="0" stop-color="#eef2f8"/><stop offset="1" stop-color="#7d8798"/></linearGradient></defs>'
@@ -3173,10 +3215,10 @@ const DECOS_MANGA = [
       + '</g>' },
 
   // ---------- 25 manga : Berserk ----------
-  { id:'col:manga:25', groupe:'collection', cat:'manga', nom:'La Marque du sacrifice', ico:'⚔️',
+  { id:'col:manga:25', groupe:'collection', cat:'manga', nom:'Sacrifice', ico:'⚔️',
     coul:'#b4302a', soloNom:'Cadre de collection',
     cond:'25 manga dans ta bibliothèque.',
-    test:d => d.manga.length >= 25,
+    test:d => vus(d.manga).length >= 25,
     svg:(u, niv, fige) =>
       '<defs><linearGradient id="gb' + u + '" x1="0" y1="0" x2="0" y2="1">'
       + '<stop offset="0" stop-color="#565d6b"/><stop offset=".55" stop-color="#262b34"/>'
@@ -3184,7 +3226,8 @@ const DECOS_MANGA = [
       + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gb' + u + ')" stroke-width="4.5"/>'
       + '<circle cx="60" cy="60" r="52" fill="none" stroke="#14171e" stroke-width="2" opacity=".85"/>'
       // le heaume : des plaques anguleuses qui se recouvrent, pas une calotte lisse
-      + '<g>'
+      // le heaume, réduit et remonté : il mordait trop sur la photo
+      + '<g transform="translate(0 -6) scale(.86)" transform-origin="60 20">'
       +   corneEpaisse(40, 26, 28, 8, 18, -8, 7, 'url(#gb' + u + ')', '#0e1116')
       +   corneEpaisse(80, 26, 92, 8, 102, -8, 7, 'url(#gb' + u + ')', '#0e1116')
       +   '<path d="M60 0 L88 16 L92 38 L60 44 L28 38 L32 16 Z" fill="url(#gb' + u + ')"'
@@ -3211,7 +3254,7 @@ const DECOS_MANGA = [
       // La construction, telle quelle : un losange allongé à l'horizontale en bas, coupé
       // par la hampe (deux triangles) ; au-dessus le même losange dont on efface le haut,
       // il n'en reste que le V ; et trois courts segments posés sur la hampe.
-      + '<g transform="translate(60 70) scale(.30)">'
+      + '<g transform="translate(60 76) scale(.26)">'
       +   '<g stroke="#c8271f" fill="none" stroke-width="13" stroke-linejoin="miter" stroke-linecap="butt">'
       +     '<path d="M-48 -38 L0 2 L48 -38"/>'
       // au bout de chaque branche du V, un court crochet qui remonte vers l'intérieur
@@ -3236,7 +3279,7 @@ const DECOS_MANGA = [
   { id:'col:manga:40', groupe:'collection', cat:'manga', nom:'Sharingan', ico:'👁️',
     coul:'#d02121', soloNom:'Cadre de collection',
     cond:'40 manga dans ta bibliothèque.',
-    test:d => d.manga.length >= 40,
+    test:d => vus(d.manga).length >= 40,
     svg:(u, niv, fige) => {
       // un tomoe : la boule et sa queue, dessinés « pointe vers le haut » puis orientés
       // une virgule : une grosse tête ronde, et une queue épaisse à sa racine qui
@@ -3276,7 +3319,7 @@ const DECOS_MANGA = [
   { id:'col:manga:50', groupe:'collection', cat:'manga', nom:'Devil Union', ico:'😈',
     coul:'#e5322b', soloNom:'Cadre de collection',
     cond:'50 manga dans ta bibliothèque.',
-    test:d => d.manga.length >= 50,
+    test:d => vus(d.manga).length >= 50,
     svg:(u, niv, fige) =>
       '<defs><linearGradient id="ga' + u + '" x1="0" y1="0" x2="0" y2="1">'
       + '<stop offset="0" stop-color="#3a3550"/><stop offset="1" stop-color="#0c0a16"/></linearGradient>'
@@ -3296,12 +3339,24 @@ const DECOS_MANGA = [
       // ressortir comme deux flammes
       // base large et encochée, corps qui s'épaissit puis file en pointe — la forme du
       // croquis, pas le losange allongé d'avant
-      + '<path d="M8 -20 C18 -2 26 14 33 31 L39 25 L44 35 L50 26'
-      +   ' C40 12 26 -2 8 -20 Z" fill="#151228" stroke="#4a4466" stroke-width="1.3"'
-      +   ' stroke-linejoin="round"/>'
-      + '<path d="M112 -20 C102 -2 94 14 87 31 L81 25 L76 35 L70 26'
-      +   ' C80 12 94 -2 112 -20 Z" fill="#151228" stroke="#4a4466" stroke-width="1.3"'
-      +   ' stroke-linejoin="round"/>'
+      // Base très large contre le crâne, l'arête extérieure monte puis bascule vers le
+      // flanc, et la pointe s'arrondit légèrement avant de se refermer sur l'arête
+      // intérieure. C'est l'écart entre les deux arêtes qui donne l'épaisseur.
+      // La silhouette du croquis : un éperon pointu qui sort vers l'extérieur à la base,
+      // une masse arrondie et crochue qui monte et se recourbe vers l'intérieur, et une
+      // encoche sous la base.
+      // Une arche épaisse qui monte depuis le crâne, redescend sur le flanc, et dont la
+      // pointe se retrousse vers l'EXTÉRIEUR en bas — pas un crochet rentrant.
+      // L'arête intérieure redescend beaucoup plus loin vers le centre : la base fait
+      // maintenant 17 de large contre 22 dans l'arche, au lieu de 6.
+      + '<path d="M48 38 C48 12 42 -10 28 -10 C14 -10 10 6 8 19'
+      +   ' C6 25 3 28 -3 30 C6 28 13 24 18 18'
+      +   ' C24 10 30 12 32 20 C34 28 33 34 31 40 Z"'
+      +   ' fill="#151228" stroke="#5c5680" stroke-width="1.6" stroke-linejoin="round"/>'
+      + '<path d="M72 38 C72 12 78 -10 92 -10 C106 -10 110 6 112 19'
+      +   ' C114 25 117 28 123 30 C114 28 107 24 102 18'
+      +   ' C96 10 90 12 88 20 C86 28 87 34 89 40 Z"'
+      +   ' fill="#151228" stroke="#5c5680" stroke-width="1.6" stroke-linejoin="round"/>'
       // le bandeau, et la déchirure rouge qui court dessus
       + '<path d="M15 44 Q38 22 60 22 Q82 22 105 44 L100 52 Q80 32 60 32 Q40 32 20 52 Z"'
       +   ' fill="url(#ga' + u + ')" stroke="#4a4466" stroke-width="1.1"/>'
@@ -3406,6 +3461,93 @@ function decoLogin(login, max){
 }
 // un avatar et son cadre, dans une même boîte : le cadre se cale dessus tout seul
 const avecDeco = (html, login, max) => '<span class="ava-box">' + html + decoLogin(login, max) + '</span>';
+
+// ================= JALONS =================
+// Un jalon = un palier de succès franchi, ou une décoration débloquée. On compare l'état
+// du moment à l'instantané de la dernière visite ; ce qui a changé devient un événement,
+// annoncé dans le fil et dans une petite carte sur l'accueil.
+
+const JALON_MAX = 25;
+// Le libellé d'un jalon, à la troisième personne : il sert aussi pour le fil des autres.
+// `tu` bascule à la deuxième personne pour la carte d'annonce, qui s'adresse au lecteur.
+function jalonTexte(j, tu){
+  const passe = tu ? 'es passé' : 'est passé';
+  const debloque = tu ? 'as débloqué' : 'a débloqué';
+  if(j.k === 'sc'){
+    const sc = SUCCES.find(x => x.id === j.id);
+    const nv = NIVEAUX[Math.max(0, Math.min(NIVEAUX.length - 1, (j.niv || 1) - 1))];
+    if(!sc) return '';
+    return passe + ' <b>' + nv.n + '</b> sur <b>' + sc.nom + '</b>';
+  }
+  const x = decoDe(j.id);
+  if(!x || !x.id) return '';
+  if(x.cat){
+    // les cadres de collection se suivent par palier : c'est plus parlant qu'un nom seul
+    const rang = DECOS.filter(y => y.cat === x.cat).findIndex(y => y.id === x.id) + 1;
+    return debloque + ' le <b>palier ' + rang + '</b> de la collection <b>' + x.cat + '</b>';
+  }
+  return debloque + ' le cadre <b>' + x.nom + '</b>';
+}
+// L'instantané de ce qui est acquis en ce moment.
+function jalonEtat(d){
+  const sc = {}, dc = {};
+  SUCCES.forEach(x => { try{ sc[x.id] = etatSucces(x, d).niv; }catch(e){ sc[x.id] = 0; } });
+  DECOS.forEach(x => { if(x.id && !x.succes && decoDebloquee(d, x)) dc[x.id] = 1; });
+  return { sc, dc };
+}
+let jalonsEnCours = false;
+function verifierJalons(){
+  if(visu || jalonsEnCours) return;
+  jalonsEnCours = true;
+  try{
+    const neuf = jalonEtat(etat);
+    const vus = etat.jalonsVus;
+    // Première visite après la mise à jour : on note l'acquis sans rien annoncer, sinon
+    // tout ce qui a été gagné avant remonterait d'un coup.
+    if(!vus || !vus.sc){
+      etat.jalonsVus = neuf;
+      etat.jalonsLus = Date.now();
+      try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+      return;
+    }
+    const t = Date.now();
+    const nouveaux = [];
+    SUCCES.forEach(x => {
+      const av = Number(vus.sc[x.id]) || 0;
+      if((neuf.sc[x.id] || 0) > av) nouveaux.push({ t, k: 'sc', id: x.id, niv: neuf.sc[x.id] });
+    });
+    Object.keys(neuf.dc).forEach(id => {
+      if(!(vus.dc && vus.dc[id])) nouveaux.push({ t, k: 'dc', id });
+    });
+    etat.jalonsVus = neuf;
+    if(!nouveaux.length){ try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){} return; }
+    etat.jalons = nouveaux.concat(etat.jalons || []).slice(0, JALON_MAX);
+    sauver();
+    montrerJalons();
+  } finally { jalonsEnCours = false; }
+}
+
+// La carte d'annonce : discrète, en haut de l'accueil, et refermable.
+function montrerJalons(){
+  const z = $('jalonsBox');
+  if(!z) return;
+  const neufs = (etat.jalons || []).filter(j => j.t > (Number(etat.jalonsLus) || 0));
+  if(visu || !neufs.length){ z.classList.add('cache'); z.innerHTML = ''; return; }
+  z.classList.remove('cache');
+  z.innerHTML = '<div class="jal-carte">'
+    + '<span class="jal-ico">✨</span>'
+    + '<div class="jal-txt"><div class="jal-t">' + (neufs.length > 1 ? 'Nouveaux paliers' : 'Nouveau palier') + '</div>'
+    +   neufs.slice(0, 4).map(j => '<div class="jal-l">Tu ' + jalonTexte(j, true) + '</div>').join('')
+    +   (neufs.length > 4 ? '<div class="jal-l">et ' + (neufs.length - 4) + ' autre'
+        + (neufs.length - 4 > 1 ? 's' : '') + '…</div>' : '')
+    + '</div>'
+    + '<button class="jal-x" id="jalX" title="Fermer">✕</button></div>';
+  $('jalX').addEventListener('click', () => {
+    etat.jalonsLus = Date.now();
+    try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+    montrerJalons();
+  });
+}
 
 // ================= navigation =================
 function allerAccueil(){
@@ -3522,13 +3664,27 @@ function porterDeco(id, niv){
   rendreDeco();
   majBoutonProfil();
   if(id) ouvrirApercuDeco(id, niv); else $('overlayDeco').classList.remove('on');
-  toast(niv ? 'Cadre équipé en ' + NIVEAUX[niv - 1].n + ' ✓' : 'Cadre équipé ✓', 'ok');
+  toast('Décoration équipée', 'ok');
 }
 $('dcPorter').addEventListener('click', () => { if(decoApercu) porterDeco(decoApercu, decoApercuNiv); });
 
 // Sous chaque cadre : ce qu'il reste à faire pour l'enrichir, ou pour l'obtenir.
 function sousTexteDeco(d, x, ok, niv){
-  if(!x.succes) return x.cond;
+  if(!x.succes){
+    if(ok) return x.cond;
+    // verrouillée : on annonce l'avancement plutôt que la seule condition
+    if(x.cat){
+      const seuil = Number(String(x.id).split(':')[2]) || 0;
+      const n = x.cat === 'anime' ? nbVus(d, 'anime') : vus(d.manga).length;
+      return x.cond + ' Tu en as ' + n + ' — encore ' + Math.max(0, seuil - n) + '.';
+    }
+    const def = DEFIS.find(y => 'defi:' + y.id === x.id);
+    if(def){
+      const r = defiAvancement(def, d);
+      return x.cond + ' Tu en es à ' + r.n + '/' + r.total + '.';
+    }
+    return x.cond;
+  }
   const e = etatSucces(x.succes, d);
   if(!ok) return x.cond + ' Tu en es à ' + e.v + '.';
   if(!e.suivant) return 'Palier maximum atteint. Le cadre est à son plus haut niveau de détail.';
@@ -4136,6 +4292,12 @@ function rendreFeed(panneau){
     const jour = e.prog ? e.prog.j : isoLocal(new Date(e.t));
     let sep = '';
     if(jour !== jourPrec){ sep = '<div class="feed-jour"><span>' + libelleJour(jour) + '</span></div>'; jourPrec = jour; }
+    if(e.jalon){
+      let sepJ = '';
+      const jourJ = isoLocal(new Date(e.t));
+      if(jourJ !== jourPrec){ sepJ = '<div class="feed-jour"><span>' + libelleJour(jourJ) + '</span></div>'; jourPrec = jourJ; }
+      return sepJ + '<div class="feed-row" style="--cc:#ffc24b">' + ligneEvenement(e, {}) + '</div>';
+    }
     const cle = cleReac(e);
     const idx = feed.indexOf(e);
     // seul le propriétaire du compte épingle SES moments : rien à épingler chez les autres
@@ -4291,6 +4453,14 @@ function ligneEvenement(e, opts){
     : '<span class="fr-pp fr-pp-vide">🎬</span>', e.login);
 
   let action, droite, infoBulle = '';
+  if(e.jalon){
+    // un jalon n'a pas de titre : la phrase se suffit, on la met sur la première ligne
+    return '<div class="fr-main">'
+      + '<span class="fr-ava">' + ava + '<span class="fr-cat" style="background:#ffc24b">🏆</span></span>'
+      + '<span class="fr-txt"><span class="fr-l1"><b>' + echap(e.p) + '</b> ' + jalonTexte(e.jalon) + '</span></span>'
+      + '<span class="fr-d">' + (o.quand === false ? '' : '<span class="f-quand">' + ilYA(e.t) + '</span>') + '</span>'
+      + '</div>';
+  }
   if(e.prog){
     const unite = e.c === 'manga' ? 'chapitre' : 'épisode';
     const verbe = e.c === 'manga' ? 'a lu' : 'a regardé';
@@ -4623,6 +4793,7 @@ function mesNotes(){
   ['series','anime','manga'].forEach(c => etat[c].forEach(f => {
     entreesProg(f).forEach(p => feed.push({ p: moiNom, login: monLogin || '', titre: f.titre, c, t: p.t, prog: p, mien: true, fid: f.id }));
   }));
+  (etat.jalons || []).forEach(j => feed.push({ p: moiNom, login: monLogin || '', t: j.t, jalon: j }));
   return { agg, feed };
 }
 // vue fusionnée utilisée par l'affichage
@@ -4866,6 +5037,8 @@ async function chargerNotesCommu(force){
         ['series','anime','manga'].forEach(c => d[c].forEach(f => {
           entreesProg(f).forEach(p => feed.push({ p: d.pseudo || login, login, titre: f.titre, c, t: p.t, prog: p }));
         }));
+        (Array.isArray(d.jalons) ? d.jalons : []).slice(0, 10)
+          .forEach(j => feed.push({ p: d.pseudo || login, login, t: j.t, jalon: j }));
       }catch(e){}
     }
     feed.sort((a,b) => b.t - a.t);
@@ -5770,6 +5943,8 @@ function pastilleSync(ok){
 
 function rafraichir(){
   majBoutonProfil();
+  verifierJalons();
+  montrerJalons();
   if(!$('pageAccueil').classList.contains('cache')) rendreAccueil();
   else if(!$('pageProfil').classList.contains('cache')) afficherRecap(visu ? visu.login : monLogin, dact());
   else if(!$('pageSucces').classList.contains('cache')) rendreSucces();
