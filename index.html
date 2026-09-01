@@ -131,7 +131,7 @@
   @media (max-width:340px){.grille-cat{grid-template-columns:1fr}}
   .cat{position:relative;overflow:hidden;isolation:isolate;display:flex;flex-direction:column;align-items:center;
     background:linear-gradient(180deg,rgba(40,32,71,.72) 0%,rgba(22,16,42,.92) 100%);
-    border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:22px 14px 18px;cursor:pointer;
+    border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:22px 14px 16px;cursor:pointer;
     text-align:center;color:var(--txt);font-family:inherit;box-shadow:var(--ombre);
     transition:transform .22s cubic-bezier(.2,.7,.3,1),border-color .22s ease,box-shadow .22s ease}
   .cat .liseret{position:absolute;left:14%;right:14%;top:0;height:2px;border-radius:0 0 3px 3px;
@@ -150,7 +150,10 @@
   .cat .chiffre{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:.9;letter-spacing:.01em;
     color:var(--cc);text-shadow:0 0 16px var(--ccg)}
   .cat .nom{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--txt);margin-top:8px}
-  .cat .nb{color:var(--faint);font-size:11.5px;margin-top:5px;min-height:15px}
+  /* deux lignes réservées : les tuiles gardent la même hauteur, remplies ou non */
+  .cat .nb{color:var(--faint);font-size:11.5px;margin-top:6px;min-height:36px;width:100%;
+    display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;line-height:1.4}
+  .cat .nb span{white-space:nowrap}
   .cat .nb b{color:var(--cc);font-weight:800}
   @media (max-width:900px){.cat .chiffre{font-size:44px}}
 
@@ -761,7 +764,9 @@
   .fr-txt{flex:1;min-width:0;display:flex;align-items:center;gap:9px}
   /* Une entrée = une phrase = UNE ligne, comme les paliers. Le titre est simplement mis
      en avant dedans ; le découpage en deux lignes doublait la hauteur pour rien. */
-  .fr-l1{flex:1;min-width:0;font-size:13.5px;color:var(--muted);
+  /* `flex:0 1 auto` : la phrase ne prend que sa place, pour que la note reste collée à
+     elle au lieu d'être renvoyée au bout de la ligne */
+  .fr-l1{flex:0 1 auto;min-width:0;font-size:13.5px;color:var(--muted);
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fr-l1 b{color:var(--txt);font-weight:800}
   .fr-titre{font-weight:800;color:var(--txt);letter-spacing:.01em}
@@ -774,6 +779,8 @@
   .feed-row.ouvert .fr-l1{white-space:normal;overflow:visible;line-height:1.5}
   .feed-row.ouvert .fr-mot{white-space:normal;overflow:visible;max-width:100%}
   .feed-row.ouvert .fr-main{align-items:flex-start}
+  .fr-note{flex-shrink:0}
+  .fr-txt .f-evol{flex-shrink:0;margin-left:-4px}
   .fr-d{display:flex;align-items:center;gap:9px;flex-shrink:0}
   .fr-d .badge{font-size:12px}
   .f-quand{color:var(--faint);font-size:10.5px;white-space:nowrap;font-variant-numeric:tabular-nums}
@@ -1560,7 +1567,7 @@
 <div class="wrap">
 
   <div id="bandeauVisu">
-    <span>👀 Lecture seule — tu consultes le compte de <b id="visuNom"></b></span>
+    <span>👀 Lecture seule : tu consultes le compte de <b id="visuNom"></b></span>
     <button id="btnVisuBiblio" class="visu-btn">📚 Sa bibliothèque</button>
     <button id="btnVisuProfil" class="visu-btn">👤 Son profil</button>
     <button id="btnQuitterVisu">✕ Revenir chez moi</button>
@@ -1586,7 +1593,7 @@
       <div>
         <h1 style="line-height:1">Communauté</h1>
         <div style="font-size:11.5px;color:var(--faint);letter-spacing:.02em;margin-top:2px">
-          Watchlists publiques — consultation seule, personne ne modifie la liste d'un autre.
+          Watchlists publiques, en consultation seule : personne ne modifie la liste d'un autre.
         </div>
       </div>
     </header>
@@ -1721,7 +1728,7 @@
 
     <!-- 1. le titre : on cherche, le site remplit le reste -->
     <div class="champ" id="blocTitre">
-      <label id="labTitre">Titre — tape 3 lettres, le site trouve le reste</label>
+      <label id="labTitre">Titre (tape 3 lettres, le site trouve le reste)</label>
       <div class="champ-recherche" id="blocRecherche">
         <span class="loupe">🔍</span>
         <input id="fTitre" placeholder="Ex : Chainsaw Man" autocomplete="off">
@@ -1753,7 +1760,7 @@
       <div class="note-pick">
         <div class="np-etoiles" id="npEtoiles"></div>
         <div class="np-val rien" id="npVal">À noter</div>
-        <input id="fNote" class="np-saisie" placeholder="—" inputmode="decimal">
+        <input id="fNote" class="np-saisie" placeholder="9,5" inputmode="decimal">
       </div>
     </div>
 
@@ -1905,7 +1912,7 @@
       <div class="sc-med" id="dcIco">🖼️</div>
       <div style="min-width:0">
         <h3 id="dcNom" style="margin:0">Cadre</h3>
-        <div id="dcNiveau" class="sc-niveau">—</div>
+        <div id="dcNiveau" class="sc-niveau"></div>
       </div>
     </div>
     <p id="dcDesc" style="margin:0 0 6px"></p>
@@ -1926,7 +1933,7 @@
       <div class="sc-med" id="scIco">🏆</div>
       <div style="min-width:0">
         <h3 id="scNom" style="margin:0">Succès</h3>
-        <div id="scNiveau" class="sc-niveau">—</div>
+        <div id="scNiveau" class="sc-niveau"></div>
       </div>
     </div>
     <p id="scDesc" style="margin:0 0 4px"></p>
@@ -1971,7 +1978,7 @@
       <ol style="margin-top:2px">
         <li>Sur <b>myanimelist.net</b> (depuis un navigateur) : <b>Profil</b> → <b>Settings</b> → onglet <b>Export</b>.</li>
         <li>Choisis <b>Anime List</b> ou <b>Manga List</b>, puis <b>« Export My List »</b>.</li>
-        <li>Un fichier <b>.xml.gz</b> se télécharge — tu peux le donner tel quel, le site le décompresse tout seul.</li>
+        <li>Un fichier <b>.xml.gz</b> se télécharge, tu peux le donner tel quel, le site le décompresse tout seul.</li>
         <li>Refais l'opération pour l'autre liste (anime et manga s'exportent séparément).</li>
       </ol>
     </div>
@@ -2002,7 +2009,7 @@
     </div>
     <div id="confVerrou" style="display:none;font-size:14px;color:var(--muted);line-height:1.6;background:#1e1834;border:1px solid var(--border);border-radius:12px;padding:16px;margin-bottom:14px">
       🔒 <b style="color:#f0eae0">Pas accessible pour l'instant.</b><br>
-      Connecte-toi d'abord au cloud (bouton ☁️) pour configurer ton pseudo et la visibilité de ta liste — sans cloud, ton profil n'apparaît pas dans l'annuaire.
+      Connecte-toi d'abord au cloud (bouton ☁️) pour configurer ton pseudo et la visibilité de ta liste. Sans cloud, ton profil n'apparaît pas dans l'annuaire.
       <button class="btn-mini" id="btnConfVersCloud" style="display:block;margin-top:12px;width:100%">☁️ Ouvrir la fenêtre Cloud</button>
     </div>
     <div id="confChamps">
@@ -2036,7 +2043,7 @@
         <button class="btn-mini" id="btnAmiAdd" style="width:46px;font-size:19px;color:var(--txt)">+</button>
       </div>
       <div class="chips" id="listeAmis"></div>
-      <div class="aide">Ta liste d'amis est conservée quel que soit ton réglage de visibilité — elle ne sert que si tu choisis « Mes amis seulement ».</div>
+      <div class="aide">Ta liste d'amis est conservée quel que soit ton réglage de visibilité : elle ne sert que si tu choisis « Mes amis seulement ».</div>
     </div>
     </div>
     <div id="cMessage2" style="font-size:13px;margin-bottom:12px;display:none"></div>
@@ -2054,7 +2061,7 @@
     <div class="reac-grille" id="reacGrille"></div>
     <div class="champ" style="margin:16px 0 12px">
       <label>Un mot ? <span style="text-transform:none;letter-spacing:0;float:right;color:var(--faint)" id="reacCompteur"></span></label>
-      <textarea id="reacMsg" maxlength="150" placeholder="Optionnel — visible en cliquant sur ta réaction"></textarea>
+      <textarea id="reacMsg" maxlength="150" placeholder="Optionnel, visible en cliquant sur ta réaction"></textarea>
     </div>
     <div class="actions">
       <button class="btn-gold" id="reacEnvoyer" style="flex:1">Choisis un emoji</button>
@@ -2083,7 +2090,7 @@
     <div class="tuto" style="margin-bottom:16px">
       <ol style="margin:2px 0 4px">
         <li>Clique le bouton ci-dessus (connecte-toi à GitHub si besoin), descends tout en bas et clique <b>« Generate token »</b>.</li>
-        <li><b>Copie le code ghp_…</b> — il n'est affiché qu'une seule fois, garde-le dans tes notes.</li>
+        <li><b>Copie le code ghp_…</b>, il n'est affiché qu'une seule fois, garde-le dans tes notes.</li>
         <li>Colle-le ci-dessous puis <b>Activer</b> : ta sauvegarde cloud est créée.</li>
         <li>Sur ton téléphone : même site → ☁️ → <b>le même token</b> → Activer. Tout se retrouve.</li>
       </ol>
@@ -2108,7 +2115,7 @@
 </div>
 
 <script>
-const VERSION = 'v136';
+const VERSION = 'v137';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2828,7 +2835,7 @@ function sabreLaser(x, coul, retard, fige){
 }
 
 const DECOS_DEFI = [
-  { id:'defi:doomsday', ref:'Marvel — Avengers: Doomsday', nom:'Bouclier Doomsday', coul:'#3ee0a5', cond:'Termine le défi Avengers: Doomsday.',
+  { id:'defi:doomsday', ref:'Avengers: Doomsday (Marvel)', nom:'Bouclier Doomsday', coul:'#3ee0a5', cond:'Termine le défi Avengers: Doomsday.',
     test:d => defiFini(d, 'doomsday'),
     svg:(u, niv, fige) => degDefi(u, '#b6ffe8', '#0f8a62') + anneauDefi(u, 4.5)
       + lumiereAnneau(u, 47, 4.5, 5, fige)
@@ -2906,7 +2913,7 @@ const DECOS_DEFI = [
       + sabreLaser(13,  '#4aa8ff', 0,   fige)
       + sabreLaser(107, '#ff3b4e', 0.5, fige) },
 
-  { id:'defi:avengers', ref:'Marvel — Avengers', nom:'Insigne Avengers', coul:'#56ccff', cond:'Termine le défi Avengers.',
+  { id:'defi:avengers', ref:'Avengers (Marvel)', nom:'Insigne Avengers', coul:'#56ccff', cond:'Termine le défi Avengers.',
     test:d => defiFini(d, 'avengers'),
     svg:(u, niv, fige) => {
       // L'insigne, pour de vrai : le A au sommet, et la ceinture qui part de sa jambe
@@ -3973,11 +3980,11 @@ const DECOS = [{ id:'', nom:'Aucune', groupe:'succes', coul:'#7a719a', cond:'Tou
 
 // les trois familles de la galerie, dans l'ordre où elles s'y suivent
 const DECO_SECTIONS = {
-  succes:       'Un cadre par succès — il s\'enrichit à chaque palier',
-  'col:films':  'Collection — au nombre de films rangés',
-  'col:series': 'Collection — au nombre de séries rangées',
-  'col:anime':  'Collection — au nombre d\'anime rangés',
-  'col:manga':  'Collection — au nombre de manga rangés',
+  succes:       'Un cadre par succès, qui s\'enrichit à chaque palier',
+  'col:films':  'Collection : au nombre de films rangés',
+  'col:series': 'Collection : au nombre de séries rangées',
+  'col:anime':  'Collection : au nombre d\'anime rangés',
+  'col:manga':  'Collection : au nombre de manga rangés',
   defi:         'Défis terminés',
 };
 
@@ -4154,7 +4161,7 @@ function allerProfil(){
   cacherPages();
   $('pageProfil').classList.remove('cache');
   const login = visu ? visu.login : monLogin;
-  document.title = "Ciné'Wawa — " + (visu ? (visu.pseudo || visu.login) : 'Mon profil');
+  document.title = "Ciné'Wawa · " + (visu ? (visu.pseudo || visu.login) : 'Mon profil');
   afficherRecap(login, dact());
   window.scrollTo(0, 0);
   // sans cloud, le login GitHub n'est pas encore connu : on redessine dès qu'il arrive
@@ -4170,7 +4177,7 @@ function allerTrophees(onglet, origine){
   catCourante = null;
   cacherPages();
   $('pageSucces').classList.remove('cache');
-  document.title = "Ciné'Wawa — Trophées";
+  document.title = "Ciné'Wawa · Trophées";
   if(onglet) ongletTrophees = onglet;
   document.querySelectorAll('#ongletsSucces button').forEach(b => b.classList.toggle('on', b.dataset.o === ongletTrophees));
   $('zoneSucces').classList.toggle('cache', ongletTrophees !== 'succes');
@@ -4267,7 +4274,7 @@ function sousTexteDeco(d, x, ok, niv){
       const seuil = Number(String(x.id).split(':')[2]) || 0;
       const n = (x.cat === 'films') ? vus(d.films).length
         : (x.cat === 'manga') ? vus(d.manga).length : nbVus(d, x.cat);
-      return x.cond + ' Tu en as ' + n + ' — encore ' + Math.max(0, seuil - n) + '.';
+      return x.cond + ' Tu en as ' + n + ', encore ' + Math.max(0, seuil - n) + '.';
     }
     const def = DEFIS.find(y => 'defi:' + y.id === x.id);
     if(def){
@@ -4279,7 +4286,7 @@ function sousTexteDeco(d, x, ok, niv){
   const e = etatSucces(x.succes, d);
   if(!ok) return x.cond + ' Tu en es à ' + e.v + '.';
   if(!e.suivant) return 'Palier maximum atteint. Le cadre est à son plus haut niveau de détail.';
-  return 'Palier ' + niv + '/' + NIVEAUX.length + ' — ' + NIVEAUX[niv].n + ' à '
+  return 'Palier ' + niv + '/' + NIVEAUX.length + ', ' + NIVEAUX[niv].n + ' à '
     + e.suivant + ' ' + x.succes.unite + ' (encore ' + (e.suivant - e.v) + ').';
 }
 
@@ -4305,7 +4312,7 @@ function rendreDeco(){
   z.innerHTML = '<div class="deco-tete">'
     + '<span class="deco-compte"><b>' + nb + '</b> / ' + (DECOS.length - 1) + '</span>'
     + '<span>' + (visu
-        ? 'Les cadres débloqués par ' + echap(qui) + ' — celui qu\'il porte est en surbrillance.'
+        ? 'Les cadres débloqués par ' + echap(qui) + '. Celui qu\'il porte est en surbrillance.'
         : 'Chaque succès donne son cadre, et ce cadre s\'enrichit à chaque palier franchi. Clique un cadre pour voir ses six paliers et le porter.')
       + '</span></div>'
     + '<div class="deco-grille">' + (() => { let fam = ''; return DECOS.map(x => {
@@ -4490,7 +4497,7 @@ function allerCategorie(c){
   $('wrapOutils').style.display = visu ? 'none' : '';
   $('labNotes').textContent = (c === 'anime' || c === 'manga') ? 'Les notes MyAnimeList' : 'Les notes du public (IMDb)';
   $('labAffiches').textContent = 'Les affiches manquantes';
-  document.title = "Ciné'Wawa — " + conf.nom;
+  document.title = "Ciné'Wawa · " + conf.nom;
   rendreListe();
 }
 
@@ -4586,11 +4593,11 @@ function rendreAccueil(){
   $('grilleCat').innerHTML = Object.entries(CATS).map(([c,conf]) => {
     const n = nbOeuvres(c);
     const enCours = dact()[c].filter(f => f.statut === 'encours').length;
-    // une seule information sous le chiffre, et seulement si elle apprend quelque chose
     const prevus = dact()[c].filter(f => f.statut === 'prevu').length;
-    const sousTexte = c === 'films'
-      ? (prevus ? '<b>' + prevus + '</b> prévu' + (prevus > 1 ? 's' : '') : '')
-      : (enCours ? '<b>' + enCours + '</b> en cours' : '');
+    // les deux chiffres, dans les quatre rayons : « prévu » ne concernait que les films,
+    // alors qu'on peut prévoir une série comme on prévoit un film
+    const sousTexte = (prevus ? '<span><b>' + prevus + '</b> prévu' + (prevus > 1 ? 's' : '') + '</span>' : '')
+      + (enCours ? '<span><b>' + enCours + '</b> en cours</span>' : '');
     return '<button class="cat" data-cat="'+c+'" style="--cc:'+conf.couleur+';--ccg:'+hexRgba(conf.couleur,.45)+'">'
       + '<span class="liseret"></span>'
       + '<div class="ico">'+conf.ico+'</div>'
@@ -4763,7 +4770,7 @@ function rendreNotifs(){
   if(!liste.length){
     bloc.style.display = cloudActif() ? '' : 'none';
     zone.innerHTML = '<div class="notif-vide">' + (toutes.length
-      ? 'Tout est à jour ✨ — les nouvelles réactions apparaîtront ici.'
+      ? 'Tout est à jour ✨ Les nouvelles réactions apparaîtront ici.'
       : 'Personne n\'a encore réagi à ton activité.') + '</div>';
     return;
   }
@@ -4856,7 +4863,7 @@ function bandeReac(cle, forcerBouton){
       marque = '<span class="reac-mot">💬</span>';
     }
     return '<button class="reac-puce' + (r.mien ? ' mienne' : '') + (r.msg ? ' avec-mot' : '') + '"' + attr
-      + ' title="' + echap(r.pseudo || '') + (r.msg ? ' — clique pour lire son message' : '') + '">'
+      + ' title="' + echap(r.pseudo || '') + (r.msg ? ', clique pour lire son message' : '') + '">'
       + pp + '<span class="reac-em">' + r.emoji + '</span>' + marque + '</button>';
   }).join('');
   const bouton = (visu && !forcerBouton) ? '' : '<button class="reac-add" data-cle="' + echap(cle)
@@ -4939,7 +4946,7 @@ function rendreFeed(panneau){
       confirmer('Retirer du fil ?',
         (f ? '<b>' + echap(f.titre) + '</b> ne s\'affichera plus dans le fil'
            : 'Cette activité ne s\'affichera plus dans le fil')
-        + ' — ni chez toi, ni chez les autres membres. '
+        + ', ni chez toi ni chez les autres membres. '
         + 'Ta fiche et ta note, elles, ne bougent pas.',
         'Retirer', () => effacerEntreeFeed(c, fid, type, jour));
     });
@@ -4955,7 +4962,16 @@ function rendreFeed(panneau){
     });
   });
   panneau.querySelectorAll('.fr-main').forEach(r => {
-    r.addEventListener('click', () => r.parentElement.classList.toggle('ouvert'));
+    r.addEventListener('click', () => {
+      // Le dépliage décalait toute la ligne au moindre clic : on ne le garde que là où il
+      // sert vraiment, c'est-à-dire sur un écran étroit ET quand la phrase est coupée.
+      const ligne = r.parentElement;
+      if(ligne.classList.contains('ouvert')){ ligne.classList.remove('ouvert'); return; }
+      const l1 = r.querySelector('.fr-l1');
+      if(window.innerWidth > 620) return;
+      if(!l1 || l1.scrollWidth <= l1.clientWidth + 1) return;
+      ligne.classList.add('ouvert');
+    });
   });
 }
 
@@ -5009,7 +5025,7 @@ function basculerEpingle(e){
     toast('Temps fort retiré.');
   } else {
     if(liste.length >= MAX_EPINGLES){
-      toast('Trois temps forts au maximum — retires-en un d\'abord.', 'err');
+      toast('Trois temps forts au maximum, retires-en un d\'abord.', 'err');
       return;
     }
     liste.push({
@@ -5036,7 +5052,7 @@ function ligneEvenement(e, opts){
   // le titre fait partie de la phrase — c'est ce qui la garde sur une seule ligne
   const titre = '<span class="fr-titre">' + echap(e.titre) + '</span>';
 
-  let action, droite, infoBulle = '', pastille = coul, emoji = ico;
+  let action, droite, apres = '', infoBulle = '', pastille = coul, emoji = ico;
   if(e.jalon){
     // un jalon n'a pas de titre : la phrase se suffit à elle-même
     action = jalonTexte(e.jalon);
@@ -5057,17 +5073,21 @@ function ligneEvenement(e, opts){
     }
     droite = '';
   } else {
+    // la note se colle à la phrase : reléguée tout à droite, on ne savait plus de quoi
+    // elle parlait quand le titre était long
     action = 'a noté ' + titre;
-    droite = '<span class="badge" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '</span>'
+    apres = '<span class="badge fr-note" style="background:' + couleurNote(e.note) + '">' + showNote(e.note) + '</span>'
       + (e.ev ? '<span class="f-evol ' + (e.ev > 0 ? 'up' : 'down') + '" title="'
           + (e.np !== undefined && e.np !== null ? 'était à ' + showNote(e.np) + '/10' : 're-notation')
           + '">' + (e.ev > 0 ? '▲' : '▼') + '</span>' : '');
+    droite = '';
   }
 
   return '<div class="fr-main">'
     + '<span class="fr-ava">' + ava + '<span class="fr-cat" style="background:' + pastille + '">' + emoji + '</span></span>'
     + '<span class="fr-txt">'
     +   '<span class="fr-l1"' + infoBulle + '><b>' + echap(e.p) + '</b> ' + action + '</span>'
+    +   apres
     +   (o.mot
         ? '<span class="fr-mot" title="' + echap((o.mot.pseudo || '') + ' : ' + o.mot.msg) + '">'
           + '<i>' + o.mot.emoji + '</i>« ' + echap(o.mot.msg) + ' »</span>'
@@ -5199,7 +5219,7 @@ function rendreProchainsEpisodes(){
     return '<div class="cav-row muet" style="--cc:'+CATS[c].couleur+'" data-cat="'+c+'" data-id="'+f.id+'">'
       + affichetteHTML(f, c)
       + '<span class="cav-info"><div class="cav-nom">'+echap(f.titre)+'</div>'
-      + '<div class="cav-sub">'+saisonTxt+uniteLong+' '+actuel+' — pas de compte à rebours</div></span>'
+      + '<div class="cav-sub">'+saisonTxt+uniteLong+' '+actuel+', pas de compte à rebours</div></span>'
       + '<span class="cav-chip dodo">Non suivi</span>'
       + '<span class="cav-actions">' + (visu ? '' :
           '<button class="cav-plus" data-suivi data-cat="'+c+'" data-id="'+f.id+'">Suivre les sorties</button>') + '</span>'
@@ -5224,7 +5244,24 @@ function rendreProchainsEpisodes(){
     b.addEventListener('click', e => { e.stopPropagation(); plusUnEpisode(b.dataset.cat, Number(b.dataset.id)); });
   });
   panneau.querySelectorAll('[data-report]').forEach(b => {
-    b.addEventListener('click', e => { e.stopPropagation(); reporterEpisode(b.dataset.cat, Number(b.dataset.id)); });
+    b.addEventListener('click', e => {
+      e.stopPropagation();
+      const c = b.dataset.cat, id = Number(b.dataset.id);
+      const f = (etat[c] || []).find(x => x.id === id);
+      if(!f || !f.date) return;
+      const pas = parseInt(f.freq === undefined ? '7' : f.freq) || 7;
+      const mot = c === 'manga' ? 'chapitre' : 'épisode';
+      // la date que le report donnera vraiment : autant l'annoncer avant de valider
+      const ref = new Date(f.date + 'T00:00:00');
+      ref.setDate(ref.getDate() + pas);
+      const suite = prochaineSortie(isoLocal(ref), pas);
+      confirmer('Reporter la sortie ?',
+        (mot === 'chapitre' ? 'Pas de chapitre' : 'Pas d\'épisode') + ' cette fois pour <b>'
+        + echap(f.titre) + '</b> ? Le compte à rebours saute un cycle de ' + pas + ' jour'
+        + (pas > 1 ? 's' : '') + ' : prochaine sortie attendue le <b>' + fmtDate(isoLocal(suite))
+        + '</b>. Ta progression ne bouge pas.',
+        'Reporter', () => reporterEpisode(c, id));
+    });
   });
   panneau.querySelectorAll('[data-suivi]').forEach(b => {
     b.addEventListener('click', e => { e.stopPropagation(); ouvrirSuivi(b.dataset.cat, Number(b.dataset.id)); });
@@ -5310,7 +5347,7 @@ async function recupererNotePub(){
     let res = null;
     if(catCourante === 'films' || catCourante === 'series'){
       res = await noteTMDB(titre, catCourante === 'films' ? 'movie' : 'tv');
-      if(!res){ info.textContent = 'Pas de note trouvée — vérifie l\'orthographe du titre.'; return; }
+      if(!res){ info.textContent = 'Pas de note trouvée, vérifie l\'orthographe du titre.'; return; }
     } else {
     // score MyAnimeList via Jikan, secours AniList (anime & manga uniquement)
     const type = catCourante === 'anime' ? 'anime' : 'manga';
@@ -5333,12 +5370,12 @@ async function recupererNotePub(){
       const m = j.data && j.data.Media;
       if(m && m.averageScore) res = { note: Math.round(m.averageScore)/10, src: 'AniList', nom: m.title.romaji, ref: m.idMal ? 'mal:' + m.idMal : 'al:' + m.id };
     }
-    if(!res){ info.textContent = 'Pas de note trouvée — essaie le titre original (anglais/romaji).'; return; }
+    if(!res){ info.textContent = 'Pas de note trouvée, essaie le titre original (anglais/romaji).'; return; }
     }
     notePubTemp = res;
     $('fNotePub').value = showNote(res.note);
     if(res.ref) refChoisi = res.ref;
-    info.innerHTML = '✓ <b style="color:#cdc4e0">' + res.src + ' ' + showNote(res.note) + '/10</b> — ' + echap(res.nom) + ' <span style="color:#7a719a">(enregistrée à la sauvegarde)</span>';
+    info.innerHTML = '✓ <b style="color:#cdc4e0">' + res.src + ' ' + showNote(res.note) + '/10</b> pour ' + echap(res.nom) + ' <span style="color:#7a719a">(enregistrée à la sauvegarde)</span>';
     majFichePreview();
   }catch(e){
     info.textContent = 'Recherche impossible pour le moment, réessaie.';
@@ -5658,7 +5695,7 @@ async function notesToutesLancer(c, estAM, labelBtn, manquants){
   for(let i = 0; i < manquants.length; i++){
     if(!notesEnCours) break;
     const f = manquants[i];
-    $('labNotes').textContent = '⏳ ' + (i+1) + '/' + manquants.length + ' — cliquer pour arrêter';
+    $('labNotes').textContent = '⏳ ' + (i+1) + '/' + manquants.length + ' · cliquer pour arrêter';
     try{
       let res = null;
       if(!estAM){
@@ -5693,7 +5730,7 @@ async function notesToutesLancer(c, estAM, labelBtn, manquants){
   sauver();
   if(catCourante === c && !visu) rendreListe();
   $('labNotes').textContent = labelBtn;
-  toast('<b>' + ok + '</b> note(s) récupérée(s) ✓' + (manquants.length - ok ? ' — ' + (manquants.length - ok) + ' sans résultat (à faire fiche par fiche' + (estAM ? ', avec le titre original)' : ')') : ''), 'ok');
+  toast('<b>' + ok + '</b> note(s) récupérée(s) ✓' + (manquants.length - ok ? ', ' + (manquants.length - ok) + ' sans résultat (à faire fiche par fiche' + (estAM ? ', avec le titre original)' : ')') : ''), 'ok');
 }
 
 // ================= recherche automatique d'affiche =================
@@ -5818,8 +5855,8 @@ async function chercherAffiche(){
 
   if(!resultats.length){
     zone.innerHTML = '<div class="res-info">' + (erreurs === sources.length
-      ? 'Les services de recherche ne répondent pas — réessaie dans quelques secondes, ou colle l\'URL à la main.'
-      : 'Aucun résultat — essaie le titre original (souvent en anglais/japonais), ou colle l\'URL à la main.') + '</div>';
+      ? 'Les services de recherche ne répondent pas, réessaie dans quelques secondes, ou colle l\'URL à la main.'
+      : 'Aucun résultat, essaie le titre original (souvent en anglais/japonais), ou colle l\'URL à la main.') + '</div>';
     return;
   }
   zone.innerHTML = '<div class="res-info">Clique sur la bonne affiche :</div>'
@@ -5897,6 +5934,7 @@ function reporterEpisode(c, id){
   f.date = isoLocal(ref);
   sauver();
   rendreSectionsAccueil();
+  toast('Sortie reportée au ' + fmtDate(isoLocal(prochaineSortie(f.date, pas))) + '.', 'ok');
 }
 
 // ================= étoiles =================
@@ -5982,7 +6020,7 @@ function rendreListe(){
       const bas = sansNote(f)
         ? '<span class="t-anoter">À noter</span>'
         : etoilesHTML(f.note, 12) + '<span class="t-note">'+showNote(f.note)+'</span>';
-      const infoBulle = echap(f.titre) + (!sansNote(f) ? ' — ' + showNote(f.note) + '/10' : '')
+      const infoBulle = echap(f.titre) + (!sansNote(f) ? ' · ' + showNote(f.note) + '/10' : '')
         + ((c !== 'films' && f.statut && STATUTS[f.statut]) ? ' · ' + STATUTS[f.statut].nom : '');
       return '<div class="tuile" data-id="'+f.id+'" title="'+infoBulle+'">'
         + '<div class="t-poster"><div class="t-vide">'+echap(f.titre)+'</div>'+img+pointStatut+'</div>'
@@ -6021,7 +6059,7 @@ function rendreListe(){
       cellules.push('<span class="note-cell"><span class="note-lab">Communauté Wawa</span>'
         + '<button class="badge badge-commu '+(chaud ? 'badge-commu-hot' : 'badge-pub')+'"'
         +   ' data-commu="'+echap(k)+'" data-titre="'+echap(f.titre)+'"'
-        +   ' title="'+echap('Voir qui a noté'+(detailCommu ? ' — ' + detailCommu : ''))+'">'
+        +   ' title="'+echap('Voir qui a noté'+(detailCommu ? ' · ' + detailCommu : ''))+'">'
         + '👥 '+showNote(Math.round(cm.s/cm.n*10)/10)+'</button></span>');
     }
     const barreNotes = '<div class="notes-bar">' + cellules.join('<span class="note-sep"></span>') + '</div>';
@@ -6178,7 +6216,7 @@ function afficherSugg(connues, api, cherche){
   }
   if(!html){
     html = '<div class="sugg-info">' + (cherche ? 'Recherche en cours…'
-      : 'Rien trouvé — écris le titre à la main, ça marche aussi (essaie le titre original).') + '</div>';
+      : 'Rien trouvé, écris le titre à la main, ça marche aussi (essaie le titre original).') + '</div>';
   }
   z.innerHTML = html;
   z.classList.add('on');
@@ -6214,7 +6252,7 @@ function choisirSugg(x){
     // ce titre est déjà dans ma liste : on ouvre sa fiche plutôt que d'en créer une deuxième
     fermerSugg();
     ouvrirModale(x.id);
-    toast('Ce titre était déjà dans ta liste — voici sa fiche.');
+    toast('Ce titre était déjà dans ta liste, voici sa fiche.');
     return;
   }
   $('fTitre').value = x.t;
@@ -6365,7 +6403,7 @@ function ouvrirModale(id){
   ['fTitre','fStatut','fFreq','fP1','fP2','fNote','fNotePub','fDate','fAffiche','fAvis'].forEach(i => $(i).disabled = ro);
   $('btnChercherAffiche').style.display = ro ? 'none' : '';
   $('btnNotePub').style.display = ro ? 'none' : '';
-  $('labTitre').textContent = (ro || f) ? 'Titre' : 'Titre — tape 3 lettres, le site trouve le reste';
+  $('labTitre').textContent = (ro || f) ? 'Titre' : 'Titre (tape 3 lettres, le site trouve le reste)';
 
   // champs spécifiques à la catégorie — et masqués aussi en lecture seule
   construireStatuts(c);
@@ -6610,7 +6648,7 @@ async function allerUtilisateurs(){
   catCourante = null;
   cacherPages();
   $('pageUtilisateurs').classList.remove('cache');
-  document.title = "Ciné'Wawa — Utilisateurs";
+  document.title = "Ciné'Wawa · Utilisateurs";
   const zone = $('listeUsers');
   zone.innerHTML = '<div class="vide-msg">Chargement de l\'annuaire…</div>';
 
@@ -6619,7 +6657,7 @@ async function allerUtilisateurs(){
     logins = await loginsAnnuaire();
   }catch(e){}
   if(!logins.length){
-    zone.innerHTML = '<div class="vide-msg">L\'annuaire est vide pour l\'instant — les utilisateurs qui activent le cloud s\'y inscrivent automatiquement.</div>';
+    zone.innerHTML = '<div class="vide-msg">L\'annuaire est vide pour l\'instant : les utilisateurs qui activent le cloud s\'y inscrivent automatiquement.</div>';
     return;
   }
 
@@ -6673,8 +6711,7 @@ async function allerUtilisateurs(){
       const gagnes = tousSucces(d).filter(e => e.niv > 0);
       succes.classList.add('on');
       succes.innerHTML = gagnes.length
-        ? '<span class="uc-sc-t">Meilleurs succès <b>' + gagnes.length + '</b>/' + SUCCES.length + '</span>'
-          + medaillonsHTML(d, 5, true)
+        ? '<span class="uc-sc-t">Meilleurs succès</span>' + medaillonsHTML(d, 5, true)
         : '<span class="uc-sc-t">Aucun succès débloqué</span>';
       const enCours = ['series','anime','manga'].reduce((t,c) => t + (d[c]||[]).filter(f=>f.statut==='encours').length, 0);
       const btn = document.createElement('button');
@@ -6719,6 +6756,10 @@ function afficherRecap(login, d){
   const parMois = {};
   CATS4.forEach(c => d[c].forEach(f => {
     if(!f.date || f.date.length < 7) return;
+    // « Prévu » n'a pas été regardé, et pour un titre en cours la date n'est PAS une date
+    // de visionnage : c'est le jour de sortie suivi, que « +1 ép. » fait avancer tout seul.
+    // Les compter faisait grimper le mois courant sans que rien n'ait été vu.
+    if(f.statut === 'prevu' || f.statut === 'encours') return;
     const m = f.date.slice(0,7);
     (parMois[m] = parMois[m] || { films:0, series:0, anime:0, manga:0 })[c]++;
   }));
@@ -6798,7 +6839,7 @@ function afficherRecap(login, d){
     const tops = d[c].filter(f => f.note != null).slice().sort((a,b) => b.note - a.note).slice(0, 5);
     if(!tops.length) return '';
     const tuiles = tops.map((f,i) =>
-      '<div class="tp-t' + (i < 3 ? ' p' + (i+1) : '') + '" title="' + echap(f.titre) + ' — ' + showNote(f.note) + '/10">'
+      '<div class="tp-t' + (i < 3 ? ' p' + (i+1) : '') + '" title="' + echap(f.titre) + ' · ' + showNote(f.note) + '/10">'
       + '<div class="tp-aff">'
       +   (f.affiche ? '<img loading="lazy" src="' + echap(f.affiche) + '" alt="" onerror="this.remove()">'
                      : '<span class="tp-vide">' + echap(f.titre) + '</span>')
@@ -6863,7 +6904,7 @@ function afficherRecap(login, d){
     +       '</div>'
     +       (moyenne != null
           ? '<div class="pf-moy"><b>' + showNote(moyenne) + '<small>/10</small></b><span>note moyenne</span></div>'
-          : '<div class="pf-moy vide"><b>—</b><span>aucune note</span></div>')
+          : '<div class="pf-moy vide"><b>·</b><span>aucune note</span></div>')
     +     '</div>'
     +     '<div class="pf-stats">' + compteurs + '</div>'
     +     '<div class="pf-resume">'
@@ -7024,7 +7065,7 @@ async function affichesToutesLancer(c, manquants){
   for(let i = 0; i < manquants.length; i++){
     if(!affichesEnCours) break;
     const f = manquants[i];
-    $('labAffiches').textContent = '⏳ ' + (i+1) + '/' + manquants.length + ' — cliquer pour arrêter';
+    $('labAffiches').textContent = '⏳ ' + (i+1) + '/' + manquants.length + ' · cliquer pour arrêter';
     for(const src of sourcesPour(f.titre, c)){
       try{
         const res = (await src()).filter(x => x.url);
@@ -7038,7 +7079,7 @@ async function affichesToutesLancer(c, manquants){
   sauver(); majCollage();
   if(catCourante === c && !visu) rendreListe();
   $('labAffiches').textContent = 'Les affiches manquantes';
-  toast('<b>' + ok + '</b> affiche(s) récupérée(s) ✓' + (manquants.length - ok ? ' — ' + (manquants.length - ok) + ' sans résultat.' : ''), 'ok');
+  toast('<b>' + ok + '</b> affiche(s) récupérée(s) ✓' + (manquants.length - ok ? ', ' + (manquants.length - ok) + ' sans résultat.' : ''), 'ok');
 }
 
 // ================= import Letterboxd =================
@@ -7104,7 +7145,7 @@ function importerLetterboxd(fichier){
       if(ajoutes){ sauver(); majCollage(); rafraichir(); }
       toast('Import Letterboxd ✓ <b>' + ajoutes + '</b> film(s) importé(s)' + (doublons ? ', ' + doublons + ' déjà présents' : '') + '.', 'ok');
     }catch(e){
-      toast("Fichier non reconnu — il faut un CSV de l'export Letterboxd (ratings.csv ou watched.csv, une fois l'export dézippé).", 'err');
+      toast("Fichier non reconnu : il faut un CSV de l'export Letterboxd (ratings.csv ou watched.csv, une fois l'export dézippé).", 'err');
     }
   };
   lecteur.readAsText(fichier);
@@ -7207,7 +7248,7 @@ async function importerMAL(fichier){
     toast('Import MyAnimeList ✓ ' + (total ? '<b>' + detail + '</b> importé(s)' : 'aucun nouveau titre')
       + (doublons ? ', ' + doublons + ' déjà présent(s)' : '') + '.', 'ok');
   }catch(err){
-    toast("Fichier non reconnu — il faut l'export MyAnimeList (animelist_….xml ou .xml.gz, via Settings → Export).", 'err');
+    toast("Fichier non reconnu : il faut l'export MyAnimeList (animelist_….xml ou .xml.gz, via Settings → Export).", 'err');
   }
 }
 
@@ -7291,7 +7332,7 @@ function majCloudEtat(mode, e){
   const t = $('etatTexte');
   if(mode === 'sync'){ pastilleSync(false); t.textContent = 'Synchro…'; }
   else if(mode === 'ok'){ pastilleSync(true); t.textContent = 'Sync ' + heure(); }
-  else { pastilleSync(false); t.textContent = 'Erreur — réessayer'; if(e) console.error(e); }
+  else { pastilleSync(false); t.textContent = 'Erreur, réessayer'; if(e) console.error(e); }
 }
 
 let pushEnAttente = false;
@@ -7472,7 +7513,7 @@ async function activerCloud(){
     chargerNotesCommu(true);
   }catch(e){
     cloud = { token: '', gistId: '' };
-    msgCloud('Échec : ' + e.message + ' — vérifie le token (permission « gist » cochée ?).', true);
+    msgCloud('Échec : ' + e.message + '. Vérifie le token (permission « gist » cochée ?).', true);
   }
 }
 function desactiverCloud(){
@@ -7580,29 +7621,29 @@ const SPIDER_FILMS = [
 
 // ---- Star Wars : la saga au cinéma, dans l'ordre de sortie ----
 const SW_FILMS = [
-  { id:'sw4', t:'Épisode IV — Un nouvel espoir',        a:1977, q:'Star Wars',
+  { id:'sw4', t:'Épisode IV : Un nouvel espoir',        a:1977, q:'Star Wars',
     al:['La Guerre des étoiles','Un nouvel espoir','Star Wars 4','Star Wars : Un nouvel espoir'] },
-  { id:'sw5', t:'Épisode V — L\'Empire contre-attaque',  a:1980, q:'The Empire Strikes Back',
+  { id:'sw5', t:'Épisode V : L\'Empire contre-attaque',  a:1980, q:'The Empire Strikes Back',
     al:['L\'Empire contre-attaque','Star Wars 5'] },
-  { id:'sw6', t:'Épisode VI — Le Retour du Jedi',       a:1983, q:'Return of the Jedi',
+  { id:'sw6', t:'Épisode VI : Le Retour du Jedi',       a:1983, q:'Return of the Jedi',
     al:['Le Retour du Jedi','Star Wars 6'] },
-  { id:'sw1', t:'Épisode I — La Menace fantôme',        a:1999, q:'Star Wars: The Phantom Menace',
+  { id:'sw1', t:'Épisode I : La Menace fantôme',        a:1999, q:'Star Wars: The Phantom Menace',
     al:['La Menace fantôme','Star Wars 1'] },
-  { id:'sw2', t:'Épisode II — L\'Attaque des clones',    a:2002, q:'Star Wars: Attack of the Clones',
+  { id:'sw2', t:'Épisode II : L\'Attaque des clones',    a:2002, q:'Star Wars: Attack of the Clones',
     al:['L\'Attaque des clones','Star Wars 2'] },
-  { id:'sw3', t:'Épisode III — La Revanche des Sith',   a:2005, q:'Star Wars: Revenge of the Sith',
+  { id:'sw3', t:'Épisode III : La Revanche des Sith',   a:2005, q:'Star Wars: Revenge of the Sith',
     al:['La Revanche des Sith','Star Wars 3'] },
   { id:'swcw',t:'The Clone Wars',                        a:2008, q:'Star Wars: The Clone Wars',
     al:['Star Wars: The Clone Wars','Star Wars : The Clone Wars','La Guerre des clones'] },
-  { id:'sw7', t:'Épisode VII — Le Réveil de la Force',  a:2015, q:'Star Wars: The Force Awakens',
+  { id:'sw7', t:'Épisode VII : Le Réveil de la Force',  a:2015, q:'Star Wars: The Force Awakens',
     al:['Le Réveil de la Force','Star Wars 7'] },
   { id:'swr1',t:'Rogue One',                            a:2016, q:'Rogue One',
     al:['Rogue One: A Star Wars Story','Rogue One : A Star Wars Story'] },
-  { id:'sw8', t:'Épisode VIII — Les Derniers Jedi',     a:2017, q:'Star Wars: The Last Jedi',
+  { id:'sw8', t:'Épisode VIII : Les Derniers Jedi',     a:2017, q:'Star Wars: The Last Jedi',
     al:['Les Derniers Jedi','Star Wars 8'] },
   { id:'swso',t:'Solo',                                 a:2018, q:'Solo: A Star Wars Story',
     al:['Solo: A Star Wars Story','Solo : A Star Wars Story'] },
-  { id:'sw9', t:'Épisode IX — L\'Ascension de Skywalker',a:2019, q:'Star Wars: The Rise of Skywalker',
+  { id:'sw9', t:'Épisode IX : L\'Ascension de Skywalker',a:2019, q:'Star Wars: The Rise of Skywalker',
     al:['L\'Ascension de Skywalker','Star Wars 9'] },
   { id:'swmg',t:'The Mandalorian and Grogu',            a:2026, q:'The Mandalorian and Grogu',
     al:['Mandalorian and Grogu','The Mandalorian & Grogu'] },
@@ -7709,7 +7750,7 @@ function allerMcu(id){
   $('mcuAvatar').textContent = def.ico;
   $('mcuAvatar').style.background = 'linear-gradient(135deg,' + def.coul + ',#12321f)';
   $('mcuNomPage').textContent = def.court;
-  document.title = "Ciné'Wawa — " + def.court;
+  document.title = "Ciné'Wawa · " + def.court;
   rendreMcu();
   mcuChargerAffiches().then(initialiserDefis);
 }
@@ -7811,7 +7852,7 @@ function rendreCommuDefi(def){
           ? avecDeco('<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=44" alt="" onerror="this.remove()">', m.login)
           : '<span class="dc-vide">🎬</span>';
         return '<span class="dc-m' + (m.mien ? ' mien' : '') + '" title="'
-          + echap(m.pseudo + ' — ' + m.n + '/' + total + ' (' + pct + '%)') + '">'
+          + echap(m.pseudo + ' · ' + m.n + '/' + total + ' (' + pct + '%)') + '">'
           + '<i style="width:' + pct + '%"></i>'
           + pp + '<b>' + echap(m.pseudo) + '</b><span>' + m.n + '</span></span>';
       }).join('')
@@ -7833,9 +7874,9 @@ function rendreMcu(){
     ? 'Parcours de ' + visu.pseudo
     : (r.n >= r.total ? 'Parcours terminé !' : def.nom);
   $('mcuHeroSous').innerHTML = visu
-    ? '<b>' + r.n + '</b> / ' + r.total + ' films vus — lecture seule.'
+    ? '<b>' + r.n + '</b> / ' + r.total + ' films vus, en lecture seule.'
     : ('<b>' + r.n + '</b> / ' + r.total + ' films cochés. '
-       + (r.n >= r.total ? 'Tout est vu, rien ne t\'échappera.' : 'Clique une affiche pour la cocher — la sauvegarde est automatique.'));
+       + (r.n >= r.total ? 'Tout est vu, rien ne t\'échappera.' : 'Clique une affiche pour la cocher, la sauvegarde est automatique.'));
   $('mcuActions').style.display = visu ? 'none' : '';
 
   rendreCommuDefi(def);
@@ -7995,7 +8036,7 @@ async function mcuDetecter(){
   const ajout = mcuAppliquerDetection(def, false);
   if(ajout){ sauver(); rendreMcu(); }
   mcuMsg(ajout ? '✓ ' + ajout + ' titre' + (ajout>1?'s':'') + ' coché' + (ajout>1?'s':'') + ' automatiquement d\'après ta bibliothèque.'
-               : 'Aucun nouveau titre trouvé dans ta bibliothèque — les titres doivent être écrits pareil.', !ajout);
+               : 'Aucun nouveau titre trouvé dans ta bibliothèque : les titres doivent être écrits pareil.', !ajout);
 }
 // petit message sous les boutons (remplace les alert/confirm natifs, bloqués dans certains contextes)
 let mcuMsgT = null;
@@ -8241,7 +8282,7 @@ $('reacRetirer').addEventListener('click', () => {
 $('cVisibilite').addEventListener('change', () => {
   etat.visibilite = $('cVisibilite').value;
   sauver();
-  msgConf({ public:'🌍 Liste visible par tout le monde.', amis:'👥 Liste réservée à tes amis — ajoute leurs pseudos GitHub en dessous.', prive:'🔒 Liste privée.' }[etat.visibilite]);
+  msgConf({ public:'🌍 Liste visible par tout le monde.', amis:'👥 Liste réservée à tes amis : ajoute leurs pseudos GitHub en dessous.', prive:'🔒 Liste privée.' }[etat.visibilite]);
 });
 // ---- amis sous forme de pastilles ----
 function rendreAmis(){
@@ -8250,7 +8291,7 @@ function rendreAmis(){
   z.className = l.length ? 'chips' : 'chips-vide';
   z.innerHTML = l.length
     ? l.map((a, i) => '<span class="chip">' + echap(a) + '<button data-i="' + i + '" title="Retirer">✕</button></span>').join('')
-    : 'Aucun ami pour l\'instant — ajoute un pseudo GitHub ci-dessus.';
+    : 'Aucun ami pour l\'instant : ajoute un pseudo GitHub ci-dessus.';
   z.querySelectorAll('button').forEach(b => b.addEventListener('click', () => {
     etat.amis.splice(parseInt(b.dataset.i), 1);
     sauver(); rendreAmis();
