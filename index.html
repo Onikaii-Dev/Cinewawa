@@ -2159,7 +2159,7 @@
 </div>
 
 <script>
-const VERSION = 'v150';
+const VERSION = 'v151';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -7082,9 +7082,17 @@ async function allerUtilisateurs(){
   zone.innerHTML = '<div class="users-grid" id="usersGrid"></div>';
   const grille = $('usersGrid');
   const moi = (await obtenirMonLogin()).toLowerCase();
+  // `order` sur une grille CSS : on réordonne sans toucher au DOM, donc sans perdre les
+  // cartes déjà remplies ni interrompre celles qui chargent encore.
+  const classer = () => {
+    Array.from(grille.children)
+      .sort((a, b) => (Number(b.dataset.vu) || 0) - (Number(a.dataset.vu) || 0))
+      .forEach((c, i) => { c.style.order = i; });
+  };
   for(const login of logins){
     const carte = document.createElement('div');
     carte.className = 'user-card';
+    carte.dataset.vu = '0';          // tant qu'on ne sait rien, la carte attend en fin de liste
     carte.innerHTML = '<div class="uc-head">'
       + avecDeco('<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">', login, 0, true)
       + '<div class="uc-id"><div class="uc-pseudo">' + echap(login) + '</div><div class="uc-login">@' + echap(login) + '</div></div>'
@@ -7104,10 +7112,13 @@ async function allerUtilisateurs(){
         stats.className = 'uc-stats uc-muet';
         stats.textContent = 'Pas de liste publique';
         pied.innerHTML = '<span class="uc-badge prive">🔒 Privé</span>';
+        classer();
         return;
       }
-      // présence : affichée même si la liste est privée
+      // présence : affichée même si la liste est privée, et c'est elle qui donne le rang
       carte.querySelector('.uc-head').insertAdjacentHTML('beforeend', htmlPresence(d.vu));
+      carte.dataset.vu = String(Number(d.vu) || 0);
+      classer();
       carte.querySelector('.uc-pseudo').textContent = d.pseudo || login;
       if(d.bio){ bio.textContent = d.bio; bio.classList.add('on'); }
       const vis = d.visibilite || 'public';
@@ -7147,6 +7158,7 @@ async function allerUtilisateurs(){
       carte.classList.add('indispo');
       stats.className = 'uc-stats uc-muet';
       stats.textContent = 'Erreur de chargement';
+      classer();
     });
   }
 }
