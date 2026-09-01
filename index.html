@@ -1179,8 +1179,16 @@
     border-radius:99px;padding:5px 12px;flex-shrink:0}
   .deco-compte b{font-size:14px}
 
+  .deco-sect{grid-column:1/-1;font-size:10.5px;font-weight:800;letter-spacing:.13em;
+    text-transform:uppercase;color:var(--faint);margin:22px 2px 0;position:relative;z-index:2;
+    display:flex;align-items:center;gap:11px}
+  .deco-sect::after{content:'';flex:1;height:1px;background:rgba(255,255,255,.09)}
+  .deco-sect:first-child{margin-top:0}
   .deco-grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(168px,1fr));gap:14px}
   .deco-c{display:flex;flex-direction:column;align-items:center;gap:8px;cursor:pointer;
+    /* les cadres les plus hauts (chevelures, cornes) sortent de leur vignette :
+       sans cette réserve, ils venaient recouvrir l'intertitre de la section */
+    padding-top:30px;
     background:linear-gradient(170deg,rgba(255,255,255,.05),rgba(255,255,255,.015));
     border:1px solid rgba(255,255,255,.07);border-radius:var(--r);padding:18px 12px 14px;
     font-family:inherit;color:var(--txt);text-align:center;
@@ -1191,6 +1199,7 @@
     background:linear-gradient(170deg,rgba(255,255,255,.09),rgba(255,255,255,.02))}
   .deco-c.verrou{opacity:.5;cursor:not-allowed}
   .deco-apercu{position:relative;width:74px;height:74px;display:flex;align-items:center;justify-content:center;margin-bottom:2px}
+  .deco-apercu .deco-cadre{width:124%;height:124%}
   .deco-rond{width:52px;height:52px;border-radius:50%;
     background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
   .deco-lock{position:absolute;font-size:19px;opacity:.7}
@@ -2055,7 +2064,7 @@
 </div>
 
 <script>
-const VERSION = 'v105';
+const VERSION = 'v121';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2739,11 +2748,576 @@ const DECOS_DEFI = [
           + anim(fige, 'opacity', '.3;1;.3', 3, 'begin="' + p[2] + 's"') + '</circle>').join('') },
 ];
 
+// ================= CADRES DE COLLECTION =================
+// Cinq clins d'oeil par catégorie, débloqués au nombre d'oeuvres rangées. Ils n'ont pas
+// de paliers : chacun est un dessin entier, avec son animation propre.
+
+// un point du cercle du cadre, en coordonnées de la boîte 120x120
+const dcPt = (a, r) => (60 + Math.cos(a * RAD) * r).toFixed(2) + ' ' + (60 + Math.sin(a * RAD) * r).toFixed(2);
+
+// Une corne épaisse : le fuseau suit une quadratique, la largeur part de `w` à la base
+// et se réduit à une pointe. Deux courbes presque confondues ne donnaient qu'un cheveu.
+function corneEpaisse(bx, by, cx, cy, tx, ty, w, fill, trait){
+  const dx = cx - bx, dy = cy - by, L = Math.hypot(dx, dy) || 1, nx = -dy / L, ny = dx / L;
+  const ex = tx - cx, ey = ty - cy, L2 = Math.hypot(ex, ey) || 1, mx = -ey / L2, my = ex / L2;
+  const P2 = (x, y) => x.toFixed(1) + ' ' + y.toFixed(1);
+  const d = 'M' + P2(bx + nx * w, by + ny * w)
+    + ' Q' + P2(cx + nx * w * .8, cy + ny * w * .8) + ' ' + P2(tx + mx * 1.6, ty + my * 1.6)
+    + ' L' + P2(tx - mx * 1.6, ty - my * 1.6)
+    + ' Q' + P2(cx - nx * w * .78, cy - ny * w * .78) + ' ' + P2(bx - nx * w, by - ny * w) + ' Z';
+  return '<path d="' + d + '" fill="' + fill + '" stroke="' + trait + '" stroke-width="1.2"'
+    + ' stroke-linejoin="round"/>'
+    + '<path d="M' + P2(bx + nx * w * .35, by + ny * w * .35) + ' Q' + P2(cx + nx * w * .3, cy + ny * w * .3)
+    + ' ' + P2(tx, ty) + '" fill="none" stroke="' + trait + '" stroke-width=".9" opacity=".55"/>';
+}
+
+// ---------- 10 anime : Super Saiyan ----------
+// Une chevelure, pas une couronne : des mèches inégales, courbes, les plus longues au
+// sommet, et un contour sombre qui les détache comme sur un cel d'animation.
+function ssjCheveux(u){
+  // [angle, longueur] — la dissymétrie est volontaire, une crête régulière fait soleil
+  // Peu de mèches, larges, et toutes couchées dans le même sens : c'est cette inclinaison
+  // commune qui fait lire « cheveux » plutôt que « couronne ». Les creux restent hauts
+  // (r = 64) pour que la masse ait du volume au lieu de rayonner depuis le crâne.
+  // longueurs et écarts volontairement inégaux : deux mèches identiques côte à côte
+  // suffisent à faire retomber l'ensemble sur une couronne
+  // [angle, longueur, épaisseur] — quelques mèches franchement plus grasses que les autres
+  // La base court de A0 à A1 ; TOUS les angles utilisés (mèches, creux, points de
+  // contrôle) doivent rester à l'intérieur, inclinaison comprise. Sinon le contour se
+  // replie sur lui-même et fabrique les crochets qu'on voyait au-dessus du crâne.
+  // On garde exactement la crête large d'avant ; seule la fermeture change : A1 est
+  // repoussé au-delà de la dernière mèche inclinée, et les points de contrôle remontent
+  // près du sommet. C'est ce qui produisait les crochets, pas la forme elle-même.
+  const A0 = 196, A1 = 352, pencher = 8;
+  const meches = [[203,60,11],[220,84,13],[238,102,11],[254,88,14],[270,106,11],
+                  [286,90,14],[303,98,11],[320,74,13],[336,58,11]];
+  const borne = v => Math.max(A0 + 2, Math.min(A1 - 2, v));
+  let d = 'M' + dcPt(A0, 47);
+  meches.forEach((m, k) => {
+    const a = m[0], r = m[1], w = m[2];
+    const creuxA = (k < meches.length - 1) ? (a + meches[k + 1][0]) / 2 : A1 - 6;
+    // les points de contrôle restent près du sommet : trop bas et trop écartés, la
+    // courbe se retournait et laissait un petit crochet à la pointe de la mèche
+    d += ' Q' + dcPt(borne(a - w), r * .76) + ' ' + dcPt(borne(a + pencher), r);
+    d += ' Q' + dcPt(borne(a + pencher + w * .8), r * .74) + ' ' + dcPt(borne(creuxA), 64);
+  });
+  d += ' L' + dcPt(A1, 47) + ' A47 47 0 0 0 ' + dcPt(A0, 47) + ' Z';
+  // La frange passe dessous : sa base disparaît sous la masse, plus de couture visible.
+  return ssjFrange(u)
+    + '<path d="' + d + '" fill="#7a4a02" transform="translate(0 2)" opacity=".55"/>'
+    + '<path d="' + d + '" fill="url(#gh' + u + ')" stroke="#8a5200" stroke-width="1.6" stroke-linejoin="round"/>'
+    // quelques nervures : sans elles la masse reste un aplat
+    + '<path d="M' + dcPt(229, 84) + ' L' + dcPt(222, 52) + ' M' + dcPt(247, 88) + ' L' + dcPt(240, 52)
+    +   ' M' + dcPt(264, 92) + ' L' + dcPt(257, 52) + ' M' + dcPt(279, 90) + ' L' + dcPt(272, 52)
+    +   ' M' + dcPt(294, 88) + ' L' + dcPt(287, 52) + ' M' + dcPt(311, 82) + ' L' + dcPt(304, 52) + '"'
+    +   ' stroke="#8a5200" stroke-width="1.5" opacity=".45" stroke-linecap="round"/>';
+}
+// La frange : cinq pointes descendantes, de longueurs inégales, accrochées à la ligne
+// de cheveux. Sans elles, la chevelure flotte au-dessus du crâne au lieu de le coiffer.
+function ssjFrange(u){
+  // larges et courtes : fines, elles pendaient comme des dents sous la ligne de cheveux
+  const pointes = [[233,9],[251,13],[269,9],[287,13],[303,8]];
+  const d = pointes.map(p => {
+    const a = p[0], lg = p[1];
+    return 'M' + dcPt(a - 15, 62) + ' L' + dcPt(a + 2, 47 - lg) + ' L' + dcPt(a + 15, 62) + ' Z';
+  }).join(' ');
+  return '<path d="' + d + '" fill="url(#gh' + u + ')" stroke="#c98a10" stroke-width=".9"'
+    + ' stroke-linejoin="round"/>';   // trait clair : foncé, la frange se lisait en piques
+}
+
+// Un éclair : tracé « pointe vers le haut », la rotation l'oriente vers l'extérieur.
+const ssjEclair = (a, r, coul, retard, ech, fige) =>
+  '<g transform="translate(' + dcPt(a, r) + ') rotate(' + (a + 90) + ') scale(' + ech + ')">'
+  + '<path d="M0 0 L-5 -7 L2 -10 L-3 -17 L5 -23" fill="none" stroke="' + coul + '" stroke-width="2.4"'
+  + ' stroke-linecap="round" stroke-linejoin="round" opacity="' + (fige ? '.9' : '0') + '">'
+  + (fige ? '' : '<animate attributeName="opacity" values="0;1;.2;1;0;0;0;0" dur="1.4s" begin="'
+      + retard + 's" repeatCount="indefinite" calcMode="discrete"/>')
+  + '</path></g>';
+
+// ---------- 50 anime : la spirale de Konoha, et les queues ----------
+// La spirale se construit point par point : trois arcs à la main ne donnaient jamais
+// un enroulement régulier.
+function konohaSpirale(cx, cy, rMax, rMin, depart){
+  const pts = [];
+  for(let k = 0; k <= 44; k++){
+    const t = k / 44, a = (depart + 560 * t) * RAD, r = rMax + (rMin - rMax) * t;
+    pts.push((cx + Math.cos(a) * r).toFixed(2) + ' ' + (cy + Math.sin(a) * r).toFixed(2));
+  }
+  const q = (depart * RAD);
+  return '<path d="M' + (cx + Math.cos(q) * (rMax + 11)).toFixed(2) + ' '
+      + (cy + Math.sin(q) * (rMax + 11)).toFixed(2) + ' L' + pts[0] + '"'
+      + ' fill="none" stroke="#2b3145" stroke-width="3" stroke-linecap="round"/>'
+    + '<path d="M' + pts.join(' L') + '" fill="none" stroke="#2b3145" stroke-width="3"'
+    + ' stroke-linecap="round" stroke-linejoin="round"/>';
+}
+
+// Une queue de renard : elle part de l'anneau et balaie l'extérieur en montant, fine et
+// d'un seul trait. `a` est l'angle de la racine, `dA` de combien elle remonte.
+function kyuQueue(u, a, dA, rBout, w, retard, fige){
+  const aC = a + dA * .52, rC = (47 + rBout) * .5 + 5;
+  const corps = 'M' + dcPt(a - w, 47)
+    + ' Q' + dcPt(aC - w * .8, rC + 5) + ' ' + dcPt(a + dA, rBout)
+    + ' Q' + dcPt(aC + w * 1.1, rC - 5) + ' ' + dcPt(a + w * 1.3, 46) + ' Z';
+  const bout = 'M' + dcPt(a + dA, rBout)
+    + ' Q' + dcPt(a + dA * .84 - w * .5, rBout - 5) + ' ' + dcPt(a + dA * .74, rBout - 9)
+    + ' Q' + dcPt(a + dA * .86 + w * .6, rBout - 4) + ' ' + dcPt(a + dA, rBout) + ' Z';
+  return '<g>'
+    + (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
+        + ' values="-4 60 60;4 60 60;-4 60 60" dur="3.6s" begin="' + retard + 's"'
+        + ' repeatCount="indefinite" calcMode="spline" keySplines=".42 0 .58 1;.42 0 .58 1"/>')
+    + '<path d="' + corps + '" fill="url(#gq' + u + ')" stroke="#a83c0c" stroke-width=".8" stroke-linejoin="round"/>'
+    + '<path d="' + bout + '" fill="#ffeacc" opacity=".9"/></g>';
+}
+
+// ---------- 80 anime : le « menacing » ----------
+// Un コ anguleux plus ses deux traits, dessiné en chemins : toutes les machines n'ont pas
+// de police japonaise, et un carré blanc à la place vaudrait moins que rien.
+const jjGogo = (retard, ech, fige, gauche) => {
+  const trait = (coul, ep, op) =>
+    '<path d="M-7 -9 L7 -9 L7 9 L-4 9" fill="none" stroke="' + coul + '" stroke-width="' + ep + '"'
+    + ' stroke-linecap="square" stroke-linejoin="miter" opacity="' + op + '"/>'
+    + '<path d="M10 -12 l4 4.5 M14.5 -6.5 l4 4.5" stroke="' + coul + '" stroke-width="'
+    + (ep * .72).toFixed(1) + '" stroke-linecap="round" opacity="' + op + '"/>';
+  const pose = gauche
+    ? [[15, 96], [10, 70], [19, 44]]
+    : [[105, 96], [110, 70], [101, 44]];
+  const k = Math.round(retard / .9) % 3;
+  return '<g opacity="' + (fige ? '.9' : '0') + '"'
+    + (fige ? ' transform="translate(' + pose[k][0] + ' ' + pose[k][1] + ')"' : '') + '>'
+    + (fige ? '' : '<animate attributeName="opacity" values="0;0;1;1;0;0" keyTimes="0;.08;.22;.66;.88;1"'
+        + ' dur="3.6s" begin="' + retard + 's" repeatCount="indefinite"/>')
+    + '<g transform="scale(' + ech + ')">'
+    +   trait('#ffffff', 9, '.16') + trait('#e6d4ff', 6.4, '.4') + trait('#a06bff', 4.4, '1')
+    + '</g>'
+    + (fige ? '' : '<animateMotion dur="3.6s" begin="' + retard + 's" repeatCount="indefinite"'
+        + ' path="' + (gauche ? 'M16 106 Q2 76 8 46 Q12 26 24 12' : 'M104 106 Q118 76 112 46 Q108 26 96 12')
+        + '"/>')
+    + '</g>';
+};
+
+const DECOS_COLLECTION = [
+  // ---------- 10 anime : Super Saiyan ----------
+  { id:'col:anime:10', groupe:'collection', cat:'anime', nom:'Super Saiyan', ico:'⚡',
+    coul:'#ffd54a', soloNom:'Cadre de collection',
+    cond:'10 anime dans ta bibliothèque.',
+    test:d => nbGroupe(d.anime, 'anime') >= 10,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gh' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#fff6c6"/><stop offset=".5" stop-color="#ffd23f"/>'
+      + '<stop offset="1" stop-color="#e08c00"/></linearGradient></defs>'
+      + '<g><circle cx="60" cy="60" r="52" fill="none" stroke="#ffd54a" stroke-width="3" opacity=".45"/>'
+      +   '<circle cx="60" cy="60" r="56" fill="none" stroke="#ffe98a" stroke-width="1.4" opacity=".28"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".7;1;.7" dur="1.6s" repeatCount="indefinite"/>')
+      + '</g>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gh' + u + ')" stroke-width="3.4"/>'
+      + [[0,'#8fe0ff',0], [32,'#ffe14a',.35], [64,'#8fe0ff',.7], [96,'#ffe14a',.15],
+         [128,'#8fe0ff',.5], [160,'#ffe14a',.85], [196,'#8fe0ff',.25], [214,'#ffe14a',.6],
+         [326,'#8fe0ff',.45], [344,'#ffe14a',.05]]
+          .map(b => ssjEclair(b[0], 48, b[1], b[2], 1, fige)).join('')
+      + ssjCheveux(u) },
+
+  // ---------- 25 anime : le chapeau de paille ----------
+  { id:'col:anime:25', groupe:'collection', cat:'anime', nom:'Le chapeau de paille', ico:'🏴‍☠️',
+    coul:'#f2c86a', soloNom:'Cadre de collection',
+    cond:'25 anime dans ta bibliothèque.',
+    test:d => nbGroupe(d.anime, 'anime') >= 25,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gp' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#ffe6a8"/><stop offset="1" stop-color="#d99b32"/></linearGradient>'
+      + '<linearGradient id="go' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#fbf7ec"/><stop offset="1" stop-color="#b9b2a1"/></linearGradient></defs>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gp' + u + ')" stroke-width="4"/>'
+      + '<g transform="translate(60 104)">'
+      +   [-32, 32].map(ang => '<g transform="rotate(' + ang + ')">'
+          + '<rect x="-27" y="-3" width="54" height="6" rx="3" fill="url(#go' + u + ')"/>'
+          + [[-27,-4],[-27,4],[27,-4],[27,4]].map(q => '<circle cx="' + q[0] + '" cy="' + q[1]
+              + '" r="4.4" fill="url(#go' + u + ')"/>').join('')
+          + '</g>').join('')
+      + '</g>'
+      + '<g>'
+      +   (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
+          + ' values="-2.2 60 34;2.2 60 34;-2.2 60 34" dur="4.2s" repeatCount="indefinite"'
+          + ' calcMode="spline" keySplines=".4 0 .6 1;.4 0 .6 1"/>')
+      +   '<path d="M60 2 C74 2 82 12 84 26 L36 26 C38 12 46 2 60 2 Z" fill="url(#gp' + u + ')"/>'
+      +   '<path d="M60 26 C88 26 106 30 106 34 C106 39 86 43 60 43 C34 43 14 39 14 34 C14 30 32 26 60 26 Z"'
+      +     ' fill="url(#gp' + u + ')" stroke="#b57e1c" stroke-width="1.1"/>'
+      +   '<path d="M35 25 C42 28 78 28 85 25 L86 32 C76 35 44 35 34 32 Z" fill="#d0342c"/>'
+      +   '<path d="M46 6 Q60 3 74 6" fill="none" stroke="#ffeec2" stroke-width="1.4" opacity=".7"/>'
+      + '</g>' },
+
+  // ---------- 50 anime : bandeau de Konoha et queues du renard ----------
+  { id:'col:anime:50', groupe:'collection', cat:'anime', nom:'Le bandeau et les neuf queues', ico:'🍥',
+    coul:'#ff8a3d', soloNom:'Cadre de collection',
+    cond:'50 anime dans ta bibliothèque.',
+    test:d => nbGroupe(d.anime, 'anime') >= 50,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gq' + u + '" x1="0" y1="0" x2="1" y2="1">'
+      + '<stop offset="0" stop-color="#ffd08a"/><stop offset=".5" stop-color="#ff8a3d"/>'
+      + '<stop offset="1" stop-color="#d24b12"/></linearGradient>'
+      + '<linearGradient id="gm' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#e2e7f0"/><stop offset="1" stop-color="#8e97ab"/></linearGradient></defs>'
+      // les queues, plantées sur les flancs
+      // flanc gauche, du bas vers le haut, puis flanc droit en miroir
+      // neuf, pas dix : cinq d'un côté, quatre de l'autre
+      + [[118, 30, 70], [143, 33, 76], [168, 34, 78], [193, 32, 74], [216, 28, 68]]
+          .map((q, k) => kyuQueue(u, q[0], q[1], q[2], 4.2, k * .45, fige)).join('')
+      + [[56, -31, 72], [30, -34, 78], [3, -33, 76], [-24, -29, 69]]
+          .map((q, k) => kyuQueue(u, q[0], q[1], q[2], -4.2, 2.4 + k * .45, fige)).join('')
+      + '<g><circle cx="60" cy="60" r="51" fill="none" stroke="#ff8a3d" stroke-width="2.4" opacity=".4"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".55;1;.55" dur="2.6s" repeatCount="indefinite"/>')
+      + '</g>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="#ff8a3d" stroke-width="3.6"/>'
+      // le bandeau : deux pans de tissu, la plaque, la spirale gravée
+      + '<path d="M12 40 Q26 24 38 21 L38 35 Q26 37 14 47 Z" fill="#17356b"/>'
+      + '<path d="M108 40 Q94 24 82 21 L82 35 Q94 37 106 47 Z" fill="#17356b"/>'
+      + '<rect x="35" y="16" width="50" height="18" rx="3.5" fill="url(#gm' + u + ')" stroke="#6d7689" stroke-width="1"/>'
+      + konohaSpirale(61, 25.5, 6.4, .6, 132)
+      + [[40,25],[80,25]].map(q => '<circle cx="' + q[0] + '" cy="' + q[1]
+          + '" r="1.8" fill="#79839c"/>').join('') },
+
+  // ---------- 80 anime : menacing ----------
+  { id:'col:anime:80', groupe:'collection', cat:'anime', nom:'Menacing', ico:'🕶️',
+    coul:'#b07cff', soloNom:'Cadre de collection',
+    cond:'80 anime dans ta bibliothèque.',
+    test:d => nbGroupe(d.anime, 'anime') >= 80,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gj' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#cdb6ff"/><stop offset="1" stop-color="#5b3fa8"/></linearGradient></defs>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gj' + u + ')" stroke-width="4"/>'
+      // les ゴ montent des deux côtés, en cascade et en décalé
+      + jjGogo(0,   1,   fige, false) + jjGogo(0.9, .82, fige, false) + jjGogo(1.8, .64, fige, false)
+      + jjGogo(0.5, .95, fige, true)  + jjGogo(1.4, .78, fige, true)  + jjGogo(2.3, .62, fige, true) },
+
+  // ---------- 100 anime : Vasto Lorde ----------
+  { id:'col:anime:100', groupe:'collection', cat:'anime', nom:'Vasto Lorde', ico:'💀',
+    coul:'#e9e4d8', soloNom:'Cadre de collection',
+    cond:'100 anime dans ta bibliothèque.',
+    test:d => nbGroupe(d.anime, 'anime') >= 100,
+    svg:(u, niv, fige) => {
+      // le masque s'ouvre en deux comme une visière, tient ouvert, puis se referme
+      const bat = (sens) => fige
+        ? ' transform="rotate(' + (sens * 26) + ' 60 6)"'
+        : '><animateTransform attributeName="transform" type="rotate"'
+          + ' values="0 60 6;0 60 6;' + (sens * 26) + ' 60 6;' + (sens * 26) + ' 60 6;0 60 6"'
+          + ' keyTimes="0;.18;.36;.78;1" dur="3.6s" repeatCount="indefinite"'
+          + ' calcMode="spline" keySplines=".5 0 .5 1;.5 0 .5 1;.5 0 .5 1;.5 0 .5 1"/';
+
+      const demi = (sens) => {
+        const m = sens < 0 ? 1 : -1;                     // m > 0 : la moitié droite
+        const X = v => (60 + m * (60 - v)).toFixed(1);   // miroir autour de x = 60
+
+        // --- la crinière : des flammes qui se recouvrent, deux rouges pour la profondeur
+        const touffe = (a, lg, curl, coul) => {
+          const t = a * RAD, nx = -Math.sin(t), ny = Math.cos(t);
+          const p = (r, lat) => (60 + Math.cos(t) * r + nx * lat).toFixed(1) + ' '
+                              + (60 + Math.sin(t) * r + ny * lat).toFixed(1);
+          return '<path d="M' + p(43, 8) + ' Q' + p(43 + lg * .6, 9 + curl) + ' ' + p(43 + lg, curl * 1.8)
+            + ' Q' + p(43 + lg * .5, curl * .3 - 5) + ' ' + p(42, -8) + ' Z" fill="' + coul + '"/>';
+        };
+        const angs = m > 0 ? [4, 22, 40, 58, 76, 92] : [88, 106, 124, 142, 160, 176];
+        const criniere = angs.map((a, k) => touffe(a, 14 + (k % 3) * 5, (k % 2 ? 6 : -6), '#8e1d16')).join('')
+          + angs.map((a, k) => touffe(a + (m > 0 ? 8 : -8), 11 + ((k + 1) % 3) * 5,
+              (k % 2 ? -5 : 5), '#c0392b')).join('');
+
+        // --- la coque, crâne allongé, fermée par une couture en dents de scie
+        // La couture n'est PAS miroir : les deux moitiés suivent exactement la même ligne
+        // brisée, l'une par la droite l'autre par la gauche. Miroitée, elle laissait une
+        // dent sur deux à découvert et le fond passait au travers.
+        const coque = '<path d="M60 9 A49 49 0 0 ' + (m < 0 ? 0 : 1)
+          + ' 60 111 L60 99 L54 87 L66 75 L52 61 L67 47 L55 33 Z"'
+          + ' fill="#f4f1e8" stroke="#9d9484" stroke-width="1.1" stroke-linejoin="round"/>';
+
+        // --- les rayures : larges au sommet du crâne, effilées au-dessus de l'orbite
+        const raie = (x1, x2, y2, ep) => '<path d="M' + X(x1) + ' 11 L' + X(x1 + ep) + ' 11 L'
+          + X(x2 + ep * .35) + ' ' + y2 + ' L' + X(x2) + ' ' + y2 + ' Z" fill="#15151a"/>';
+        const raies = raie(56, 53, 46, 5) + raie(48, 42, 44, 6) + raie(39, 30, 41, 5.5)
+          + raie(31, 20, 37, 4);
+
+        // --- l'orbite creusée et l'œil rouge
+        const oeil = '<g>'
+          + '<path d="M' + X(19) + ' 47 Q' + X(36) + ' 47 ' + X(49) + ' 54 L' + X(47) + ' 67 Q'
+          +   X(32) + ' 66 ' + X(20) + ' 61 Z" fill="#15151a"/>'
+          + '<ellipse cx="' + X(35) + '" cy="57" rx="15" ry="8" fill="#ff2a2a" opacity=".22">'
+          +   (fige ? '' : '<animate attributeName="opacity" values=".12;.45;.12" dur="1.6s" repeatCount="indefinite"/>')
+          + '</ellipse>'
+          + '<path d="M' + X(23) + ' 52.5 L' + X(45) + ' 57 L' + X(43.5) + ' 62.5 L' + X(25)
+          +   ' 59.5 Z" fill="#ff2f1c">'
+          +   (fige ? '' : '<animate attributeName="opacity" values=".6;1;.6" dur="1.6s" repeatCount="indefinite"/>')
+          + '</path></g>';
+
+        // --- la denture : une gueule noire barrée de crocs blancs, haut et bas
+        const bouche = '<path d="M' + X(20) + ' 74 Q' + X(40) + ' 90 60 92 L60 104 Q' + X(38)
+          + ' 101 ' + X(18) + ' 82 Z" fill="#15151a"/>'
+          + [[26, 78.5], [34, 83], [42, 87], [50, 90]].map(q => '<path d="M' + X(q[0]) + ' ' + q[1]
+              + ' L' + X(q[0] + 6.5) + ' ' + (q[1] + 2.4) + ' L' + X(q[0] + 3) + ' ' + (q[1] + 8.5)
+              + ' Z" fill="#f7f4ec"/>').join('')
+          + [[24, 88], [33, 92], [43, 96]].map(q => '<path d="M' + X(q[0]) + ' ' + q[1]
+              + ' L' + X(q[0] + 6) + ' ' + (q[1] + 1.6) + ' L' + X(q[0] + 3.5) + ' ' + (q[1] - 6)
+              + ' Z" fill="#e6e1d3"/>').join('');
+
+        // --- la corne : longue, courbe, partant vers l'arrière
+        // Sur les captures, le coude est EN HAUT et les pointes redescendent vers
+        // l'extérieur : l'inverse de ce que j'avais tracé. Ligne brisée épaisse, angles
+        // francs — une quadratique ne rend pas un coude.
+        const bras = 'M' + X(36) + ' 32 L' + X(14) + ' 5 L' + X(1) + ' 17 L' + X(8) + ' 44';
+        // le dernier tronçon s'affine jusqu'à une pointe tournée vers l'extérieur : un
+        // trait ne sait pas se réduire, il faut un triangle
+        const pointe = 'M' + X(1) + ' 39 L' + X(16) + ' 47 L' + X(-4) + ' 62 Z';
+        const corne = '<path d="' + bras + '" fill="none" stroke="#9d9484" stroke-width="17"'
+          + ' stroke-linejoin="miter" stroke-linecap="butt"/>'
+          + '<path d="' + pointe + '" fill="#9d9484"/>'
+          + '<path d="' + bras + '" fill="none" stroke="#f9f7f0" stroke-width="13.5"'
+          + ' stroke-linejoin="miter" stroke-linecap="butt"/>'
+          + '<path d="M' + X(3) + ' 40 L' + X(14.5) + ' 46.5 L' + X(-2) + ' 59 Z" fill="#f9f7f0"/>'
+          + '<path d="' + bras + '" fill="none" stroke="#c9c2b0" stroke-width="1.8"'
+          + ' stroke-linejoin="miter" stroke-linecap="butt" opacity=".5"/>';
+
+        return '<g' + bat(sens) + '>' + criniere + coque + raies + oeil + bouche + corne + '</g>';
+      };
+      return '<circle cx="60" cy="60" r="47" fill="none" stroke="#e9e4d8" stroke-width="3.2"/>'
+        + demi(-1) + demi(1);
+    } },
+];
+
+// ---------- côté manga ----------
+
+// Une crête de mèches : la même mécanique que la chevelure Saiyan, avec d'autres
+// couleurs et un autre profil.
+function crete(meches, pencher, fill, trait, ep){
+  let d = 'M' + dcPt(198, 47);
+  meches.forEach((m, k) => {
+    const a = m[0], r = m[1];
+    const creuxA = (k < meches.length - 1) ? (a + meches[k + 1][0]) / 2 : 340;
+    d += ' Q' + dcPt(a - 6, r * .82) + ' ' + dcPt(a + pencher, r);
+    d += ' Q' + dcPt(a + pencher + 4, r * .78) + ' ' + dcPt(creuxA, 63);
+  });
+  d += ' L' + dcPt(342, 47) + ' A47 47 0 0 0 ' + dcPt(198, 47) + ' Z';
+  return '<path d="' + d + '" fill="' + fill + '" stroke="' + trait + '" stroke-width="'
+    + (ep || 1.4) + '" stroke-linejoin="round"/>';
+}
+
+// Une dent de tronçonneuse, posée sur le rail et orientée vers l'extérieur.
+const csDent = (a, r) => '<g transform="translate(' + dcPt(a, r) + ') rotate(' + (a + 90) + ')">'
+  + '<path d="M-4 3 L-4 -3 L1 -6 L4 -1 L4 3 Z" fill="#cfd6e2" stroke="#6f7a8c" stroke-width=".7"/></g>';
+
+const DECOS_MANGA = [
+  // ---------- 5 manga : les marques de Sukuna ----------
+  { id:'col:manga:5', groupe:'collection', cat:'manga', nom:'Im-Sama', ico:'👑',
+    coul:'#d1201d', soloNom:'Cadre de collection',
+    cond:'5 manga dans ta bibliothèque.',
+    test:d => d.manga.length >= 5,
+    svg:(u, niv, fige) => {
+      const arc = (a1, a2, r, ep, coul, extra) =>
+        '<path d="M' + dcPt(a1, r) + ' A' + r + ' ' + r + ' 0 0 1 ' + dcPt(a2, r) + '"'
+        + ' fill="none" stroke="' + coul + '" stroke-width="' + ep + '" stroke-linecap="round"'
+        + (extra ? ' ' + extra : '') + '/>';
+      // deux traits parallèles : le tatouage se lit à ça, jamais à un seul
+      const marque = (a, ouv, retard) =>
+        '<g>' + arc(a - ouv, a + ouv, 44.4, 3.4, '#4d4d5c')
+        + arc(a - ouv, a + ouv, 49.6, 3.4, '#4d4d5c')
+        + (fige ? '' : '<animate attributeName="opacity" values=".8;1;.8" dur="3.2s" begin="'
+            + retard + 's" repeatCount="indefinite"/>') + '</g>';
+      // un œil : fente sombre, iris rouge, pupille fendue — posé à plat sur l'anneau
+      const oeil = (a, retard) => '<g transform="translate(' + dcPt(a, 47) + ') rotate(' + (a + 90) + ')">'
+        + '<path d="M-13 0 L0 -7.5 L13 0 L0 7.5 Z" fill="#17171e"/>'
+        + '<path d="M-9.5 0 L0 -5 L9.5 0 L0 5 Z" fill="#d1201d">'
+        +   (fige ? '' : '<animate attributeName="opacity" values="1;1;.05;1;1"'
+              + ' keyTimes="0;.44;.48;.53;1" dur="3.8s" begin="' + retard
+              + 's" repeatCount="indefinite"/>')
+        + '</path>'
+        + '<path d="M0 -4.2 L2 0 L0 4.2 L-2 0 Z" fill="#17171e"/></g>';
+      return '<defs><linearGradient id="gk' + u + '" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#2b2b35"/><stop offset="1" stop-color="#08080d"/></linearGradient></defs>'
+        // le halo rouge, qui respire
+        + '<g><circle cx="60" cy="60" r="56" fill="none" stroke="#d1201d" stroke-width="3.5" opacity=".25"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".35;.9;.35" dur="2.6s" repeatCount="indefinite"/>')
+        + '</g>'
+        // l'anneau de peau, cerné de noir
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gk' + u + ')" stroke-width="9.5"/>'
+        + '<circle cx="60" cy="60" r="52" fill="none" stroke="#4d4d5c" stroke-width="1.8"/>'
+        + '<circle cx="60" cy="60" r="42.2" fill="none" stroke="#4d4d5c" stroke-width="1.8"/>'
+        // les tatouages, par paires, tout autour
+        + [[0,13,0],[30,13,.35],[150,13,.7],[180,13,1.05],[210,13,1.4],[330,13,1.75]]
+            .map(m => marque(m[0], m[1], m[2])).join('')
+        // les quatre yeux : deux en haut, deux un peu plus bas sur les flancs
+        + oeil(252, 0) + oeil(288, .4) + oeil(216, .8) + oeil(324, 1.2)
+        // la bouche cousue, en bas
+        + arc(64, 116, 47, 7.5, '#0a0a10')
+        + [66, 76, 86, 96, 106, 114].map(a => '<path d="M' + dcPt(a, 41.5) + ' L' + dcPt(a, 52.5)
+            + '" stroke="#4d4d5c" stroke-width="3" stroke-linecap="round"/>').join('')
+        + arc(68, 112, 47, 1.6, '#d1201d', 'opacity=".55"');
+    } },
+
+  // ---------- 12 manga : Chainsaw Man ----------
+  { id:'col:manga:12', groupe:'collection', cat:'manga', nom:'Chainsaw Man', ico:'🪚',
+    coul:'#e8a33d', soloNom:'Cadre de collection',
+    cond:'12 manga dans ta bibliothèque.',
+    test:d => d.manga.length >= 12,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gc' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#eef2f8"/><stop offset="1" stop-color="#7d8798"/></linearGradient></defs>'
+      // le rail de la chaîne
+      + '<circle cx="60" cy="60" r="52" fill="none" stroke="#3b4252" stroke-width="7"/>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gc' + u + ')" stroke-width="3"/>'
+      // les dents, qui tournent comme une chaîne
+      + '<g>'
+      +   (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
+          + ' from="0 60 60" to="360 60 60" dur="7s" repeatCount="indefinite"/>')
+      +   Array.from({ length: 22 }, (v, k) => csDent(k * 16.36, 52)).join('')
+      + '</g>'
+      // la poignée de lanceur : un triangle, comme dans l'anime
+      + '<g><path d="M60 96 L69 111 L51 111 Z" fill="none" stroke="#e8a33d" stroke-width="3"'
+      +   ' stroke-linejoin="round"/>'
+      +   '<path d="M60 96 L60 78" stroke="#e8a33d" stroke-width="2.8" stroke-linecap="round"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values="1;.55;1" dur="2.2s" repeatCount="indefinite"/>')
+      + '</g>' },
+
+  // ---------- 25 manga : Berserk ----------
+  { id:'col:manga:25', groupe:'collection', cat:'manga', nom:'La Marque du sacrifice', ico:'⚔️',
+    coul:'#b4302a', soloNom:'Cadre de collection',
+    cond:'25 manga dans ta bibliothèque.',
+    test:d => d.manga.length >= 25,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gb' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#565d6b"/><stop offset=".55" stop-color="#262b34"/>'
+      + '<stop offset="1" stop-color="#12151b"/></linearGradient></defs>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gb' + u + ')" stroke-width="4.5"/>'
+      + '<circle cx="60" cy="60" r="52" fill="none" stroke="#14171e" stroke-width="2" opacity=".85"/>'
+      // le heaume : des plaques anguleuses qui se recouvrent, pas une calotte lisse
+      + '<g>'
+      +   corneEpaisse(40, 26, 28, 8, 18, -8, 7, 'url(#gb' + u + ')', '#0e1116')
+      +   corneEpaisse(80, 26, 92, 8, 102, -8, 7, 'url(#gb' + u + ')', '#0e1116')
+      +   '<path d="M60 0 L88 16 L92 38 L60 44 L28 38 L32 16 Z" fill="url(#gb' + u + ')"'
+      +     ' stroke="#0e1116" stroke-width="1.2" stroke-linejoin="round"/>'
+      +   '<path d="M60 6 L80 18 L60 26 L40 18 Z" fill="#3c434f" opacity=".8"/>'
+      +   '<path d="M32 22 L52 30 L48 40 L30 34 Z M88 22 L68 30 L72 40 L90 34 Z"'
+      +     ' fill="#1a1e26" stroke="#0e1116" stroke-width=".9"/>'
+      // la fente qui rougeoie, au ras du casque
+      +   '<g><path d="M34 40 L44 36 L52 41 L60 36 L68 41 L76 36 L86 40 L60 48 Z" fill="#ff2d20"/>'
+      +     '<path d="M40 40 L60 45 L80 40" fill="none" stroke="#ffd0a0" stroke-width="1.1" opacity=".8"/>'
+      +     (fige ? '' : '<animate attributeName="opacity" values=".5;1;.5" dur="1.9s" repeatCount="indefinite"/>')
+      +   '</g>'
+      + '</g>'
+      // La Marque : une hampe pointue, un chevron qui descend sur les flancs du losange,
+      // le losange lui-même, et la pointe qui sort dessous. Elle bat comme une braise.
+      // Le symbole est simple : UN losange, et une hampe qui le traverse de part en part
+      // avec une pointe en haut. Ma version d'avant superposait un chevron au losange,
+      // ce qui doublait ses arêtes hautes — d'où le sapin.
+      // Le symbole : un chevron ouvert vers le haut et un autre vers le bas, chacun
+      // terminé par deux pieds droits, qui se croisent au centre ; la hampe les traverse
+      // et se termine par une fourche en haut, une pointe en bas.
+      // La hampe monte au-dessus et descend au-dessous ; les deux chevrons ont des pieds
+      // de même longueur, sinon le bas paraît tronqué.
+      // La construction, telle quelle : un losange allongé à l'horizontale en bas, coupé
+      // par la hampe (deux triangles) ; au-dessus le même losange dont on efface le haut,
+      // il n'en reste que le V ; et trois courts segments posés sur la hampe.
+      + '<g transform="translate(60 70) scale(.30)">'
+      +   '<g stroke="#c8271f" fill="none" stroke-width="13" stroke-linejoin="miter" stroke-linecap="butt">'
+      +     '<path d="M-48 -38 L0 2 L48 -38"/>'
+      // au bout de chaque branche du V, un court crochet qui remonte vers l'intérieur
+      +     '<path d="M-48 -38 L-38 -50 M48 -38 L38 -50"/>'
+      +     '<path d="M0 2 L48 32 L0 62 L-48 32 Z"/>'
+      +     '<path d="M0 -54 L0 64"/>'
+      +     '<path d="M0 -42 L-13 -62 M0 -42 L13 -62 M-9 -28 L9 -28"/>'
+      +   '</g>'
+      +   (fige ? '' : '<animate attributeName="opacity" values="1;.35;1;.35;1"'
+          + ' keyTimes="0;.25;.5;.75;1" dur="3.6s" repeatCount="indefinite"/>')
+      + '</g>'
+      // le sang qui perle sous la Marque
+      + [[54, 0], [60, 1.1], [66, 2.2]].map(g => '<circle cx="' + g[0] + '" cy="104" r="2.4" fill="#b4302a"'
+          + ' opacity="' + (fige ? '.7' : '0') + '">'
+          + (fige ? '' : '<animate attributeName="cy" values="103;103;118" keyTimes="0;.5;1" dur="3s" begin="'
+              + g[1] + 's" repeatCount="indefinite"/>'
+            + '<animate attributeName="opacity" values="0;.9;.9;0" keyTimes="0;.15;.6;1" dur="3s" begin="'
+              + g[1] + 's" repeatCount="indefinite"/>')
+          + '</circle>').join('') },
+
+  // ---------- 40 manga : Sharingan ----------
+  { id:'col:manga:40', groupe:'collection', cat:'manga', nom:'Sharingan', ico:'👁️',
+    coul:'#d02121', soloNom:'Cadre de collection',
+    cond:'40 manga dans ta bibliothèque.',
+    test:d => d.manga.length >= 40,
+    svg:(u, niv, fige) => {
+      // un tomoe : la boule et sa queue, dessinés « pointe vers le haut » puis orientés
+      // une virgule : une grosse tête ronde, et une queue épaisse à sa racine qui
+      // s'enroule et s'affine jusqu'à la pointe
+      const tomoe = (a) => '<g transform="translate(' + dcPt(a, 50) + ') rotate(' + (a + 110) + ')">'
+        + '<path d="M0 -8.4 C9 -13.5 20 -10 23 -0.5 C19 -6.5 11.5 -7.5 6 -4.6'
+        +   ' C10 -1.4 10.4 4 7 7 C3 10.6 -3.6 10 -6.8 6 C-10 2 -9.4 -4.4 -5.4 -7.2'
+        +   ' C-3.8 -8.3 -1.9 -8.8 0 -8.4 Z" fill="#0d0d12"/></g>';
+      // L'iris occupe toute la place : un large disque rouge, un gros cerclage noir
+      // autour, et la photo au centre qui tient lieu de pupille.
+      return '<defs><radialGradient id="gs' + u + '" cx=".5" cy=".5" r=".5">'
+        + '<stop offset=".55" stop-color="#e02a1e"/><stop offset=".8" stop-color="#c5170f"/>'
+        + '<stop offset="1" stop-color="#8a0f0c"/></radialGradient></defs>'
+        + '<g>'
+        +   '<circle cx="60" cy="60" r="51" fill="none" stroke="url(#gs' + u + ')" stroke-width="17"/>'
+        // les cercles concentriques à peine marqués de l'iris
+        +   [47, 55].map(r => '<circle cx="60" cy="60" r="' + r + '" fill="none" stroke="#a8120c"'
+              + ' stroke-width="1.2" opacity=".5"/>').join('')
+        +   '<circle cx="60" cy="60" r="60" fill="none" stroke="#0d0d12" stroke-width="5"/>'
+        +   '<circle cx="60" cy="60" r="43" fill="none" stroke="#0d0d12" stroke-width="4"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".85;1;.85" dur="1.9s" repeatCount="indefinite"/>')
+        + '</g>'
+        // le halo, qui bat avec l'iris
+        + '<g><circle cx="60" cy="60" r="64" fill="none" stroke="#ff3a2a" stroke-width="3" opacity=".3"/>'
+        +   (fige ? '' : '<animate attributeName="r" values="63;68;63" dur="1.9s" repeatCount="indefinite"/>'
+              + '<animate attributeName="opacity" values=".18;.45;.18" dur="1.9s" repeatCount="indefinite"/>')
+        + '</g>'
+        // les trois virgules, qui tournent lentement autour de la pupille
+        + '<g>'
+        +   (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
+            + ' from="0 60 60" to="360 60 60" dur="16s" repeatCount="indefinite"/>')
+        +   [270, 30, 150].map(a => tomoe(a)).join('')
+        + '</g>';
+    } },
+
+  // ---------- 50 manga : Asta, Devil Union ----------
+  { id:'col:manga:50', groupe:'collection', cat:'manga', nom:'Devil Union', ico:'😈',
+    coul:'#e5322b', soloNom:'Cadre de collection',
+    cond:'50 manga dans ta bibliothèque.',
+    test:d => d.manga.length >= 50,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="ga' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#3a3550"/><stop offset="1" stop-color="#0c0a16"/></linearGradient>'
+      + '<linearGradient id="gr' + u + '" x1="0" y1="0" x2="1" y2="0">'
+      + '<stop offset="0" stop-color="#ff5a48"/><stop offset=".5" stop-color="#e5322b"/>'
+      + '<stop offset="1" stop-color="#8e120e"/></linearGradient></defs>'
+      // le halo rouge du démon
+      + '<g><circle cx="60" cy="60" r="51" fill="none" stroke="#e5322b" stroke-width="2.6" opacity=".45"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".5;1;.5" dur="2s" repeatCount="indefinite"/>')
+      + '</g>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#ga' + u + ')" stroke-width="4"/>'
+      // les cheveux hérissés, sombres
+      + crete([[206,60],[222,82],[238,96],[252,86],[266,100],[280,85],[296,94],[312,76],[330,58]],
+              7, 'url(#ga' + u + ')', '#4a4466', 1.3)
+      // les cornes, épaisses et recourbées vers l'arrière
+      // sur les flancs, et dans le dégradé sombre d'origine : le liseré rouge les faisait
+      // ressortir comme deux flammes
+      // base large et encochée, corps qui s'épaissit puis file en pointe — la forme du
+      // croquis, pas le losange allongé d'avant
+      + '<path d="M8 -20 C18 -2 26 14 33 31 L39 25 L44 35 L50 26'
+      +   ' C40 12 26 -2 8 -20 Z" fill="#151228" stroke="#4a4466" stroke-width="1.3"'
+      +   ' stroke-linejoin="round"/>'
+      + '<path d="M112 -20 C102 -2 94 14 87 31 L81 25 L76 35 L70 26'
+      +   ' C80 12 94 -2 112 -20 Z" fill="#151228" stroke="#4a4466" stroke-width="1.3"'
+      +   ' stroke-linejoin="round"/>'
+      // le bandeau, et la déchirure rouge qui court dessus
+      + '<path d="M15 44 Q38 22 60 22 Q82 22 105 44 L100 52 Q80 32 60 32 Q40 32 20 52 Z"'
+      +   ' fill="url(#ga' + u + ')" stroke="#4a4466" stroke-width="1.1"/>'
+      + '<g>'
+      +   '<path d="M20 45 L30 38 L36 46 L44 33 L52 44 L60 30 L68 44 L76 33 L84 46 L90 38 L100 45"'
+      +     ' fill="none" stroke="url(#gr' + u + ')" stroke-width="3.4" stroke-linecap="round" stroke-linejoin="round"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".55;1;.55" dur="1.5s" repeatCount="indefinite"/>')
+      + '</g>' },
+];
+
 // Aucune, puis un cadre par succès, puis un cadre par défi
-const DECOS = [{ id:'', nom:'Aucune', coul:'#7a719a', cond:'Toujours disponible.', test:() => true,
-    svg:u => degDefi(u, '#8177a8', '#4a3f74') + anneauDefi(u, 2.5) }]
+const DECOS = [{ id:'', nom:'Aucune', groupe:'succes', coul:'#7a719a', cond:'Toujours disponible.',
+    test:() => true, svg:u => degDefi(u, '#8177a8', '#4a3f74') + anneauDefi(u, 2.5) }]
   .concat(SUCCES.map(sc => ({
     id:'sc:' + sc.id,
+    groupe:'succes',
     nom:sc.nom,
     ico:sc.ico,
     succes:sc,
@@ -2753,7 +3327,17 @@ const DECOS = [{ id:'', nom:'Aucune', coul:'#7a719a', cond:'Toujours disponible.
     niv:d => etatSucces(sc, d).niv,
     svg:(u, niv, fige) => cadreSucces(u, niv, sc.id, fige),
   })))
-  .concat(DECOS_DEFI);
+  .concat(DECOS_COLLECTION.map(x => Object.assign({}, x, { groupe:'col:anime' })))
+  .concat(DECOS_MANGA.map(x => Object.assign({}, x, { groupe:'col:manga' })))
+  .concat(DECOS_DEFI.map(x => Object.assign({ groupe:'defi', soloNom:'Cadre de défi' }, x)));
+
+// les trois familles de la galerie, dans l'ordre où elles s'y suivent
+const DECO_SECTIONS = {
+  succes:      'Un cadre par succès — il s\'enrichit à chaque palier',
+  'col:anime': 'Collection — au nombre d\'anime rangés',
+  'col:manga': 'Collection — au nombre de manga rangés',
+  defi:        'Défis terminés',
+};
 
 const decoDe = id => DECOS.find(x => x.id === (id || '')) || DECOS[0];
 function decoDebloquee(d, deco){ try{ return !!deco.test(d); }catch(e){ return false; } }
@@ -2911,8 +3495,7 @@ function ouvrirApercuDeco(id, choix){
       }).join('')
     : '<div class="dc-p fait actif dc-p-solo" style="--dk:' + x.coul + '">'
         + '<span class="dc-p-ap">' + decoSVG(x, 6, true) + '<span class="dc-p-rond"></span></span>'
-        + '<span class="dc-p-n">Cadre de défi</span>'
-        + '<span class="dc-p-v">un seul dessin</span></div>';
+        + '<span class="dc-p-n">' + (x.soloNom || 'Cadre de défi') + '</span></div>';
   $('dcPreviews').innerHTML = cases;
   // un clic choisit le palier ; c'est le bouton Porter qui l'équipe
   if(x.succes && !visu){
@@ -2968,16 +3551,19 @@ function rendreDeco(){
         ? 'Les cadres débloqués par ' + echap(qui) + ' — celui qu\'il porte est en surbrillance.'
         : 'Chaque succès donne son cadre, et ce cadre s\'enrichit à chaque palier franchi. Clique un cadre pour voir ses six paliers et le porter.')
       + '</span></div>'
-    + '<div class="deco-grille">' + DECOS.map(x => {
+    + '<div class="deco-grille">' + (() => { let fam = ''; return DECOS.map(x => {
+        const g = x.groupe || 'succes';
+        const tete = (g === fam) ? '' : '<div class="deco-sect">' + DECO_SECTIONS[g] + '</div>';
+        fam = g;
         const ok = decoDebloquee(d, x);
         const actif = x.id === choisi;
         const atteint = decoNiveau(d, x);
         const niv = (x.id === choisi) ? decoNiveauPorte(d, x) : atteint;
         // un cadre de succès prend la couleur de son palier ; les autres gardent la leur
         const coul = x.succes ? NIVEAUX[Math.max(0, Math.min(NIVEAUX.length - 1, niv - 1))].c : x.coul;
-        const rang = (x.succes && ok)
-          ? '<span class="deco-rang">' + NIVEAUX[niv - 1].n + '</span>' : '';
-        return '<button class="deco-c' + (ok ? '' : ' verrou') + (actif ? ' actif' : '') + '"'
+        const rang = (x.succes && ok && niv >= 1)
+          ? '<span class="deco-rang">' + NIVEAUX[Math.min(niv, NIVEAUX.length) - 1].n + '</span>' : '';
+        const carte = '<button class="deco-c' + (ok ? '' : ' verrou') + (actif ? ' actif' : '') + '"'
           + (x.id ? ' data-voir="' + x.id + '"' : (visu ? ' disabled' : ' data-deco=""'))
           + ' style="--dk:' + coul + '">'
           + '<span class="deco-apercu">'
@@ -2989,7 +3575,8 @@ function rendreDeco(){
           + '<span class="deco-cond">' + echap(sousTexteDeco(d, x, ok, atteint)) + '</span>'
           + (actif ? '<span class="deco-porte">Porté</span>' : '')
           + '</button>';
-      }).join('') + '</div>';
+        return tete + carte;
+      }).join(''); })() + '</div>';
 
   z.querySelectorAll('[data-voir]').forEach(b => {
     b.addEventListener('click', () => ouvrirApercuDeco(b.dataset.voir));
@@ -5062,7 +5649,7 @@ function ouvrirModale(id){
   majApercu();
   majFichePreview();
   $('overlay').classList.add('on');
-  if(!ro) setTimeout(() => $('fTitre').focus(), 30);
+  if(!ro && !enEdition) setTimeout(() => $('fTitre').focus(), 30);
 }
 // récapitulatif d'une fiche qu'on ne peut pas modifier : sa note, où il en est, son avis
 function remplirLecture(f, c){
@@ -6677,7 +7264,12 @@ $('fNote').addEventListener('input', majApercu);
 // ---- recherche assistée dans la fiche ----
 construireEtoiles();
 $('fTitre').addEventListener('input', lancerRecherche);
-$('fTitre').addEventListener('focus', () => { if($('fTitre').value.trim().length >= 2 && !visu) lancerRecherche(); });
+// on ne rouvre pas la liste juste parce que le champ reprend le focus : sur une fiche
+// existante, ça s'ouvrait à chaque clic. C'est la frappe qui déclenche la recherche.
+$('fTitre').addEventListener('focus', () => {
+  if(visu || enEdition) return;
+  if($('fTitre').value.trim().length >= 2) lancerRecherche();
+});
 $('fTitre').addEventListener('keydown', e => {
   if(e.key === 'Escape'){ e.stopPropagation(); fermerSugg(); }
   if(e.key === 'Enter'){ e.preventDefault(); if(suggListe.length) choisirSugg(suggListe[0]); else fermerSugg(); }
