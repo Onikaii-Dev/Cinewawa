@@ -782,7 +782,10 @@
     border:2.5px solid #16102a;box-shadow:0 2px 8px rgba(0,0,0,.5);
     opacity:.72;transition:opacity .15s ease}
   .feed-row:hover .fr-cat{opacity:1}
-  .fr-txt{flex:1;min-width:0;display:flex;align-items:center;gap:9px}
+  /* certains cadres d'avatar débordent largement : le texte passe devant, et son ombre
+     le garde lisible quand un trait du cadre lui court derrière */
+  .fr-txt{flex:1;min-width:0;display:flex;align-items:center;gap:9px;
+    position:relative;z-index:1;text-shadow:0 1px 7px rgba(16,12,28,.95)}
   /* Une entrée = une phrase = UNE ligne, comme les paliers. Le titre est simplement mis
      en avant dedans ; le découpage en deux lignes doublait la hauteur pour rien. */
   /* `flex:0 1 auto` : la phrase ne prend que sa place, pour que la note reste collée à
@@ -792,13 +795,15 @@
   .fr-l1 b{color:var(--txt);font-weight:800}
   .fr-titre{font-weight:800;color:var(--txt);letter-spacing:.01em}
   /* le mot laissé en réaction : posé au bout de la phrase, sur la même ligne */
-  .fr-mot{display:flex;align-items:center;gap:5px;flex-shrink:0;max-width:38%;min-width:0;
-    font-size:12px;font-style:italic;color:#e2d3b4;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  .fr-mot{display:flex;align-items:center;gap:5px;flex:0 0 auto;max-width:34%;min-width:0;
+    font-size:12px;font-style:italic;color:#e2d3b4;overflow:hidden;
     background:rgba(255,194,75,.1);border:1px solid rgba(255,194,75,.28);border-radius:99px;padding:2px 10px}
+  /* la coupure propre se fait sur ce span : `text-overflow` ignore un conteneur flex */
+  .fr-mot-t{min-width:0;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .fr-mot i{font-style:normal;font-size:12px;flex-shrink:0}
   .feed-row.ouvert .fr-txt{flex-wrap:wrap;align-items:flex-start}
   .feed-row.ouvert .fr-l1{white-space:normal;overflow:visible;line-height:1.5}
-  .feed-row.ouvert .fr-mot{white-space:normal;overflow:visible;max-width:100%}
+  .feed-row.ouvert .fr-mot,.feed-row.ouvert .fr-mot-t{white-space:normal;overflow:visible;max-width:100%}
   .feed-row.ouvert .fr-main{align-items:flex-start}
   .fr-note{flex-shrink:0}
   .fr-txt .f-evol{flex-shrink:0;margin-left:-4px}
@@ -825,6 +830,8 @@
 
   /* ---- réactions emoji ---- */
   .fr-reacs{display:flex;align-items:center;gap:5px;flex-wrap:wrap;padding:0 11px 9px 56px;margin-top:-2px}
+  /* les pastilles rangées dans la ligne, à droite : une entrée reste sur une seule ligne */
+  .fr-reacs-in{display:flex;align-items:center;gap:5px;flex-shrink:0}
   .reac-puce{display:flex;align-items:center;gap:4px;background:rgba(157,139,255,.1);border:1px solid rgba(157,139,255,.25);
     border-radius:99px;padding:2px 8px 2px 3px;font-size:13px;line-height:1.5;font-family:inherit;color:inherit;
     cursor:default;transition:border-color .14s ease,background .14s ease,transform .12s ease}
@@ -854,8 +861,10 @@
   .card:hover .card-reacs .reac-add{opacity:1}
   @media (hover:none){.card-reacs .reac-add{opacity:.85}}
   /* bulle du message attaché à une réaction */
-  .fr-bulles{padding:0 11px 9px 56px}
-  .reac-bulle{display:none;position:relative;margin-top:7px;background:rgba(255,194,75,.07);
+  /* fermée, la zone des bulles ne doit rien occuper : la marge du bas est portée par la
+     bulle elle-même, pas par son conteneur */
+  .fr-bulles{padding:0 11px 0 56px}
+  .reac-bulle{display:none;position:relative;margin:7px 0 10px;background:rgba(255,194,75,.07);
     border:1px solid rgba(255,194,75,.28);border-left:3px solid var(--gold);border-radius:4px 12px 12px 4px;
     padding:9px 13px;font-size:13px;color:#ece6f5;line-height:1.45;white-space:normal;
     animation:bulleIn .18s ease both}
@@ -2150,7 +2159,7 @@
 </div>
 
 <script>
-const VERSION = 'v148';
+const VERSION = 'v149';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -5212,6 +5221,32 @@ const ICO_REAC = '<svg viewBox="0 0 24 24" aria-hidden="true">'
 
 const boutonReac = cle => '<button class="reac-add" data-cle="' + echap(cle)
   + '" title="Réagir">' + ICO_REAC + '<span>Réagir</span></button>';
+
+// Les pastilles d'une entrée, et les bulles de message qui vont avec. Séparé de la bande
+// pour pouvoir poser les pastilles DANS la ligne plutôt qu'en dessous.
+function pucesReac(cle){
+  const l = reactionsDe(cle);
+  const bulles = [];
+  const puces = l.map(r => {
+    const pp = r.login
+      ? avecDeco('<img class="reac-pp" loading="lazy" src="https://github.com/' + encodeURIComponent(r.login) + '.png?size=32" alt="" onerror="this.remove()">', r.login)
+      : '';
+    let attr = '', marque = '';
+    if(r.msg){
+      const bid = 'rb' + (++compteurBulle);
+      bulles.push('<div class="reac-bulle" id="' + bid + '"><span class="rb-qui">' + echap(r.pseudo || '?') + '</span>' + echap(r.msg) + '</div>');
+      attr = ' data-bulle="' + bid + '"';
+      marque = '<span class="reac-mot">💬</span>';
+    }
+    return '<button class="reac-puce' + (r.mien ? ' mienne' : '') + (r.msg ? ' avec-mot' : '') + '"' + attr
+      + ' title="' + echap(r.pseudo || '') + (r.msg ? ', clique pour lire son message' : '') + '">'
+      + pp + '<span class="reac-em">' + r.emoji + '</span>' + marque + '</button>';
+  }).join('');
+  // le mot à montrer en clair au bout de la phrase : le mien d'abord, sinon le premier
+  const avecMot = l.filter(r => r.msg);
+  return { puces, bulles, n: l.length, mot: avecMot.find(r => r.mien) || avecMot[0] || null };
+}
+
 function bandeReac(cle, forcerBouton){
   const l = reactionsDe(cle);
   const bulles = [];
@@ -5280,10 +5315,13 @@ function rendreFeed(panneau){
       const jourJ = isoLocal(new Date(e.t));
       if(jourJ !== jourPrec){ sepJ = '<div class="feed-jour"><span>' + libelleJour(jourJ) + '</span></div>'; jourPrec = jourJ; }
       const cleJ = cleReac(e);
-      const reagiJ = reactionsDe(cleJ).length > 0;
+      const RJ = pucesReac(cleJ);
+      const inlineJ = (RJ.puces ? '<span class="fr-reacs-in">' + RJ.puces + '</span>' : '')
+        + (visu ? '' : boutonReac(cleJ));
       return sepJ + '<div class="feed-row" style="--cc:#ffc24b;--ccf:' + hexRgba('#ffc24b', .38) + '">'
-        + ligneEvenement(e, { reac: (reagiJ || visu) ? '' : boutonReac(cleJ) })
-        + (reagiJ ? bandeReac(cleJ) : '') + '</div>';
+        + ligneEvenement(e, { reac: inlineJ, mot: RJ.mot })
+        + (RJ.bulles.length ? '<div class="fr-bulles">' + RJ.bulles.join('') + '</div>' : '')
+        + '</div>';
     }
     const cle = cleReac(e);
     const idx = feed.indexOf(e);
@@ -5297,12 +5335,15 @@ function rendreFeed(panneau){
         + '</span>'
       : '';
     const cc = CATS[e.c] ? CATS[e.c].couleur : '#9d8bff';
-    // tant que personne n'a réagi, le bouton tient dans la ligne ; dès qu'il y a des
-    // réactions à montrer, la bande reprend sa place en dessous
-    const dejaReagi = reactionsDe(cle).length > 0;
+    // tout tient sur la ligne : les pastilles et le bouton se rangent à droite, le mot
+    // laissé en réaction se pose au bout de la phrase, tronqué s'il est long
+    const R = pucesReac(cle);
+    const inline = (R.puces ? '<span class="fr-reacs-in">' + R.puces + '</span>' : '')
+      + (visu ? '' : boutonReac(cle));
     return sep + '<div class="feed-row" style="--cc:' + cc + ';--ccf:' + hexRgba(cc, .38) + '">'
-      + ligneEvenement(e, { actions, reac: (dejaReagi || visu) ? '' : boutonReac(cle) })
-      + (dejaReagi ? bandeReac(cle) : '') + '</div>';
+      + ligneEvenement(e, { actions, reac: inline, mot: R.mot })
+      + (R.bulles.length ? '<div class="fr-bulles">' + R.bulles.join('') + '</div>' : '')
+      + '</div>';
   }).join('');
 
   panneau.querySelectorAll('.fr-pin').forEach(b => {
@@ -5411,6 +5452,12 @@ function basculerEpingle(e){
 }
 
 // une ligne d'évènement, utilisée par le feed ET par les temps forts du profil
+// Un mot laissé en réaction peut faire cent cinquante signes : dans une ligne de fil on
+// en montre le début, le reste se lit en cliquant la pastille.
+const courtMot = m => {
+  const t = String(m || '').trim();
+  return t.length > 42 ? t.slice(0, 41).replace(/\s+\S*$/, '') + '…' : t;
+};
 function ligneEvenement(e, opts){
   const o = opts || {};
   const coul = CATS[e.c] ? CATS[e.c].couleur : '#9d8bff';
@@ -5461,7 +5508,7 @@ function ligneEvenement(e, opts){
     +   apres
     +   (o.mot
         ? '<span class="fr-mot" title="' + echap((o.mot.pseudo || '') + ' : ' + o.mot.msg) + '">'
-          + '<i>' + o.mot.emoji + '</i>« ' + echap(o.mot.msg) + ' »</span>'
+          + '<i>' + o.mot.emoji + '</i><span class="fr-mot-t">« ' + echap(courtMot(o.mot.msg)) + ' »</span></span>'
         : '')
     + '</span>'
     + '<span class="fr-d">' + droite + (o.reac || '')
