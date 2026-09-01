@@ -267,9 +267,18 @@
   .tb-logo{width:40px;height:40px;border-radius:12px;display:block;
     box-shadow:0 0 0 1px rgba(255,194,75,.3),0 0 22px rgba(255,194,75,.18);transition:transform .18s ease}
   .tb-z-g:hover .tb-logo{transform:rotate(-4deg) scale(1.05)}
+  /* la tuile de repli quand icon-192.png n'est pas au rendez-vous : le header garde sa
+     silhouette au lieu de perdre son logo */
+  .tb-logo-vide{display:flex;align-items:center;justify-content:center;font-size:21px;
+    background:linear-gradient(135deg,var(--gold-vif,#ffd97a),#ff5e7a)}
   .tb-nom{font-family:'Bebas Neue',sans-serif;font-size:34px;letter-spacing:.09em;line-height:1;
     background:linear-gradient(180deg,#fffaf0 25%,var(--gold) 125%);-webkit-background-clip:text;background-clip:text;
     color:transparent;filter:drop-shadow(0 0 14px rgba(255,194,75,.22));white-space:nowrap}
+  /* le numéro de version : posé au pied du nom, presque transparent — il est là pour
+     qu'on puisse vérifier qu'on tourne bien sur la dernière copie, pas pour être lu */
+  .tb-ver{font-family:ui-monospace,'SF Mono',Menlo,monospace;font-size:9.5px;font-weight:700;
+    letter-spacing:.04em;color:var(--txt);opacity:.2;align-self:flex-end;
+    margin:0 0 4px -6px;font-variant-numeric:tabular-nums;pointer-events:none;white-space:nowrap}
   .tb-z-g{min-width:0}
   .tb-nom{overflow:hidden;text-overflow:ellipsis}
   @media (max-width:620px){
@@ -279,12 +288,15 @@
     .tb-z-d{gap:6px}
     .tb-z-g{gap:7px}
     .tb-logo{width:32px;height:32px;border-radius:9px}
+    .tb-ver{font-size:8px;margin-bottom:2px}
     .profil-btn{padding:3px;border-radius:50%}
     .profil-btn #profilNom{display:none}
     .ico-btn{width:36px;height:36px}
     .tb-lien{padding:8px 10px}
   }
-  @media (max-width:380px){.tb-nom{display:none}}
+  /* sous 380px le nom disparaît : la version se recale contre le logo plutôt que de
+     flotter toute seule — c'est justement sur le téléphone qu'on veut la vérifier */
+  @media (max-width:380px){.tb-nom{display:none}.tb-ver{margin-left:0;align-self:center}}
 
   /* bouton texte du header (Communaute) */
   .tb-lien{display:flex;align-items:center;gap:8px;background:rgba(28,22,48,.7);border:1px solid var(--border);
@@ -1502,8 +1514,9 @@
   <div class="tb-inner">
     <!-- marque : retour a l'accueil -->
     <button class="tb-z-g" id="tbAccueil" title="Retour à l'accueil">
-      <img src="icon-192.png" class="tb-logo" alt="" onerror="this.style.display='none'">
+      <img src="icon-192.png" class="tb-logo" alt="" onerror="logoDeSecours(this)">
       <span class="tb-nom">Ciné'Wawa</span>
+      <span class="tb-ver" id="tbVer"></span>
     </button>
 
     <!-- actions -->
@@ -1910,8 +1923,7 @@
     <p class="nt-sous" id="ntfSous"></p>
     <div id="ntfListe" class="ntf-liste"></div>
     <div class="actions" style="margin-top:16px">
-      <button class="btn-gold" id="ntfLu" style="flex:1">✓ Tout marquer comme lu</button>
-      <button class="btn-ghost" id="ntfFermer">Fermer</button>
+      <button class="btn-gold" id="ntfFermer" style="flex:1">Fermer</button>
     </div>
   </div>
 </div>
@@ -2132,9 +2144,20 @@
 </div>
 
 <script>
-const VERSION = 'v140';
+const VERSION = 'v143';
 console.log("Ciné'Wawa " + VERSION);
-document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
+document.addEventListener('DOMContentLoaded', () => {
+  const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
+  const h = document.getElementById('tbVer'); if(h) h.textContent = VERSION;
+});
+// `icon-192.png` vit à côté de la page : si on ouvre index.html tout seul, il manque.
+// Plutôt que d'escamoter le logo, on pose une tuile à sa place.
+function logoDeSecours(img){
+  const t = document.createElement('span');
+  t.className = 'tb-logo tb-logo-vide';
+  t.textContent = '🎬';
+  img.replaceWith(t);
+}
 // ================= configuration des catégories =================
 const CATS = {
   films:  { nom:'Films',  ico:'🎬', couleur:'#ffc24b', progression:null,                        labelDate:'Vu le' },
@@ -4357,8 +4380,11 @@ function montrerJalons(){
     + '<button class="jal-x" id="jalX" title="Fermer">✕</button></div>';
   $('jalX').addEventListener('click', () => {
     etat.jalonsLus = Date.now();
-    try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
+    // `sauver()` et pas un simple écrit local : sans l'horodatage de modification, la
+    // synchro suivante réimposait l'ancienne valeur et tout revenait en boucle
+    sauver();
     montrerJalons();
+    majBoutonProfil();
   });
 }
 
@@ -4988,10 +5014,9 @@ function rendreNotifs(){
 
   const sous = $('ntfSous');
   if(sous) sous.textContent = (nR + nJ)
-    ? (nR + nJ) + ' nouveauté' + (nR + nJ > 1 ? 's' : '') + ' depuis ton dernier passage.'
+    ? (nR + nJ) + ' nouveauté' + (nR + nJ > 1 ? 's' : '')
+      + ' depuis ton dernier passage. En fermant, tout passe en lu.'
     : 'Tout est à jour. Les réactions des autres et tes nouveaux paliers arrivent ici.';
-  const btn = $('ntfLu');
-  if(btn) btn.style.display = (nR + nJ) ? '' : 'none';
 
   if(!reacs.length && !jalons.length){
     zone.innerHTML = '<div class="notif-vide">' + (cloudActif()
@@ -5039,7 +5064,18 @@ function ouvrirNotifs(){
   rendreNotifs();
   $('overlayNotifs').classList.add('on');
 }
-function fermerNotifs(){ $('overlayNotifs').classList.remove('on'); }
+function fermerNotifs(){
+  $('overlayNotifs').classList.remove('on');
+  // Les avoir eues sous les yeux vaut lecture. Sans ça il fallait penser à un bouton de
+  // plus, et le compteur repartait à chaque ouverture.
+  if(!nbReacsNouvelles() && !nbJalonsNeufs()) return;
+  marquerReacsVues();
+  etat.jalonsLus = Date.now();
+  sauver();
+  montrerJalons();
+  majBoutonProfil();
+  if(!$('pageProfil').classList.contains('cache')) allerProfil();
+}
 // toutes les réactions d'une entrée : celles des autres + la mienne
 function reactionsDe(cle){
   const l = (reactionsAutres[cle] || []).slice();
@@ -8675,16 +8711,6 @@ if(cloudActif()){
 $('btnConfVersCloud').addEventListener('click', () => { $('overlayConf').style.display = 'none'; ouvrirCloud(); });
 $('ntfFermer').addEventListener('click', fermerNotifs);
 $('overlayNotifs').addEventListener('click', e => { if(e.target.id === 'overlayNotifs') fermerNotifs(); });
-$('ntfLu').addEventListener('click', () => {
-  marquerReacsVues();
-  etat.jalonsLus = Date.now();
-  try{ localStorage.setItem(CLE, JSON.stringify(etat)); }catch(e){}
-  rendreNotifs();
-  montrerJalons();
-  majBoutonProfil();
-  if(!$('pageProfil').classList.contains('cache')) allerProfil();
-  toast('Notifications marquées comme lues.', 'ok');
-});
 // Une PWA reste ouverte des jours : sans ça, les comptes à rebours resteraient
 // figés sur le jour d'ouverture. On surveille le changement de date.
 let jourAffiche = aujourdhui();
