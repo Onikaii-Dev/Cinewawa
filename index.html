@@ -724,25 +724,30 @@
     background:rgba(255,255,255,.05);border:1px solid var(--border);border-radius:99px;padding:4px 12px;flex-shrink:0}
   .feed-jour::after{content:'';flex:1;height:1px;background:linear-gradient(90deg,rgba(255,255,255,.09),transparent)}
 
-  .feed-row{position:relative;border-radius:var(--r-sm);margin-bottom:6px;
-    background:rgba(255,255,255,.028);border:1px solid rgba(255,255,255,.05);
+  .feed-row{position:relative;border-radius:var(--r-sm);margin-bottom:8px;
+    background:rgba(255,255,255,.032);border:1px solid rgba(255,255,255,.06);
     border-left:3px solid var(--cc,#403466);transition:background .15s ease,border-color .15s ease}
   .feed-row:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);border-left-color:var(--cc,#403466)}
   .feed-row:last-child{margin-bottom:0}
 
-  .fr-main{display:flex;align-items:center;gap:11px;padding:9px 11px;min-width:0}
-  .fr-ava{position:relative;width:34px;height:34px;flex-shrink:0}
-  .fr-pp{width:34px;height:34px;border-radius:50%;object-fit:cover;display:block;background:var(--bg2);
-    border:1px solid rgba(255,255,255,.1)}
-  .fr-pp-vide{width:34px;height:34px;border-radius:50%;display:flex;align-items:center;justify-content:center;
-    font-size:15px;background:linear-gradient(135deg,#ffc24b,#ff5e7a)}
-  .fr-cat{position:absolute;right:-4px;bottom:-4px;width:18px;height:18px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;font-size:9px;border:2px solid #16102a}
-  .fr-txt{flex:1;min-width:0}
-  .fr-l1{display:block;font-size:12.5px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .fr-main{display:flex;align-items:center;gap:14px;padding:12px 14px;min-width:0}
+  .fr-ava{position:relative;width:44px;height:44px;flex-shrink:0}
+  .fr-pp{width:44px;height:44px;border-radius:50%;object-fit:cover;display:block;background:var(--bg2);
+    border:1px solid rgba(255,255,255,.12)}
+  .fr-pp-vide{width:44px;height:44px;border-radius:50%;display:flex;align-items:center;justify-content:center;
+    font-size:19px;background:linear-gradient(135deg,#ffc24b,#ff5e7a)}
+  /* la pastille de catégorie : c'est elle qui dit d'un coup d'œil de quel rayon on parle,
+     elle mérite d'être vue */
+  .fr-cat{position:absolute;right:-5px;bottom:-5px;width:23px;height:23px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:12px;
+    border:2.5px solid #16102a;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+  .fr-txt{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+  /* le titre d'abord, l'action ensuite : on cherche l'œuvre, pas le verbe */
+  .fr-l1{display:block;font-size:12px;color:var(--muted);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+    order:2}
   .fr-l1 b{color:var(--txt);font-weight:800}
-  .fr-l2{display:flex;align-items:baseline;gap:9px;min-width:0;margin-top:2px}
-  .fr-titre{font-size:13.5px;font-weight:700;color:var(--txt);
+  .fr-l2{display:flex;align-items:baseline;gap:9px;min-width:0;order:1}
+  .fr-titre{font-size:15px;font-weight:800;color:var(--txt);letter-spacing:.01em;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis;flex-shrink:1;min-width:0}
   /* le mot laissé en réaction : posé juste après le titre, il tient sur la même ligne */
   .fr-mot{display:flex;align-items:center;gap:5px;flex-shrink:1;min-width:0;
@@ -760,11 +765,11 @@
   .f-evol.up{color:#3ee0a5}
   .f-evol.down{color:#ff5e7a}
 
-  .fr-btns{display:flex;flex-direction:column;gap:3px;flex-shrink:0;opacity:.35;transition:opacity .15s ease}
+  .fr-btns{display:flex;flex-direction:column;gap:4px;flex-shrink:0;opacity:.4;transition:opacity .15s ease}
   .feed-row:hover .fr-btns,.fr-pin.on{opacity:1}
   @media (hover:none){.fr-btns{opacity:.85}}
-  .fr-pin,.feed-x{background:transparent;border:none;color:#6f6497;font-size:12px;cursor:pointer;
-    padding:3px 5px;line-height:1;border-radius:6px;filter:grayscale(1)}
+  .fr-pin,.feed-x{background:transparent;border:none;color:#6f6497;font-size:13px;cursor:pointer;
+    padding:5px 7px;line-height:1;border-radius:7px;filter:grayscale(1)}
   .fr-pin:hover{background:rgba(255,194,75,.14);filter:none}
   .fr-pin.on{filter:none;background:rgba(255,194,75,.16)}
   .feed-x{font-size:13px;filter:none}
@@ -1109,66 +1114,37 @@
   .repli-corps{padding:2px 14px 12px}
   .repli-corps .champ:last-child{margin-bottom:0}
 
-  /* ---- bandeau membres de la communaute ---- */
-  #membresPanel{display:flex;flex-direction:column;justify-content:center;flex:1 1 auto;min-height:0}
-  .mb-grille{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;align-content:center}
-  .mb-carte{display:flex;flex-direction:column;align-items:center;gap:7px;cursor:pointer;font-family:inherit;
-    color:var(--txt);border-radius:var(--r-sm);padding:13px 9px 11px;
-    background:linear-gradient(160deg,rgba(255,255,255,.055),rgba(255,255,255,.015));
-    border:1px solid rgba(255,255,255,.07);
-    transition:transform .18s cubic-bezier(.2,.7,.3,1),border-color .18s ease,box-shadow .18s ease}
-  .mb-carte:hover{transform:translateY(-4px);border-color:rgba(255,194,75,.4);box-shadow:0 12px 26px rgba(0,0,0,.42)}
-  .mb-ava{position:relative;display:block;width:52px;height:52px;flex-shrink:0}
-  .mb-ava img{width:52px;height:52px;border-radius:50%;object-fit:cover;background:var(--bg2);
-    border:2px solid rgba(255,255,255,.12);transition:border-color .15s ease,box-shadow .15s ease}
-  .mb-carte:hover .mb-ava img{border-color:var(--gold);box-shadow:0 0 18px rgba(255,194,75,.35)}
-  .mb-ava .pt{position:absolute;right:0;bottom:0;width:13px;height:13px;border-radius:50%;
-    border:2px solid #1a1430;background:#4c4079}
-  .mb-ava .pt.on{background:#3ee0a5;box-shadow:0 0 9px rgba(62,224,165,.9)}
-  .mb-nom{font-size:12px;font-weight:800;max-width:100%;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;text-align:center}
-  .mb-sous{font-size:10.5px;color:var(--faint);text-align:center}
-  .mb-sous b{color:var(--muted);font-weight:800;font-size:12px}
-  .mb-prive{color:#ffbb7a}
-  .mb-bar{display:flex;width:100%;height:4px;border-radius:99px;overflow:hidden;background:rgba(255,255,255,.06);margin-top:2px}
-  .mb-bar i{display:block;height:100%}
-  .mb-vide{font-size:12.5px;color:var(--faint);line-height:1.6;text-align:center;padding:18px 10px}
-
-  /* ---- ligne « moi » dans la barre du haut ---- */
-  .profil-btn .sync-pt{position:static;width:9px;height:9px;border-radius:50%;flex-shrink:0;
-    border:2px solid #14101f;background:#6f6497}
-  .profil-btn .sync-pt.ok{background:#3ee0a5;box-shadow:0 0 9px rgba(62,224,165,.85)}
-
-  #blocFreq{display:none}
-
   /* ================= PANNEAUX : une zone dédiée par bloc =================
      Le titre vit DANS le panneau, jamais posé sur le collage d'affiches. */
   .panneau{position:relative;overflow:hidden;border-radius:var(--r);
-    background:linear-gradient(180deg,rgba(29,22,54,.95) 0%,rgba(17,13,32,.96) 100%);
-    border:1px solid rgba(255,255,255,.075);box-shadow:var(--ombre)}
+    background:linear-gradient(170deg,rgba(30,24,52,.92),rgba(18,14,34,.94));
+    border:1px solid var(--border);box-shadow:var(--ombre)}
+  .panneau.rogne{overflow:hidden}
   .pan-tete{display:flex;align-items:center;gap:12px;padding:13px 15px;
-    border-bottom:1px solid rgba(255,255,255,.065);
-    background:linear-gradient(100deg,rgba(255,255,255,.055) 0%,rgba(255,255,255,.012) 55%,transparent 100%)}
+    border-bottom:1px solid rgba(255,255,255,.06);
+    background:linear-gradient(180deg,rgba(255,255,255,.045),transparent)}
   .pan-ico{width:35px;height:35px;border-radius:11px;display:flex;align-items:center;justify-content:center;
-    font-size:17px;background:rgba(255,255,255,.05);border:1px solid var(--ccg,rgba(255,255,255,.12));
-    box-shadow:0 0 22px -8px var(--cc,#fff);flex-shrink:0}
-  .pan-t{min-width:0}
+    font-size:17px;flex-shrink:0;background:rgba(255,255,255,.05);
+    border:1px solid var(--cc,var(--border));box-shadow:0 0 16px -6px var(--ccg,transparent)}
+  .pan-t{flex:1;min-width:0}
   .pan-nom{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;line-height:1;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
   .pan-sous{font-size:11px;color:var(--faint);margin-top:4px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .pan-actions{margin-left:auto;display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .pan-actions{display:flex;align-items:center;gap:8px;flex-shrink:0}
+  .pan-chip{font-size:10px;font-weight:800;letter-spacing:.09em;text-transform:uppercase;
+    color:var(--faint);background:rgba(255,255,255,.05);border:1px solid var(--border);
+    border-radius:99px;padding:5px 11px;white-space:nowrap}
+  .pan-chip.chaud{color:var(--gold);background:rgba(255,194,75,.12);border-color:rgba(255,194,75,.42)}
+  .pan-btn{font-size:12px;font-weight:700;color:var(--muted);background:rgba(255,255,255,.05);
+    border:1px solid var(--border);border-radius:var(--r-xs);padding:7px 12px;cursor:pointer;
+    font-family:inherit;white-space:nowrap;transition:border-color .15s ease,color .15s ease}
+  .pan-btn:hover{border-color:var(--border-h);color:var(--txt)}
   .pan-corps{padding:11px}
-  .pan-chip{font-size:10.5px;font-weight:800;letter-spacing:.07em;text-transform:uppercase;white-space:nowrap;
-    border-radius:99px;padding:5px 11px;background:rgba(255,255,255,.05);border:1px solid var(--border);color:var(--faint)}
-  .pan-chip.chaud{background:rgba(255,194,75,.14);border-color:rgba(255,194,75,.5);color:var(--gold);
-    box-shadow:0 0 16px -6px var(--gold)}
-  .pan-btn{font-size:12px;font-weight:700;color:var(--muted);background:rgba(255,255,255,.045);
-    border:1px solid var(--border);border-radius:99px;padding:7px 13px;cursor:pointer;font-family:inherit;
-    white-space:nowrap;transition:color .15s ease,border-color .15s ease,background .15s ease}
-  .pan-btn:hover{color:var(--txt);border-color:var(--border-h);background:rgba(255,255,255,.09)}
   @media (max-width:560px){
+    .pan-tete{padding:11px 12px;gap:10px}
+    .pan-ico{width:31px;height:31px;font-size:15px}
     .pan-nom{font-size:19px}
     .pan-sous{display:none}
-    .pan-btn{padding:7px 10px;font-size:11.5px}
   }
 
   /* ================= CADRES D'AVATAR ================= */
@@ -1177,7 +1153,7 @@
   /* Une image en ligne réserve la place du jambage sous sa ligne : la boîte devient plus
      haute que la photo, son centre descend, et le cadre avec. On coupe cet espace sur
      toutes les boîtes qui portent un cadre. */
-  .ava-box,.hero-ava,.pf-ava,.cp-ava,.mb-ava,.profil-ava,.deco-apercu,.dc-p-ap{line-height:0}
+  .ava-box,.hero-ava,.pf-ava,.cp-ava,.profil-ava,.deco-apercu,.dc-p-ap{line-height:0}
   .ava-box>img{display:block}
   /* `height` en pourcentage suivrait la hauteur du parent : sur un parent non carré, le
      SVG ne l'est plus et son dessin se décale. `aspect-ratio` le garde carré. */
@@ -1186,6 +1162,8 @@
     filter:drop-shadow(0 0 6px rgba(0,0,0,.55))}
   .hero-ava{position:relative;display:block;flex-shrink:0}
   .pf-ava{overflow:visible}
+  /* le panneau rogne ce qui dépasse, or un cadre d'avatar déborde toujours de la photo */
+  .panneau.pf-carte{overflow:visible}
   /* avec un cadre, on efface l'anneau d'origine pour ne pas empiler deux bordures */
   .pf-ava.a-deco,.cp-ava.a-deco{background:none;padding:0;box-shadow:none}
   .cp-ava.a-deco img,.cp-ava.a-deco .vide{border:2px solid rgba(255,255,255,.12)}
@@ -1264,6 +1242,9 @@
   .dc-p-porte{position:absolute;top:5px;right:5px;font-size:8px;font-weight:800;
     letter-spacing:.08em;text-transform:uppercase;color:var(--ink);background:var(--gold);
     border-radius:99px;padding:2px 6px;line-height:1}
+  .dc-ref{font-size:11.5px;color:var(--faint);margin:0 0 12px}
+  .dc-ref:empty{display:none}
+  .dc-ref b{color:var(--muted);font-weight:700}
   .dc-aide{font-size:11.5px;color:var(--faint);text-align:center;margin-top:11px;line-height:1.45}
   .dc-p{font-family:inherit;color:var(--txt);cursor:pointer;
     transition:transform .16s cubic-bezier(.2,.7,.3,1),border-color .16s ease,box-shadow .16s ease}
@@ -1907,7 +1888,8 @@
         <div id="dcNiveau" class="sc-niveau">—</div>
       </div>
     </div>
-    <p id="dcDesc" style="margin:0 0 12px"></p>
+    <p id="dcDesc" style="margin:0 0 6px"></p>
+    <p id="dcRef" class="dc-ref"></p>
     <div id="dcPreviews" class="dc-previews"></div>
     <div id="dcAide" class="dc-aide"></div>
     <div class="actions" style="margin-top:18px">
@@ -2106,7 +2088,7 @@
 </div>
 
 <script>
-const VERSION = 'v129';
+const VERSION = 'v134';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -2636,6 +2618,97 @@ const DECO_MOTIFS = {
 const motifDe = (u, id) => '<g fill="none" stroke="' + F(u) + '" stroke-width="3" stroke-linecap="round"'
   + ' stroke-linejoin="round">' + (DECO_MOTIFS[id] || DECO_MOTIFS.total) + '</g>';
 
+// La SIGNATURE d'un succès : la pièce qui change sa silhouette. Elle est là dès le
+// premier palier — c'est elle qu'on reconnaît de loin, avant même la couleur.
+const SIGNATURES = {
+  // une pellicule : deux rails et leurs perforations
+  films: u => cerc(u, 40.5, 2) + cerc(u, 53.5, 2)
+    + Array.from({ length: 18 }, (v, k) => {
+        const a = k * 20;
+        return '<g transform="translate(' + dcPt(a, 47) + ') rotate(' + (a + 90) + ')">'
+          + '<rect x="-2.6" y="-4.2" width="5.2" height="8.4" rx="1.2" fill="' + F(u) + '"/></g>';
+      }).join(''),
+
+  // un écran : quatre équerres de cadrage et les lignes de balayage
+  series: u => [[-1,-1],[1,-1],[1,1],[-1,1]].map(q =>
+      '<path d="M' + (60 + q[0] * 34) + ' ' + (60 + q[1] * 56) + ' L' + (60 + q[0] * 56) + ' '
+      + (60 + q[1] * 56) + ' L' + (60 + q[0] * 56) + ' ' + (60 + q[1] * 34) + '" fill="none"'
+      + ' stroke="' + F(u) + '" stroke-width="4.2" stroke-linecap="round" stroke-linejoin="round"/>').join('')
+    + '<path d="M26 45 H94 M20 60 H100 M26 75 H94" stroke="' + F(u) + '" stroke-width="1.2" opacity=".22"/>',
+
+  // un torii : deux piliers et le double linteau
+  anime: u => '<rect x="13" y="36" width="7" height="70" rx="2.4" fill="' + F(u) + '"/>'
+    + '<rect x="100" y="36" width="7" height="70" rx="2.4" fill="' + F(u) + '"/>'
+    + '<path d="M2 24 Q60 13 118 24 L118 32 Q60 22 2 32 Z" fill="' + F(u) + '"/>'
+    + '<rect x="15" y="41" width="90" height="6" rx="2.4" fill="' + F(u) + '"/>',
+
+  // des pages en éventail, sous le cadre
+  manga: u => [0, 1, 2, 3].map(k =>
+      '<path d="M' + dcPt(152 + k * 5, 49 + k * 4.5) + ' A' + (49 + k * 4.5) + ' ' + (49 + k * 4.5)
+      + ' 0 0 0 ' + dcPt(28 - k * 5, 49 + k * 4.5) + '" fill="none" stroke="' + F(u)
+      + '" stroke-width="' + (3.6 - k * .55).toFixed(2) + '" stroke-linecap="round" opacity="'
+      + (1 - k * .19).toFixed(2) + '"/>').join(''),
+
+  // des tranches de livres, debout tout autour
+  total: u => Array.from({ length: 20 }, (v, k) => {
+      const a = k * 18, h = 8 + ((k * 7) % 5) * 2;
+      return '<g transform="translate(' + dcPt(a, 50) + ') rotate(' + (a + 90) + ')">'
+        + '<rect x="-3.1" y="' + (-h) + '" width="6.2" height="' + h + '" rx="1.3" fill="' + F(u)
+        + '" opacity="' + (k % 2 ? '.82' : '1') + '"/></g>';
+    }).join(''),
+
+  // cinq étoiles, alignées sur l'arc du haut
+  notes: u => [212, 241, 270, 299, 328].map(a =>
+      '<g transform="translate(' + dcPt(a, 60) + ')">'
+      + '<path d="M0 -9 L2.4 -2.8 L9 -2.8 L3.6 1.2 L5.6 7.6 L0 3.7 L-5.6 7.6 L-3.6 1.2 L-9 -2.8'
+      + ' L-2.4 -2.8 Z" fill="' + F(u) + '"/></g>').join(''),
+
+  // une banderole, comme un bandeau de critique
+  avis: u => '<path d="M14 90 L60 105 L106 90 L106 103 L60 118 L14 103 Z" fill="' + F(u) + '" opacity=".92"/>'
+    + '<path d="M14 90 L14 103 L2 98 Z M106 90 L106 103 L118 98 Z" fill="' + F(u) + '" opacity=".55"/>'
+    + '<path d="M30 98 L60 108 L90 98" fill="none" stroke="#1a1226" stroke-width="1.4" opacity=".45"/>',
+
+  // une jauge pleine, et le sceau qui la clôt
+  fini: u => cerc(u, 53.5, 5, 'stroke-dasharray="22 6" stroke-linecap="butt"')
+    + '<circle cx="60" cy="104" r="12.5" fill="' + F(u) + '"/>'
+    + '<path d="M53.5 104 L58.4 109 L67 98.6" fill="none" stroke="#1a1226" stroke-width="3.2"'
+    + ' stroke-linecap="round" stroke-linejoin="round"/>',
+
+  // une couronne de flammes
+  encours: u => Array.from({ length: 16 }, (v, k) => {
+      const a = k * 22.5;
+      return '<g transform="translate(' + dcPt(a, 50) + ') rotate(' + (a + 90) + ')">'
+        + '<path d="M0 2.5 Q6.2 -3.5 3.6 -9 Q2.1 -13.5 0 -17 Q-2.1 -13.5 -3.6 -9 Q-6.2 -3.5 0 2.5 Z"'
+        + ' fill="' + F(u) + '" opacity="' + (k % 2 ? '1' : '.72') + '"/></g>';
+    }).join(''),
+
+  // un grand cœur en pendentif, deux petits sur les flancs
+  coeur: u => '<path d="M60 119 C33 100 29 81 42 75 Q52 70 60 84 Q68 70 78 75 C91 81 87 100 60 119 Z"'
+    + ' fill="' + F(u) + '"/>'
+    + '<path d="M17 63 C8 57 10 48 17 47 Q21 46.5 21 52 Q21 46.5 25 47 C32 48 30 57 17 63 Z"'
+    + ' fill="' + F(u) + '" opacity=".78"/>'
+    + '<path d="M103 63 C112 57 110 48 103 47 Q99 46.5 99 52 Q99 46.5 95 47 C88 48 90 57 103 63 Z"'
+    + ' fill="' + F(u) + '" opacity=".78"/>',
+
+  // un cadre de tableau, posé autour du rond
+  affiche: u => '<rect x="5" y="5" width="110" height="110" rx="7" fill="none" stroke="' + F(u) + '" stroke-width="4.4"/>'
+    + '<rect x="12.5" y="12.5" width="95" height="95" rx="5" fill="none" stroke="' + F(u)
+    + '" stroke-width="1.5" opacity=".65"/>'
+    + [[5,5],[115,5],[5,115],[115,115]].map(q => '<circle cx="' + q[0] + '" cy="' + q[1]
+        + '" r="5.4" fill="' + F(u) + '"/>').join(''),
+
+  // un cadran : les index tout autour, et la montre au sommet
+  age: u => Array.from({ length: 12 }, (v, k) => {
+      const a = k * 30 - 90, gros = k % 3 === 0;
+      return '<path d="M' + dcPt(a, 53) + ' L' + dcPt(a, gros ? 43 : 47) + '" stroke="' + F(u)
+        + '" stroke-width="' + (gros ? 3.4 : 1.6) + '" stroke-linecap="round"/>';
+    }).join('')
+    + '<circle cx="60" cy="12" r="13" fill="none" stroke="' + F(u) + '" stroke-width="3.4"/>'
+    + '<path d="M60 12 L60 4 M60 12 L66 15" stroke="' + F(u) + '" stroke-width="2.2" stroke-linecap="round"/>'
+    + '<circle cx="60" cy="12" r="2" fill="' + F(u) + '"/>'
+    + '<rect x="56" y="-6" width="8" height="5" rx="2" fill="' + F(u) + '"/>',
+};
+
 // La parure de chaque succès : c'est elle qui donne à chaque cadre son identité.
 const PARURES = {
   films:   { anneau:'double',    semis:'perfo',   bas:'ailes',   pointes:'pointes'  },
@@ -2658,14 +2731,16 @@ function cadreSucces(u, niv, id, fige){
   const p = PARURES[id] || PARURES.total;
   let g = decoDefs(u, n);
 
-  // 1 - l'anneau, dans la forme propre au succès
+  // 1 - l'anneau, dans la forme propre au succès, PLUS la signature du succès : c'est
+  // elle qui change la silhouette et rend les douze cadres reconnaissables entre eux
   g += ANNEAUX[p.anneau](u, n >= 4 ? 5 : 4);
+  if(SIGNATURES[id]) g += SIGNATURES[id](u);
 
   // 2 - l'ornement qui lest le bas
   if(n >= 2) g += BAS[p.bas](u);
 
-  // 3 - le semis autour de l'anneau (il se densifie au palier suivant)
-  if(n >= 3) g += semisHTML(u, p.semis, n >= 4);
+  // 3 - le semis, en renfort seulement : dense, il noyait la signature
+  if(n >= 3) g += semisHTML(u, p.semis, false);
 
   // 4 - un second anneau, plus loin, et un liseré intérieur. Il respire, doucement.
   if(n >= 4) g += '<g opacity=".85">' + ANNEAUX[p.anneau](u, 1.8, 57)
@@ -2731,19 +2806,33 @@ function sabreLaser(x, coul, retard, fige){
 }
 
 const DECOS_DEFI = [
-  { id:'defi:doomsday', nom:'Bouclier Doomsday', coul:'#3ee0a5', cond:'Termine le défi Avengers: Doomsday.',
+  { id:'defi:doomsday', ref:'Marvel — Avengers: Doomsday', nom:'Bouclier Doomsday', coul:'#3ee0a5', cond:'Termine le défi Avengers: Doomsday.',
     test:d => defiFini(d, 'doomsday'),
     svg:(u, niv, fige) => degDefi(u, '#b6ffe8', '#0f8a62') + anneauDefi(u, 4.5)
       + lumiereAnneau(u, 47, 4.5, 5, fige)
+      // les rivets de l'armure, tout autour
+      + Array.from({ length: 16 }, (v, k) => '<circle cx="' + dcPt(k * 22.5, 52).split(' ')[0]
+          + '" cy="' + dcPt(k * 22.5, 52).split(' ')[1] + '" r="2.2" fill="' + F(u)
+          + '" opacity="' + (k % 2 ? '.9' : '.55') + '"/>').join('')
+      // le capuchon, qui retombe sur les épaules
+      + '<path d="M12 84 Q22 118 60 122 Q98 118 108 84 Q92 104 60 106 Q28 104 12 84 Z"'
+      +   ' fill="#0f2b22" stroke="' + F(u) + '" stroke-width="1.6" stroke-linejoin="round"/>'
+      // le masque de métal : plaque, fentes des yeux, agrafes
       + '<g>'
-      +   '<path d="M60 0 L80 8 C80 26 72 36 60 41 C48 36 40 26 40 8 Z" fill="' + F(u) + '"/>'
-      +   '<path d="M60 12 L60 33 M50 20 L70 20" stroke="#0c2a22" stroke-width="4" stroke-linecap="round"/>'
-      +   anim(fige, 'opacity', '.75;1;.75', 2.8)
+      +   '<path d="M60 -6 L84 4 Q86 24 74 38 Q66 46 60 46 Q54 46 46 38 Q34 24 36 4 Z"'
+      +     ' fill="' + F(u) + '" stroke="#0c2a22" stroke-width="1.4" stroke-linejoin="round"/>'
+      +   '<path d="M43 16 L55 19 L54 26 L43 24 Z M77 16 L65 19 L66 26 L77 24 Z" fill="#0c2a22"/>'
+      +   '<path d="M50 34 L70 34 M52 39 L68 39" stroke="#0c2a22" stroke-width="2.4" stroke-linecap="round"/>'
+      +   '<path d="M60 2 L60 12" stroke="#0c2a22" stroke-width="2" stroke-linecap="round"/>'
+      +   anim(fige, 'opacity', '.82;1;.82', 3)
       + '</g>'
-      + '<path d="M14 78 A50 50 0 0 0 60 116 A50 50 0 0 0 106 78" fill="none" stroke="' + F(u)
-      +   '" stroke-width="6" stroke-linecap="round" opacity=".85"/>' },
+      // les fentes rougeoient
+      + '<g><path d="M45 18 L54 20.5 L53.4 24.6 L45 23 Z M75 18 L66 20.5 L66.6 24.6 L75 23 Z"'
+      +   ' fill="#7bffd0"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".45;1;.45" dur="2.2s" repeatCount="indefinite"/>')
+      + '</g>' },
 
-  { id:'defi:spiderman', nom:'Toile tissée', coul:'#ff5e7a', cond:'Termine le défi Spider-Man.',
+  { id:'defi:spiderman', ref:'Spider-Man', nom:'Toile tissée', coul:'#ff5e7a', cond:'Termine le défi Spider-Man.',
     test:d => defiFini(d, 'spiderman'),
     // la toile se tisse depuis l'anneau, tient un instant, puis se rétracte : le temps
     // de la voir, et le temps de voir la photo dessous
@@ -2766,26 +2855,75 @@ const DECOS_DEFI = [
                 + ' keyTimes="0;.26;.55;.8;1" dur="8s" begin="' + (0.3 + k * 0.18).toFixed(2)
                 + 's" repeatCount="indefinite"/>') + '</circle>';
         }).join('')
-      + '</g>' },
+      + '</g>'
+      // l'araignée au sommet : corps, pattes repliées, et elle respire
+      + '<g>'
+      +   (fige ? '' : '<animateTransform attributeName="transform" type="translate"'
+          + ' values="0 0;0 -1.8;0 0" dur="3.4s" repeatCount="indefinite"'
+          + ' calcMode="spline" keySplines=".42 0 .58 1;.42 0 .58 1"/>')
+      +   '<path d="M46 2 Q52 10 56 16 M74 2 Q68 10 64 16 M34 10 Q46 14 54 20'
+      +     ' M86 10 Q74 14 66 20 M36 26 Q48 24 55 24 M84 26 Q72 24 65 24"'
+      +     ' fill="none" stroke="' + F(u) + '" stroke-width="2.4" stroke-linecap="round"/>'
+      +   '<ellipse cx="60" cy="14" rx="6" ry="4.4" fill="' + F(u) + '"/>'
+      +   '<ellipse cx="60" cy="23" rx="8" ry="9" fill="' + F(u) + '"/>'
+      + '</g>'
+      // les ancrages de la toile, plantés sur l'anneau
+      + [0, 45, 90, 135, 180, 225, 270, 315].map(a =>
+          '<circle cx="' + dcPt(a, 47).split(' ')[0] + '" cy="' + dcPt(a, 47).split(' ')[1]
+          + '" r="2.6" fill="' + F(u) + '"/>').join('') },
 
-  { id:'defi:starwars', nom:'Lame de lumière', coul:'#ffc24b', cond:'Termine le défi Star Wars.',
+  { id:'defi:starwars', ref:'Star Wars', nom:'Lame de lumière', coul:'#ffc24b', cond:'Termine le défi Star Wars.',
     test:d => defiFini(d, 'starwars'),
     svg:(u, niv, fige) => degDefi(u, '#fff4cd', '#d08a00') + anneauDefi(u, 4)
+      // un champ d'étoiles derrière les lames : le vide autour du duel
+      + [[24,16,1.6,0],[96,14,1.3,.6],[10,44,1.1,1.2],[110,46,1.5,1.8],[30,104,1.3,.9],
+         [92,102,1.1,1.5],[60,4,1.7,.3],[60,116,1.2,2.1],[6,74,1.2,1.7],[114,76,1.4,.4]]
+          .map(e => '<circle cx="' + e[0] + '" cy="' + e[1] + '" r="' + e[2] + '" fill="#fff6d8">'
+            + (fige ? '' : '<animate attributeName="opacity" values=".25;1;.25" dur="3.2s" begin="'
+                + e[3] + 's" repeatCount="indefinite"/>') + '</circle>').join('')
       + sabreLaser(13,  '#4aa8ff', 0,   fige)
       + sabreLaser(107, '#ff3b4e', 0.5, fige) },
 
-  { id:'defi:avengers', nom:'Insigne Avengers', coul:'#56ccff', cond:'Termine le défi Avengers.',
+  { id:'defi:avengers', ref:'Marvel — Avengers', nom:'Insigne Avengers', coul:'#56ccff', cond:'Termine le défi Avengers.',
     test:d => defiFini(d, 'avengers'),
-    svg:(u, niv, fige) => degDefi(u, '#dcf3ff', '#1f7fb5') + anneauDefi(u, 4.5)
-      + lumiereAnneau(u, 47, 4.5, 4.2, fige)
-      + '<g>'
-      +   '<path d="M60 0 L78 34 L68 34 L60 18 L52 34 L42 34 Z" fill="' + F(u) + '"/>'
-      +   anim(fige, 'opacity', '.7;1;.7', 2.4)
-      + '</g>'
-      + '<path d="M24 90 A46 46 0 0 0 96 90" fill="none" stroke="' + F(u) + '" stroke-width="7" stroke-linecap="round"/>'
-      + '<path d="M96 90 L108 82 L104 96 Z" fill="' + F(u) + '"/>' },
+    svg:(u, niv, fige) => {
+      // L'insigne, pour de vrai : le A au sommet, et la ceinture qui part de sa jambe
+      // droite, fait le tour par le bas et remonte en flèche. Sur cette ceinture sont
+      // serties les six Pierres d'Infinité, qui s'allument l'une après l'autre.
+      const C = 2 * Math.PI * 47;
+      const PIERRES = ['#a24bff', '#3f7bff', '#ff3b4e', '#ff9a2e', '#ffd93b', '#3ee08a'];
+      return degDefi(u, '#dcf3ff', '#1f7fb5')
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="#0e1a26" stroke-width="12"/>'
+        + anneauDefi(u, 3)
+        + '<circle cx="60" cy="60" r="53" fill="none" stroke="' + F(u) + '" stroke-width="1.6" opacity=".7"/>'
+        + '<circle cx="60" cy="60" r="41" fill="none" stroke="' + F(u) + '" stroke-width="1.6" opacity=".7"/>'
+        // la ceinture : 212° d'anneau épais, ouverte en haut pour laisser la place au A
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="' + F(u) + '" stroke-width="7"'
+        +   ' stroke-linecap="round" transform="rotate(348 60 60)" stroke-dasharray="'
+        +   (C * 212 / 360).toFixed(1) + ' ' + C.toFixed(1) + '"/>'
+        + '<path d="M' + dcPt(327, 47) + ' L' + dcPt(349, 38) + ' L' + dcPt(349, 56) + ' Z" fill="' + F(u) + '"/>'
+        + PIERRES.map((c, k) => '<g transform="translate(' + dcPt(k * 36, 47) + ')">'
+            + '<circle r="7" fill="#0c151f" stroke="' + F(u) + '" stroke-width="1.8"/>'
+            + '<g><path d="M0 -4.6 L4 -2.3 L4 2.3 L0 4.6 L-4 2.3 L-4 -2.3 Z" fill="' + c + '"/>'
+            +   '<path d="M0 -4.6 L4 -2.3 L0 0 L-4 -2.3 Z" fill="#ffffff" opacity=".38"/>'
+            +   (fige ? '' : '<animate attributeName="opacity" values=".5;1;.5;.5;.5"'
+                + ' keyTimes="0;.07;.2;.78;1" dur="4.2s" begin="' + (k * .5).toFixed(2)
+                + 's" repeatCount="indefinite"/>')
+            + '</g></g>').join('')
+        // le A, planté au sommet — il déborde du cadre, c'est lui qu'on voit de loin
+        + '<g>'
+        +   '<path d="M60 -12 L90 36 L76 36 L60 10 L44 36 L30 36 Z" fill="' + F(u) + '"'
+        +     ' stroke="#0e1a26" stroke-width="1.4" stroke-linejoin="round"/>'
+        +   '<path d="M48 28 L72 28" stroke="' + F(u) + '" stroke-width="6.5" stroke-linecap="butt"/>'
+        +   anim(fige, 'opacity', '.85;1;.85', 3)
+        + '</g>'
+        + lumiereAnneau(u, 47, 4.5, 4.2, fige)
+        + '<g><circle cx="60" cy="60" r="57" fill="none" stroke="#56ccff" stroke-width="3" opacity=".2"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".13;.45;.13" dur="2.6s" repeatCount="indefinite"/>')
+        + '</g>';
+    } },
 
-  { id:'defi:potter', nom:'Éclair de sorcier', coul:'#9d8bff', cond:'Termine le défi Harry Potter.',
+  { id:'defi:potter', ref:'Harry Potter', nom:'Éclair de sorcier', coul:'#9d8bff', cond:'Termine le défi Harry Potter.',
     test:d => defiFini(d, 'potter'),
     // l'éclair claque comme un vrai : long calme, deux coupures très brèves
     svg:(u, niv, fige) => degDefi(u, '#e6ddff', '#5b45c4') + anneauDefi(u, 4)
@@ -2794,9 +2932,22 @@ const DECOS_DEFI = [
       +   (fige ? '' : '<animate attributeName="opacity" values="1;1;.2;1;.35;1"'
             + ' keyTimes="0;.62;.66;.71;.75;1" dur="4.5s" repeatCount="indefinite"/>')
       + '</g>'
-      + [[12, 76, 0], [108, 76, 0.6], [60, 115, 1.2]].map(p =>
-          '<circle cx="' + p[0] + '" cy="' + p[1] + '" r="5" fill="' + F(u) + '">'
-          + anim(fige, 'opacity', '.3;1;.3', 3, 'begin="' + p[2] + 's"') + '</circle>').join('') },
+      // les Reliques de la Mort, en bas : le triangle, le cercle, la baguette
+      + '<g>'
+      +   '<path d="M60 76 L79 110 L41 110 Z" fill="none" stroke="' + F(u) + '" stroke-width="3"'
+      +     ' stroke-linejoin="round"/>'
+      +   '<circle cx="60" cy="98" r="9" fill="none" stroke="' + F(u) + '" stroke-width="2.6"/>'
+      +   '<path d="M60 78 L60 110" stroke="' + F(u) + '" stroke-width="2.6" stroke-linecap="round"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".7;1;.7" dur="3s" repeatCount="indefinite"/>')
+      + '</g>'
+      // des étincelles de sortilège, tout autour
+      + [[14,44,.2],[106,46,.9],[22,86,1.6],[98,88,.5],[16,62,2.3],[104,64,1.3]].map(p =>
+          '<g transform="translate(' + p[0] + ' ' + p[1] + ')">'
+          + '<path d="M0 -5 L1.3 -1.3 L5 0 L1.3 1.3 L0 5 L-1.3 1.3 L-5 0 L-1.3 -1.3 Z" fill="' + F(u) + '"'
+          + ' opacity="' + (fige ? '.8' : '.25') + '">'
+          + (fige ? '' : '<animate attributeName="opacity" values=".2;1;.2" dur="2.6s" begin="'
+              + p[2] + 's" repeatCount="indefinite"/>')
+          + '</path></g>').join('') },
 ];
 
 // ================= CADRES DE COLLECTION =================
@@ -2947,7 +3098,7 @@ const jjGogo = (retard, ech, fige, gauche) => {
 
 const DECOS_COLLECTION = [
   // ---------- 10 anime : Super Saiyan ----------
-  { id:'col:anime:10', groupe:'collection', cat:'anime', nom:'Super Saiyan', ico:'⚡',
+  { id:'col:anime:10', ref:'Dragon Ball Z', groupe:'collection', cat:'anime', nom:'Super Saiyan', ico:'⚡',
     coul:'#ffd54a', soloNom:'Cadre de collection',
     cond:'10 anime dans ta bibliothèque.',
     test:d => nbVus(d, 'anime') >= 10,
@@ -2967,7 +3118,7 @@ const DECOS_COLLECTION = [
       + ssjCheveux(u) },
 
   // ---------- 25 anime : le chapeau de paille ----------
-  { id:'col:anime:25', groupe:'collection', cat:'anime', nom:'Mugiwara', ico:'🏴‍☠️',
+  { id:'col:anime:25', ref:'One Piece', groupe:'collection', cat:'anime', nom:'Mugiwara', ico:'🏴‍☠️',
     coul:'#f2c86a', soloNom:'Cadre de collection',
     cond:'25 anime dans ta bibliothèque.',
     test:d => nbVus(d, 'anime') >= 25,
@@ -2996,7 +3147,7 @@ const DECOS_COLLECTION = [
       + '</g>' },
 
   // ---------- 50 anime : bandeau de Konoha et queues du renard ----------
-  { id:'col:anime:50', groupe:'collection', cat:'anime', nom:'Konoha', ico:'🍥',
+  { id:'col:anime:50', ref:'Naruto', groupe:'collection', cat:'anime', nom:'Konoha', ico:'🍥',
     coul:'#ff8a3d', soloNom:'Cadre de collection',
     cond:'50 anime dans ta bibliothèque.',
     test:d => nbVus(d, 'anime') >= 50,
@@ -3026,7 +3177,7 @@ const DECOS_COLLECTION = [
           + '" r="1.8" fill="#79839c"/>').join('') },
 
   // ---------- 80 anime : menacing ----------
-  { id:'col:anime:80', groupe:'collection', cat:'anime', nom:'Menacing', ico:'🕶️',
+  { id:'col:anime:80', ref:"JoJo's Bizarre Adventure", groupe:'collection', cat:'anime', nom:'Menacing', ico:'🕶️',
     coul:'#b07cff', soloNom:'Cadre de collection',
     cond:'80 anime dans ta bibliothèque.',
     test:d => nbVus(d, 'anime') >= 80,
@@ -3039,7 +3190,7 @@ const DECOS_COLLECTION = [
       + jjGogo(0.5, .95, fige, true)  + jjGogo(1.4, .78, fige, true)  + jjGogo(2.3, .62, fige, true) },
 
   // ---------- 100 anime : Vasto Lorde ----------
-  { id:'col:anime:100', groupe:'collection', cat:'anime', nom:'Vasto Lorde', ico:'💀',
+  { id:'col:anime:100', ref:'Bleach', groupe:'collection', cat:'anime', nom:'Vasto Lorde', ico:'💀',
     coul:'#e9e4d8', soloNom:'Cadre de collection',
     cond:'100 anime dans ta bibliothèque.',
     test:d => nbVus(d, 'anime') >= 100,
@@ -3129,6 +3280,398 @@ const DECOS_COLLECTION = [
     } },
 ];
 
+// ---------- côté films ----------
+
+const DECOS_FILMS = [
+  // ---------- 20 films : Le Parrain ----------
+  { id:'col:films:20', ref:'Le Parrain (1972)', groupe:'collection', cat:'films', nom:'Le Parrain', ico:'🎩',
+    coul:'#d8c9a0', soloNom:'Cadre de collection',
+    cond:'20 films dans ta bibliothèque.',
+    test:d => vus(d.films).length >= 20,
+    svg:(u, niv, fige) => {
+      // les fils partent de la croix et rejoignent l'anneau ; ils oscillent à peine, tous
+      // ensemble, comme une marionnette qu'on tient sans bouger la main
+      const fil = (a, retard) => '<g>'
+        + (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
+            + ' values="-1.1 60 12;1.1 60 12;-1.1 60 12" dur="5.2s" begin="' + retard
+            + 's" repeatCount="indefinite" calcMode="spline" keySplines=".42 0 .58 1;.42 0 .58 1"/>')
+        + '<path d="M60 14 Q' + dcPt((a + 270) / 2, 34) + ' ' + dcPt(a, 46) + '" fill="none"'
+        + ' stroke="#e8dfc8" stroke-width="1" opacity=".75"/></g>';
+      return '<defs><linearGradient id="gpa' + u + '" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#f3ecd9"/><stop offset="1" stop-color="#a08c5c"/></linearGradient></defs>'
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="#0e0e14" stroke-width="9"/>'
+        + '<circle cx="60" cy="60" r="51.5" fill="none" stroke="url(#gpa' + u + ')" stroke-width="1.4"/>'
+        + '<circle cx="60" cy="60" r="42.5" fill="none" stroke="url(#gpa' + u + ')" stroke-width="1.4" opacity=".75"/>'
+        + [206, 236, 270, 304, 334].map((a, k) => fil(a, k * .18)).join('')
+        // la croix de bois de la marionnette
+        + '<rect x="30" y="8" width="60" height="6" rx="3" fill="url(#gpa' + u + ')"/>'
+        + '<rect x="57" y="-2" width="6" height="26" rx="3" fill="url(#gpa' + u + ')"/>'
+        + '<circle cx="60" cy="11" r="4" fill="#0e0e14" opacity=".55"/>'
+        // deux volutes gravées, en bas : le classicisme du carton-titre
+        + '<path d="M40 100 Q52 110 60 104 Q68 110 80 100" fill="none" stroke="url(#gpa' + u + ')"'
+        + ' stroke-width="1.6" stroke-linecap="round" opacity=".9"/>';
+    } },
+
+  // ---------- 50 films : Retour vers le futur ----------
+  { id:'col:films:50', ref:'Retour vers le futur (1985)', groupe:'collection', cat:'films', nom:'Retour vers le futur', ico:'⏳',
+    coul:'#ff8a1f', soloNom:'Cadre de collection',
+    cond:'50 films dans ta bibliothèque.',
+    test:d => vus(d.films).length >= 50,
+    svg:(u, niv, fige) => {
+      // les trois branches du condensateur s'allument l'une après l'autre : c'est
+      // exactement ce que fait la pièce dans le film
+      const branche = (x2, y2, retard) => '<g>'
+        + '<path d="M60 16 L' + x2 + ' ' + y2 + '" stroke="#4a4436" stroke-width="4" stroke-linecap="round"/>'
+        + '<path d="M60 16 L' + x2 + ' ' + y2 + '" stroke="#ffe08a" stroke-width="2.4" stroke-linecap="round"'
+        + ' opacity="' + (fige ? '.9' : '0') + '">'
+        + (fige ? '' : '<animate attributeName="opacity" values="0;1;1;0;0" keyTimes="0;.06;.2;.3;1"'
+            + ' dur="1.5s" begin="' + retard + 's" repeatCount="indefinite"/>') + '</path>'
+        + '<circle cx="' + x2 + '" cy="' + y2 + '" r="3.2" fill="#ffb43c">'
+        + (fige ? '' : '<animate attributeName="opacity" values=".3;1;1;.3;.3" keyTimes="0;.06;.2;.3;1"'
+            + ' dur="1.5s" begin="' + retard + 's" repeatCount="indefinite"/>') + '</circle></g>';
+      // une traînée de feu le long de l'anneau
+      const trainee = (a1, a2, r, ep, coul, op) => '<path d="M' + dcPt(a1, r) + ' A' + r + ' ' + r
+        + ' 0 0 1 ' + dcPt(a2, r) + '" fill="none" stroke="' + coul + '" stroke-width="' + ep
+        + '" stroke-linecap="round" opacity="' + op + '"/>';
+      return '<defs><linearGradient id="gbf' + u + '" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#d9dee8"/><stop offset="1" stop-color="#5b6272"/></linearGradient></defs>'
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gbf' + u + ')" stroke-width="4.5"/>'
+        // le feu des pneus, sur tout le bas
+        + '<g>'
+        +   trainee(20, 160, 53, 8, '#ff4a0a', '.45') + trainee(26, 154, 53, 4.5, '#ff8a1f', '.9')
+        +   trainee(34, 146, 53, 2, '#ffe08a', '1')
+        +   (fige ? '' : '<animate attributeName="opacity" values=".7;1;.7" dur="1.1s" repeatCount="indefinite"/>')
+        + '</g>'
+        + trainee(14, 44, 58, 3, '#ff6a12', '.35') + trainee(136, 166, 58, 3, '#ff6a12', '.35')
+        // le boîtier du condensateur de flux
+        + '<rect x="38" y="-4" width="44" height="42" rx="6" fill="#1b1f28" stroke="url(#gbf' + u + ')" stroke-width="2"/>'
+        + branche(60, 34, 0) + branche(41, 6, .28) + branche(79, 6, .56)
+        + '<circle cx="60" cy="16" r="4.5" fill="#2b3140" stroke="url(#gbf' + u + ')" stroke-width="1.6"/>';
+    } },
+
+  // ---------- 100 films : HAL 9000 ----------
+  { id:'col:films:100', ref:"2001, l'Odyssée de l'espace (1968)", groupe:'collection', cat:'films', nom:'HAL 9000', ico:'🔴',
+    coul:'#ff2d20', soloNom:'Cadre de collection',
+    cond:'100 films dans ta bibliothèque.',
+    test:d => vus(d.films).length >= 100,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gha' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#5a6068"/><stop offset=".5" stop-color="#2a2e34"/>'
+      + '<stop offset="1" stop-color="#14171b"/></linearGradient>'
+      + '<radialGradient id="ghl' + u + '" cx=".5" cy=".5" r=".5">'
+      + '<stop offset="0" stop-color="#fff2c8"/><stop offset=".32" stop-color="#ff3b20"/>'
+      + '<stop offset="1" stop-color="#5c0a04"/></radialGradient></defs>'
+      // la plaque, et sa grille de rainures
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gha' + u + ')" stroke-width="12"/>'
+      + Array.from({ length: 44 }, (v, k) => '<path d="M' + dcPt(k * 8.18, 42.5) + ' L'
+          + dcPt(k * 8.18, 52.5) + '" stroke="#0c0e11" stroke-width="1" opacity=".5"/>').join('')
+      + '<circle cx="60" cy="60" r="53.5" fill="none" stroke="#0c0e11" stroke-width="1.6"/>'
+      + '<circle cx="60" cy="60" r="41.5" fill="none" stroke="#0c0e11" stroke-width="1.6"/>'
+      // l'œil, au sommet : le halo respire, le point central reste fixe
+      + '<circle cx="60" cy="13" r="17" fill="#101317" stroke="url(#gha' + u + ')" stroke-width="2.4"/>'
+      + '<g><circle cx="60" cy="13" r="11.5" fill="url(#ghl' + u + ')"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".72;1;.72" dur="3.4s" repeatCount="indefinite"/>')
+      + '</g>'
+      + '<circle cx="60" cy="13" r="3.6" fill="#ffd98a"/>'
+      + '<circle cx="60" cy="13" r="21" fill="none" stroke="#ff2d20" stroke-width="2" opacity=".22">'
+      +   (fige ? '' : '<animate attributeName="r" values="19;24;19" dur="3.4s" repeatCount="indefinite"/>')
+      + '</circle>' },
+
+  // ---------- 150 films : Matrix ----------
+  { id:'col:films:150', ref:'Matrix (1999)', groupe:'collection', cat:'films', nom:'Matrix', ico:'💊',
+    coul:'#38e07a', soloNom:'Cadre de collection',
+    cond:'150 films dans ta bibliothèque.',
+    test:d => vus(d.films).length >= 150,
+    svg:(u, niv, fige) => {
+      // une colonne de glyphes qui tombe : des tirets de plus en plus pâles, et la
+      // colonne entière redescend en boucle
+      const colonne = (a, n, retard) => {
+        const t = a * RAD, nx = -Math.sin(t), ny = Math.cos(t);
+        const p = (r, lat) => (60 + Math.cos(t) * r + nx * lat).toFixed(1) + ' '
+                            + (60 + Math.sin(t) * r + ny * lat).toFixed(1);
+        const glyphes = Array.from({ length: n }, (v, k) =>
+          '<path d="M' + p(62 - k * 5, -1.6) + ' L' + p(62 - k * 5, 1.6) + '" stroke="'
+          + (k ? '#38e07a' : '#d8ffe8') + '" stroke-width="2.6" stroke-linecap="round" opacity="'
+          + (k ? Math.max(.12, 1 - k * .17).toFixed(2) : '1') + '"/>').join('');
+        return '<g>' + glyphes
+          + (fige ? '' : '<animateTransform attributeName="transform" type="translate"'
+              + ' values="' + (Math.cos(t) * 14).toFixed(1) + ' ' + (Math.sin(t) * 14).toFixed(1)
+              + ';' + (-Math.cos(t) * 16).toFixed(1) + ' ' + (-Math.sin(t) * 16).toFixed(1)
+              + '" dur="2.6s" begin="' + retard + 's" repeatCount="indefinite"/>'
+            + '<animate attributeName="opacity" values="0;1;1;0" keyTimes="0;.12;.7;1" dur="2.6s" begin="'
+              + retard + 's" repeatCount="indefinite"/>')
+          + '</g>';
+      };
+      return '<circle cx="60" cy="60" r="47" fill="none" stroke="#0a1410" stroke-width="11"/>'
+        + '<g>' + [10, 40, 70, 100, 130, 160, 190, 220, 250, 280, 310, 340]
+            .map((a, k) => colonne(a, 5 + (k % 3), (k % 6) * .42)).join('') + '</g>'
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="#38e07a" stroke-width="2" opacity=".55"/>'
+        + '<g><circle cx="60" cy="60" r="55" fill="none" stroke="#38e07a" stroke-width="2.6" opacity=".18"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".12;.4;.12" dur="3s" repeatCount="indefinite"/>')
+        + '</g>';
+    } },
+
+  // ---------- 200 films : l'Anneau unique ----------
+  { id:'col:films:200', ref:'Le Seigneur des Anneaux', groupe:'collection', cat:'films', nom:'L\'Anneau unique', ico:'💍',
+    coul:'#ffb43c', soloNom:'Cadre de collection',
+    cond:'200 films dans ta bibliothèque.',
+    test:d => vus(d.films).length >= 200,
+    svg:(u, niv, fige) => {
+      // l'inscription : des signes anguleux gravés dans l'or, qui rougeoient quand la
+      // lueur passe dessus
+      const signe = (a, k) => {
+        const trace = 'M0 -4.5 L0 4.5 M-3 -2.5 Q0 -0.5 3 -2.5 M-2.4 3.4 L2.4 3.4';
+        return '<g transform="translate(' + dcPt(a, 47) + ') rotate(' + (a + 90) + ')">'
+          + '<path d="' + trace + '" stroke="#8a5a00" stroke-width="1.3" stroke-linecap="round" fill="none"/>'
+          // le même signe en braise, allumé quand la vague passe dessus
+          + '<path d="' + trace + '" stroke="#ff7a18" stroke-width="1.9" stroke-linecap="round"'
+          +   ' fill="none" opacity="' + (fige ? '.5' : '0') + '">'
+          +   (fige ? '' : '<animate attributeName="opacity" values="0;1;0;0;0" keyTimes="0;.05;.16;.9;1"'
+              + ' dur="4.4s" begin="' + (k * .19).toFixed(2) + 's" repeatCount="indefinite"/>')
+          + '</path></g>';
+      };
+      return '<defs><linearGradient id="gan' + u + '" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#fff2c0"/><stop offset=".45" stop-color="#f0c04a"/>'
+        + '<stop offset="1" stop-color="#8a5f10"/></linearGradient></defs>'
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gan' + u + ')" stroke-width="13"/>'
+        + '<circle cx="60" cy="60" r="52.5" fill="none" stroke="#7a5310" stroke-width="1.4" opacity=".8"/>'
+        + '<circle cx="60" cy="60" r="41.5" fill="none" stroke="#7a5310" stroke-width="1.4" opacity=".8"/>'
+        // le reflet, qui glisse lentement sur le métal
+        + '<g><path d="M' + dcPt(200, 47) + ' A47 47 0 0 1 ' + dcPt(250, 47) + '" fill="none"'
+        +   ' stroke="#fff8de" stroke-width="4" stroke-linecap="round" opacity=".55"/>'
+        +   (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
+            + ' from="0 60 60" to="360 60 60" dur="26s" repeatCount="indefinite"/>')
+        + '</g>'
+        + Array.from({ length: 22 }, (v, k) => signe(k * 16.36, k)).join('')
+        // la braise qui court dans la gravure
+        + lumiereAnneau(u, 47, 11, 7, fige)
+        + '<g><circle cx="60" cy="60" r="56" fill="none" stroke="#ff6a00" stroke-width="3" opacity=".2"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".14;.45;.14" dur="3.2s" repeatCount="indefinite"/>')
+        + '</g>';
+    } },
+];
+
+// ---------- côté séries ----------
+
+const DECOS_SERIES = [
+  // ---------- 5 séries : la guirlande ----------
+  { id:'col:series:5', ref:'Stranger Things', groupe:'collection', cat:'series', nom:'La guirlande', ico:'💡',
+    coul:'#ff3b30', soloNom:'Cadre de collection',
+    cond:'5 séries dans ta bibliothèque.',
+    test:d => nbVus(d, 'series') >= 5,
+    svg:(u, niv, fige) => {
+      const COUL = ['#ff3b30', '#ffc24b', '#3ee0a5', '#56ccff', '#c86bff'];
+      // chaque ampoule pend du fil, culot vers l'anneau, et s'allume à son tour
+      const ampoule = (a, k) => {
+        const c = COUL[k % COUL.length];
+        return '<g transform="translate(' + dcPt(a, 56) + ') rotate(' + (a + 90) + ')">'
+          + '<rect x="-2.4" y="-6" width="4.8" height="5" rx="1.4" fill="#6a6a76"/>'
+          // trois couches : le halo large, le verre, le filament. L'ampoule reste
+          // allumee au repos et s'embrase a son tour.
+          + '<g><ellipse cx="0" cy="3.8" rx="13" ry="14" fill="' + c + '" opacity="'
+          +   (fige ? '.3' : '.16') + '"/>'
+          +   '<ellipse cx="0" cy="3.6" rx="5.4" ry="6.8" fill="' + c + '"/>'
+          +   '<ellipse cx="-1.4" cy="2" rx="1.8" ry="2.4" fill="#ffffff" opacity=".75"/>'
+          +   (fige ? '' : '<animate attributeName="opacity" values=".62;1;.62;.62;.62;.62"'
+              + ' keyTimes="0;.1;.28;.6;.8;1" dur="4.4s" begin="' + (k * .34).toFixed(2)
+              + 's" repeatCount="indefinite"/>')
+          + '</g></g>';
+      };
+      return '<circle cx="60" cy="60" r="47" fill="none" stroke="#171423" stroke-width="8"/>'
+        + '<circle cx="60" cy="60" r="56" fill="none" stroke="#ffb86b" stroke-width="10" opacity=".11"/>'
+        // le fil : une guirlande qui retombe entre les ampoules
+        + '<circle cx="60" cy="60" r="56" fill="none" stroke="#3a3546" stroke-width="1.8"'
+        + ' stroke-dasharray="9 5" opacity=".9"/>'
+        + Array.from({ length: 14 }, (v, k) => ampoule(k * 25.7 + 6, k)).join('')
+        // le halo rouge du Monde à l'envers
+        + '<g><circle cx="60" cy="60" r="50" fill="none" stroke="#ff3b30" stroke-width="3" opacity=".22"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".18;.6;.18" dur="2.6s" repeatCount="indefinite"/>')
+        + '</g>';
+    } },
+
+  // ---------- 12 séries : Heisenberg ----------
+  { id:'col:series:12', ref:'Breaking Bad', groupe:'collection', cat:'series', nom:'Heisenberg', ico:'⚗️',
+    coul:'#4bbf7a', soloNom:'Cadre de collection',
+    cond:'12 séries dans ta bibliothèque.',
+    test:d => nbVus(d, 'series') >= 12,
+    svg:(u, niv, fige) => {
+      // les vapeurs : des bulles vertes qui montent le long des flancs et s'effacent
+      const vapeur = (x, y, r, retard) => '<circle cx="' + x + '" cy="' + y + '" r="' + r
+        + '" fill="#4bbf7a" opacity="' + (fige ? '.3' : '0') + '">'
+        + (fige ? '' : '<animate attributeName="cy" values="' + y + ';' + (y - 26) + '" dur="4s" begin="'
+            + retard + 's" repeatCount="indefinite"/>'
+          + '<animate attributeName="opacity" values="0;.45;0" dur="4s" begin="' + retard
+            + 's" repeatCount="indefinite"/>')
+        + '</circle>';
+      const tuile = (x, sym, num, retard) => '<g>'
+        + (fige ? '' : '<animate attributeName="opacity" values=".72;1;.72" dur="2.8s" begin="'
+            + retard + 's" repeatCount="indefinite"/>')
+        + '<rect x="' + x + '" y="92" width="22" height="24" rx="3.5" fill="#1d3a2a"'
+        + ' stroke="#4bbf7a" stroke-width="1.6"/>'
+        + '<text x="' + (x + 11) + '" y="108" text-anchor="middle" font-family="Inter,system-ui,sans-serif"'
+        + ' font-size="12" font-weight="800" fill="#8ff0b8">' + sym + '</text>'
+        + '<text x="' + (x + 3.5) + '" y="99.5" font-family="Inter,system-ui,sans-serif"'
+        + ' font-size="6" font-weight="700" fill="#4bbf7a">' + num + '</text></g>';
+      return '<defs><linearGradient id="ghb' + u + '" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#3a3a44"/><stop offset="1" stop-color="#101014"/></linearGradient></defs>'
+        + [[16, 84, 4, 0], [104, 88, 3.4, .7], [12, 70, 3, 1.4], [108, 72, 4, 2.1],
+           [24, 96, 3.2, 2.8], [96, 98, 2.6, 3.4], [8, 78, 2.4, 1.1], [112, 82, 3, 2.4]]
+            .map(v => vapeur(v[0], v[1], v[2], v[3])).join('')
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="#141418" stroke-width="8"/>'
+        + '<circle cx="60" cy="60" r="51.5" fill="none" stroke="#4bbf7a" stroke-width="1.4" opacity=".55"/>'
+        // le chapeau : calotte basse, bord plat, ruban
+        + '<path d="M36 24 Q36 2 60 2 Q84 2 84 24 Z" fill="url(#ghb' + u + ')"/>'
+        + '<path d="M44 10 Q60 5 76 10 Q60 14 44 10 Z" fill="#000" opacity=".35"/>'
+        + '<rect x="34" y="21" width="52" height="7" rx="2.5" fill="#0b0b0e"/>'
+        + '<path d="M14 30 Q60 20 106 30 Q60 40 14 30 Z" fill="url(#ghb' + u + ')"/>'
+        // les lunettes rondes, juste sous le bord
+        + '<circle cx="45" cy="41" r="8" fill="none" stroke="#c9cdd6" stroke-width="2"/>'
+        + '<circle cx="75" cy="41" r="8" fill="none" stroke="#c9cdd6" stroke-width="2"/>'
+        + '<path d="M53 41 L67 41" stroke="#c9cdd6" stroke-width="2"/>'
+        + tuile(30, 'Br', '35', 0) + tuile(68, 'Ba', '56', 1.4)
+        // l'éclat qui traverse les verres
+        + '<g opacity="' + (fige ? '.6' : '0') + '">'
+        +   '<path d="M40 45 L50 35 M70 45 L80 35" stroke="#ffffff" stroke-width="2"'
+        +     ' stroke-linecap="round"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values="0;0;.85;0;0"'
+            + ' keyTimes="0;.42;.5;.6;1" dur="5s" repeatCount="indefinite"/>')
+        + '</g>';
+    } },
+
+  // ---------- 25 séries : le masque ----------
+  { id:'col:series:25', ref:'La Casa de Papel', groupe:'collection', cat:'series', nom:'Le masque', ico:'🎭',
+    coul:'#d0392c', soloNom:'Cadre de collection',
+    cond:'25 séries dans ta bibliothèque.',
+    test:d => nbVus(d, 'series') >= 25,
+    svg:(u, niv, fige) =>
+      '<defs><linearGradient id="gmk' + u + '" x1="0" y1="0" x2="0" y2="1">'
+      + '<stop offset="0" stop-color="#ff6a5c"/><stop offset="1" stop-color="#8e1a12"/></linearGradient></defs>'
+      + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gmk' + u + ')" stroke-width="9"/>'
+      + '<circle cx="60" cy="60" r="52.5" fill="none" stroke="#5c0f0a" stroke-width="1.6"/>'
+      + '<circle cx="60" cy="60" r="41.5" fill="none" stroke="#5c0f0a" stroke-width="1.6"/>'
+      // le masque, posé au sommet, qui dodeline
+      + '<g>'
+      +   (fige ? '' : '<animateTransform attributeName="transform" type="rotate"'
+          + ' values="-2.6 60 30;2.6 60 30;-2.6 60 30" dur="5s" repeatCount="indefinite"'
+          + ' calcMode="spline" keySplines=".42 0 .58 1;.42 0 .58 1"/>')
+      +   '<path d="M60 -6 C76 -6 84 6 84 20 C84 33 74 42 60 42 C46 42 36 33 36 20 C36 6 44 -6 60 -6 Z"'
+      +     ' fill="#f2ece0" stroke="#b9b1a1" stroke-width="1.4"/>'
+      // les sourcils arqués, les yeux, la moustache recourbée
+      +   '<path d="M44 12 Q49 7 55 11 M65 11 Q71 7 76 12" fill="none" stroke="#1b1b22"'
+      +     ' stroke-width="2.2" stroke-linecap="round"/>'
+      +   '<ellipse cx="50" cy="19" rx="3.6" ry="4.4" fill="#1b1b22"/>'
+      +   '<ellipse cx="70" cy="19" rx="3.6" ry="4.4" fill="#1b1b22"/>'
+      // deux éclats dans les yeux, qui s'allument ensemble par à-coups
+      +   '<g><circle cx="51.4" cy="17.4" r="1.3" fill="#fff"/>'
+      +     '<circle cx="71.4" cy="17.4" r="1.3" fill="#fff"/>'
+      +     (fige ? '' : '<animate attributeName="opacity" values=".25;.25;1;.25;.25"'
+            + ' keyTimes="0;.4;.47;.56;1" dur="4.2s" repeatCount="indefinite"/>')
+      +   '</g>'
+      +   '<path d="M60 25 L57 30 L63 30 Z" fill="#c9c1b2"/>'
+      +   '<path d="M60 33 Q50 33 46 27 Q44 22 48 22 Q50 26 56 30"'
+      +     ' fill="#1b1b22"/>'
+      +   '<path d="M60 33 Q70 33 74 27 Q76 22 72 22 Q70 26 64 30" fill="#1b1b22"/>'
+      + '</g>'
+      + '<g><circle cx="60" cy="60" r="56" fill="none" stroke="#ff3b2a" stroke-width="3" opacity=".2"/>'
+      +   (fige ? '' : '<animate attributeName="opacity" values=".14;.45;.14" dur="3s" repeatCount="indefinite"/>')
+      + '</g>'
+      // un reflet qui fait le tour de l'anneau rouge
+      + lumiereAnneau(u, 47, 9, 5, fige) },
+
+  // ---------- 40 séries : les trois formes ----------
+  { id:'col:series:40', ref:'Squid Game', groupe:'collection', cat:'series', nom:'Les trois formes', ico:'🔺',
+    coul:'#e8447f', soloNom:'Cadre de collection',
+    cond:'40 séries dans ta bibliothèque.',
+    test:d => nbVus(d, 'series') >= 40,
+    svg:(u, niv, fige) => {
+      // rond, triangle, carré : ils s'allument chacun à leur tour, tout autour
+      const forme = (a, k, retard) => {
+        const c = ['#e8447f', '#2ec4a6', '#f2f2f2'][k % 3];
+        const dessin = k % 3 === 0
+          ? '<circle cx="0" cy="0" r="5.4" fill="none" stroke="' + c + '" stroke-width="2.6"/>'
+          : k % 3 === 1
+            ? '<path d="M0 -6 L5.6 4 L-5.6 4 Z" fill="none" stroke="' + c + '" stroke-width="2.6" stroke-linejoin="round"/>'
+            : '<rect x="-5" y="-5" width="10" height="10" rx="1" fill="none" stroke="' + c + '" stroke-width="2.6"/>';
+        return '<g transform="translate(' + dcPt(a, 55) + ')" opacity="' + (fige ? '.9' : '.3') + '">'
+          + dessin
+          + (fige ? '' : '<animate attributeName="opacity" values=".3;1;.3;.3;.3"'
+              + ' keyTimes="0;.1;.24;.6;1" dur="3.6s" begin="' + retard + 's" repeatCount="indefinite"/>')
+          + '</g>';
+      };
+      return '<circle cx="60" cy="60" r="47" fill="none" stroke="#16121c" stroke-width="9"/>'
+        + '<circle cx="60" cy="60" r="42" fill="none" stroke="#e8447f" stroke-width="1.4" opacity=".55"/>'
+        + Array.from({ length: 12 }, (v, k) => forme(k * 30 + 15, k, (k % 6) * .3)).join('')
+        // la carte de l'invitation, au sommet
+        + '<g><rect x="44" y="-2" width="32" height="24" rx="4" fill="#f2ece0" stroke="#c8c2b4" stroke-width="1.2"/>'
+        +   '<circle cx="53" cy="10" r="3.4" fill="none" stroke="#e8447f" stroke-width="1.8"/>'
+        +   '<path d="M60 6.4 L63.6 13 L56.4 13 Z" fill="none" stroke="#e8447f" stroke-width="1.8" stroke-linejoin="round"/>'
+        +   '<rect x="64" y="6.8" width="6.6" height="6.6" rx=".8" fill="none" stroke="#e8447f" stroke-width="1.8"/>'
+        + '</g>';
+    } },
+
+  // ---------- 50 séries : le trône de fer ----------
+  { id:'col:series:50', ref:'Game of Thrones', groupe:'collection', cat:'series', nom:'Le trône de fer', ico:'⚔️',
+    coul:'#9fb0c4', soloNom:'Cadre de collection',
+    cond:'50 séries dans ta bibliothèque.',
+    test:d => nbVus(d, 'series') >= 50,
+    svg:(u, niv, fige) => {
+      // Une lame plantée sur l'anneau. Le tout est de les faire INÉGALES : c'est
+      // l'irrégularité qui fait le trône. Toutes pareilles, on ne voyait qu'un engrenage.
+      const lame = (a, lg, w, pen, k) =>
+        '<g transform="translate(' + dcPt(a, 45) + ') rotate(' + (a + 90 + pen) + ')">'
+        + '<path d="M' + (-w) + ' 3 L' + (-w * .68).toFixed(2) + ' ' + (-lg + 7)
+        +   ' L0 ' + (-lg) + ' L' + (w * .68).toFixed(2) + ' ' + (-lg + 7) + ' L' + w + ' 3 Z"'
+        +   ' fill="url(#gtf' + u + ')" stroke="#39414d" stroke-width=".8" stroke-linejoin="round"/>'
+        // le fil de la lame s'éclaire au passage, l'un après l'autre autour du cadre
+        + '<path d="M0 2 L0 ' + (-lg + 8) + '" stroke="#f2f8ff" stroke-width="1.5"'
+        +   ' opacity="' + (fige ? '.5' : '.2') + '">'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".2;1;.2;.2;.2"'
+            + ' keyTimes="0;.05;.17;.9;1" dur="5.2s" begin="' + (k * .15).toFixed(2)
+            + 's" repeatCount="indefinite"/>')
+        + '</path>'
+        + '<rect x="' + (-w - 2.4).toFixed(2) + '" y="2" width="' + (w * 2 + 4.8).toFixed(2)
+        +   '" height="3" rx="1.4" fill="#49525f"/></g>';
+      // Deux rangées décalées : une seule rangée ne faisait qu'un soleil. Empilées,
+      // les lames se recouvrent et l'on retrouve l'entassement du trône.
+      const rangee = (dec, gain, mince) => Array.from({ length: 26 }, (v, k) => {
+        const a = k * 13.85 + dec, haut = Math.max(0, -Math.sin(a * RAD));
+        return [a, 11 + gain + haut * 19 + ((k * 7) % 5) * 2.4,
+                (2.4 + haut * 1.1) * mince, (((k * 5) % 3) - 1) * 9];
+      });
+      const FOND = rangee(10, 6, .8), LAMES = rangee(3, 0, 1);
+      return '<defs><linearGradient id="gtf' + u + '" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#f4f9ff"/><stop offset=".5" stop-color="#a9b5c5"/>'
+        + '<stop offset="1" stop-color="#5c6776"/></linearGradient>'
+        + '<linearGradient id="gan' + u + '" x1="0" y1="0" x2="0" y2="1">'
+        + '<stop offset="0" stop-color="#4e5866"/><stop offset=".55" stop-color="#2b323c"/>'
+        + '<stop offset="1" stop-color="#181d24"/></linearGradient></defs>'
+        + '<g opacity=".55">' + FOND.map((l, k) => lame(l[0], l[1], l[2], l[3], k + 40)).join('') + '</g>'
+        + LAMES.map((l, k) => lame(l[0], l[1], l[2], l[3], k)).join('')
+        // l'anneau : de l'acier sombre, riveté, pas une simple bande noire
+        + '<circle cx="60" cy="60" r="47" fill="none" stroke="url(#gan' + u + ')" stroke-width="10"/>'
+        + '<circle cx="60" cy="60" r="52" fill="none" stroke="url(#gtf' + u + ')" stroke-width="1.6" opacity=".85"/>'
+        + '<circle cx="60" cy="60" r="42" fill="none" stroke="url(#gtf' + u + ')" stroke-width="1.6" opacity=".85"/>'
+        + Array.from({ length: 18 }, (v, k) => '<circle cx="' + dcPt(k * 20, 47).split(' ')[0]
+            + '" cy="' + dcPt(k * 20, 47).split(' ')[1] + '" r="1.5" fill="#cfd8e4" opacity=".5"/>').join('')
+        // le froid qui court sur l'acier
+        + lumiereAnneau(u, 47, 8, 5.5, fige)
+        // la couronne, posée sur la rambarde du bas
+        + '<g transform="translate(60 105)">'
+        +   '<path d="M-24 11 L-24 -9 L-16 3 L-8 -15 L0 3 L8 -15 L16 3 L24 -9 L24 11 Z"'
+        +     ' fill="url(#gtf' + u + ')" stroke="#1b2028" stroke-width="2" stroke-linejoin="round"/>'
+        +   '<rect x="-26" y="3" width="52" height="10" rx="3.4" fill="url(#gtf' + u + ')"'
+        +     ' stroke="#1b2028" stroke-width="2"/>'
+        +   [-12, 0, 12].map((x, k) => '<circle cx="' + x + '" cy="8" r="2.6" fill="#b6382c"'
+              + ' stroke="#1b2028" stroke-width=".8">'
+              + (fige ? '' : '<animate attributeName="opacity" values=".5;1;.5" dur="3.2s" begin="'
+                  + (k * .9) + 's" repeatCount="indefinite"/>') + '</circle>').join('')
+        + '</g>'
+        + '<g><circle cx="60" cy="60" r="58" fill="none" stroke="#7fd7ff" stroke-width="2.6" opacity=".16"/>'
+        +   (fige ? '' : '<animate attributeName="opacity" values=".1;.34;.1" dur="3.4s" repeatCount="indefinite"/>')
+        + '</g>';
+    } },
+];
+
 // ---------- côté manga ----------
 
 // Une crête de mèches : la même mécanique que la chevelure Saiyan, avec d'autres
@@ -3152,7 +3695,7 @@ const csDent = (a, r) => '<g transform="translate(' + dcPt(a, r) + ') rotate(' +
 
 const DECOS_MANGA = [
   // ---------- 5 manga : Im-Sama ----------
-  { id:'col:manga:5', groupe:'collection', cat:'manga', nom:'Imu', ico:'👑',
+  { id:'col:manga:5', ref:'One Piece', groupe:'collection', cat:'manga', nom:'Imu', ico:'👑',
     coul:'#d1201d', soloNom:'Cadre de collection',
     cond:'5 manga dans ta bibliothèque.',
     test:d => vus(d.manga).length >= 5,
@@ -3209,7 +3752,7 @@ const DECOS_MANGA = [
     } },
 
   // ---------- 12 manga : Chainsaw Man ----------
-  { id:'col:manga:12', groupe:'collection', cat:'manga', nom:'Chainsaw Man', ico:'🪚',
+  { id:'col:manga:12', ref:'Chainsaw Man', groupe:'collection', cat:'manga', nom:'Chainsaw Man', ico:'🪚',
     coul:'#e8a33d', soloNom:'Cadre de collection',
     cond:'12 manga dans ta bibliothèque.',
     test:d => vus(d.manga).length >= 12,
@@ -3233,7 +3776,7 @@ const DECOS_MANGA = [
       + '</g>' },
 
   // ---------- 25 manga : Berserk ----------
-  { id:'col:manga:25', groupe:'collection', cat:'manga', nom:'Sacrifice', ico:'⚔️',
+  { id:'col:manga:25', ref:'Berserk', groupe:'collection', cat:'manga', nom:'Sacrifice', ico:'⚔️',
     coul:'#b4302a', soloNom:'Cadre de collection',
     cond:'25 manga dans ta bibliothèque.',
     test:d => vus(d.manga).length >= 25,
@@ -3294,7 +3837,7 @@ const DECOS_MANGA = [
           + '</circle>').join('') },
 
   // ---------- 40 manga : Sharingan ----------
-  { id:'col:manga:40', groupe:'collection', cat:'manga', nom:'Sharingan', ico:'👁️',
+  { id:'col:manga:40', ref:'Naruto', groupe:'collection', cat:'manga', nom:'Sharingan', ico:'👁️',
     coul:'#d02121', soloNom:'Cadre de collection',
     cond:'40 manga dans ta bibliothèque.',
     test:d => vus(d.manga).length >= 40,
@@ -3334,7 +3877,7 @@ const DECOS_MANGA = [
     } },
 
   // ---------- 50 manga : Asta, Devil Union ----------
-  { id:'col:manga:50', groupe:'collection', cat:'manga', nom:'Devil Union', ico:'😈',
+  { id:'col:manga:50', ref:'Black Clover', groupe:'collection', cat:'manga', nom:'Devil Union', ico:'😈',
     coul:'#e5322b', soloNom:'Cadre de collection',
     cond:'50 manga dans ta bibliothèque.',
     test:d => vus(d.manga).length >= 50,
@@ -3400,16 +3943,20 @@ const DECOS = [{ id:'', nom:'Aucune', groupe:'succes', coul:'#7a719a', cond:'Tou
     niv:d => etatSucces(sc, d).niv,
     svg:(u, niv, fige) => cadreSucces(u, niv, sc.id, fige),
   })))
+  .concat(DECOS_FILMS.map(x => Object.assign({}, x, { groupe:'col:films' })))
+  .concat(DECOS_SERIES.map(x => Object.assign({}, x, { groupe:'col:series' })))
   .concat(DECOS_COLLECTION.map(x => Object.assign({}, x, { groupe:'col:anime' })))
   .concat(DECOS_MANGA.map(x => Object.assign({}, x, { groupe:'col:manga' })))
   .concat(DECOS_DEFI.map(x => Object.assign({ groupe:'defi', soloNom:'Cadre de défi' }, x)));
 
 // les trois familles de la galerie, dans l'ordre où elles s'y suivent
 const DECO_SECTIONS = {
-  succes:      'Un cadre par succès — il s\'enrichit à chaque palier',
-  'col:anime': 'Collection — au nombre d\'anime rangés',
-  'col:manga': 'Collection — au nombre de manga rangés',
-  defi:        'Défis terminés',
+  succes:       'Un cadre par succès — il s\'enrichit à chaque palier',
+  'col:films':  'Collection — au nombre de films rangés',
+  'col:series': 'Collection — au nombre de séries rangées',
+  'col:anime':  'Collection — au nombre d\'anime rangés',
+  'col:manga':  'Collection — au nombre de manga rangés',
+  defi:         'Défis terminés',
 };
 
 const decoDe = id => DECOS.find(x => x.id === (id || '')) || DECOS[0];
@@ -3461,7 +4008,7 @@ function majDecoBoite(img, d, max){
 // Le mien se calcule en direct : il doit changer à la seconde où je le choisis.
 // `max` peut plafonner le détail, mais on ne s'en sert plus : un dessin simplifié sur les
 // petites vignettes donnait deux versions du même cadre selon l'endroit.
-function decoLogin(login, max){
+function decoLogin(login, max, anime){
   if(!login) return '';
   const l = String(login).toLowerCase();
   const mien = typeof monLogin === 'string' && monLogin && l === monLogin.toLowerCase();
@@ -3475,10 +4022,11 @@ function decoLogin(login, max){
     deco = decoDe(m.deco); niv = m.dnv || 1;
   }
   if(!deco.id) return '';
-  return decoSVG(deco, max ? Math.min(niv, max) : niv);
+  return decoSVG(deco, max ? Math.min(niv, max) : niv, anime);
 }
 // un avatar et son cadre, dans une même boîte : le cadre se cale dessus tout seul
-const avecDeco = (html, login, max) => '<span class="ava-box">' + html + decoLogin(login, max) + '</span>';
+const avecDeco = (html, login, max, anime) =>
+  '<span class="ava-box">' + html + decoLogin(login, max, anime) + '</span>';
 
 // ================= JALONS =================
 // Un jalon = un palier de succès franchi, ou une décoration débloquée. On compare l'état
@@ -3637,6 +4185,8 @@ function ouvrirApercuDeco(id, choix){
     : (ok ? 'Débloqué' : 'Verrouillé');
   $('dcNiveau').style.color = ok ? (x.succes ? NIVEAUX[niv - 1].c : x.coul) : 'var(--faint)';
   $('dcDesc').textContent = sousTexteDeco(d, x, ok, niv);
+  // d'où vient le clin d'œil : sans ça, certains cadres restaient une énigme
+  $('dcRef').innerHTML = x.ref ? 'Référence : <b>' + echap(x.ref) + '</b>' : '';
 
   // un cadre de défi n'a qu'un seul dessin : on le montre en grand plutôt qu'en six
   const cases = x.succes
@@ -3693,7 +4243,8 @@ function sousTexteDeco(d, x, ok, niv){
     // verrouillée : on annonce l'avancement plutôt que la seule condition
     if(x.cat){
       const seuil = Number(String(x.id).split(':')[2]) || 0;
-      const n = x.cat === 'anime' ? nbVus(d, 'anime') : vus(d.manga).length;
+      const n = (x.cat === 'films') ? vus(d.films).length
+        : (x.cat === 'manga') ? vus(d.manga).length : nbVus(d, x.cat);
       return x.cond + ' Tu en as ' + n + ' — encore ' + Math.max(0, seuil - n) + '.';
     }
     const def = DEFIS.find(y => 'defi:' + y.id === x.id);
@@ -4338,7 +4889,12 @@ function rendreFeed(panneau){
   panneau.querySelectorAll('.feed-x').forEach(b => {
     b.addEventListener('click', e => {
       e.stopPropagation();
-      effacerEntreeFeed(b.dataset.c, Number(b.dataset.fid), b.dataset.type, b.dataset.jour);
+      const c = b.dataset.c, fid = Number(b.dataset.fid), type = b.dataset.type, jour = b.dataset.jour;
+      const f = (dact()[c] || []).find(x => x.id === fid);
+      confirmer('Retirer du fil ?',
+        'Cette activité disparaîtra de ton fil' + (f ? ' pour « ' + f.titre + ' »' : '')
+        + '. Ta fiche et ta note ne bougent pas.',
+        'Retirer', () => effacerEntreeFeed(c, fid, type, jour));
     });
   });
   panneau.querySelectorAll('.reac-add').forEach(b => {
@@ -4357,43 +4913,6 @@ function rendreFeed(panneau){
 }
 
 // ---- le trombinoscope : les membres, en premier plan ----
-function rendreMembres(panneau){
-  const membres = (membresCommu || []).slice();
-  if(!membres.length){
-    panneau.innerHTML = '<div class="mb-vide">🧭 L\'annuaire se charge…</div>';
-  } else {
-    // en ligne d'abord, puis les listes visibles, puis le reste
-    membres.sort((a,b) => (b.enLigne?1:0)-(a.enLigne?1:0) || (b.total||0)-(a.total||0));
-    const grille = membres.slice(0, 9).map(m => {
-      const nb = m.nb || {};
-      const somme = ['films','series','anime','manga'].reduce((t,c) => t + (nb[c] || 0), 0);
-      // une barre de répartition minuscule : on voit d'un coup d'œil qui regarde quoi
-      const barre = somme
-        ? '<span class="mb-bar">' + ['films','series','anime','manga']
-            .filter(c => nb[c] > 0)
-            .map(c => '<i style="width:' + (nb[c]/somme*100) + '%;background:' + CATS[c].couleur + '"'
-              + ' title="' + nb[c] + ' ' + CATS[c].nom + '"></i>').join('') + '</span>'
-        : '';
-      const sous = m.visible
-        ? '<b>' + m.total + '</b> titre' + (m.total>1?'s':'')
-        : '<span class="mb-prive">🔒 privé</span>';
-      return '<button class="mb-carte" data-login="' + echap(m.login) + '" title="' + echap(m.pseudo) + '">'
-        + '<span class="mb-ava">'
-        +   '<img loading="lazy" src="https://github.com/' + encodeURIComponent(m.login) + '.png?size=110" alt="" onerror="this.style.visibility=\'hidden\'">'
-        +   decoLogin(m.login)
-        +   '<span class="pt' + (m.enLigne ? ' on' : '') + '" title="' + (m.enLigne ? 'en ligne' : 'hors ligne') + '"></span>'
-        + '</span>'
-        + '<span class="mb-nom">' + echap(m.pseudo) + '</span>'
-        + '<span class="mb-sous">' + sous + '</span>'
-        + barre
-        + '</button>';
-    }).join('');
-    panneau.innerHTML = '<div class="mb-grille">' + grille + '</div>';
-    panneau.querySelectorAll('.mb-carte').forEach(b => {
-      b.addEventListener('click', () => ouvrirMembre(b.dataset.login));
-    });
-  }
-}
 
 async function ouvrirMembre(login){
   toast('Ouverture de la liste de ' + login + '…');
@@ -4412,21 +4931,17 @@ function rendreCommunaute(){
   const enLigne = (membresCommu || []).filter(m => m.enLigne).length;
   const sec = document.createElement('div');
   sec.className = 'cav-section';
-  sec.innerHTML = '<div class="duo-accueil">'
-    +   '<div class="panneau">'
-    +     panTete('📡', 'Ça dit quoi ?', '', '#9d8bff',
-                  cloudActif() ? '' : '<span class="pan-chip">hors cloud</span>')
-    +     '<div class="pan-corps" style="padding:0"><div id="feedPanel"></div></div>'
-    +   '</div>'
-    +   '<div class="panneau">'
-    +     panTete('👥', 'Les membres', '', '#3ee0a5',
-                  (enLigne ? '<span class="pan-chip chaud">' + enLigne + ' en ligne</span>' : (nb ? '<span class="pan-chip">' + nb + '</span>' : '')))
-    +     '<div class="pan-corps"><div id="membresPanel"></div></div>'
-    +   '</div>'
+  // Le panneau « Les membres » doublonnait avec l'onglet Communauté de la barre du haut :
+  // le fil prend toute la largeur, et l'effectif se dit dans son en-tête.
+  sec.innerHTML = '<div class="panneau">'
+    +   panTete('📡', 'Ça dit quoi ?', 'L\'activité de la communauté, au fil des jours', '#9d8bff',
+                (cloudActif() ? '' : '<span class="pan-chip">hors cloud</span>')
+                + (enLigne ? '<span class="pan-chip chaud">' + enLigne + ' en ligne</span>'
+                  : (nb ? '<span class="pan-chip">' + nb + ' membres</span>' : '')))
+    +   '<div class="pan-corps" style="padding:0"><div id="feedPanel"></div></div>'
     + '</div>';
   z.appendChild(sec);
   rendreFeed(sec.querySelector('#feedPanel'));
-  rendreMembres(sec.querySelector('#membresPanel'));
 }
 
 // ================= TEMPS FORTS =================
@@ -6068,7 +6583,7 @@ async function allerUtilisateurs(){
     const carte = document.createElement('div');
     carte.className = 'user-card';
     carte.innerHTML = '<div class="uc-head">'
-      + avecDeco('<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">', login)
+      + avecDeco('<img class="uc-pp" src="https://github.com/' + encodeURIComponent(login) + '.png?size=96" alt="" onerror="this.style.visibility=\'hidden\'">', login, 0, true)
       + '<div class="uc-id"><div class="uc-pseudo">' + echap(login) + '</div><div class="uc-login">@' + echap(login) + '</div></div>'
       + '</div>'
       + '<div class="uc-bio"></div>'
@@ -6282,7 +6797,7 @@ function afficherRecap(login, d){
   $('zoneProfil').innerHTML = '<div class="pf-grille">'
 
     // ---- identité ----
-    + '<div class="panneau pleine">'
+    + '<div class="panneau pleine pf-carte">'
     +   '<div class="pan-corps" style="padding:18px">'
     +     '<div class="pf-tete">'
     +       '<div class="pf-ava' + (maDeco(d).id ? ' a-deco' : '') + '">' + ppTag + '</div>'
