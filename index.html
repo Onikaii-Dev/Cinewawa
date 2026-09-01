@@ -136,19 +136,19 @@
     transition:transform .22s cubic-bezier(.2,.7,.3,1),border-color .22s ease,box-shadow .22s ease}
   .cat .liseret{position:absolute;left:14%;right:14%;top:0;height:2px;border-radius:0 0 3px 3px;
     background:linear-gradient(90deg,transparent,var(--cc) 22%,var(--cc) 78%,transparent);
-    box-shadow:0 0 18px 2px var(--cc);opacity:.75;transition:opacity .25s ease,left .25s ease,right .25s ease}
+    box-shadow:0 0 14px 1px var(--cc);opacity:.5;transition:opacity .25s ease,left .25s ease,right .25s ease}
   .cat::before{content:'';position:absolute;inset:0;z-index:-1;pointer-events:none;
     background:radial-gradient(110% 70% at 50% 0%,var(--cc) 0%,transparent 62%);
-    opacity:.14;transition:opacity .25s ease}
+    opacity:.09;transition:opacity .25s ease}
   .cat:hover{transform:translateY(-5px);border-color:var(--ccg);box-shadow:0 18px 38px rgba(0,0,0,.5)}
   .cat:hover .liseret{opacity:1;left:6%;right:6%}
   .cat:hover::before{opacity:.3}
   .cat .ico{display:flex;align-items:center;justify-content:center;width:52px;height:52px;font-size:26px;
     border-radius:16px;background:rgba(255,255,255,.05);border:1px solid var(--ccg);margin-bottom:12px;
-    box-shadow:0 0 20px -4px var(--cc);transition:transform .22s ease,box-shadow .22s ease}
+    box-shadow:0 0 16px -8px var(--cc);transition:transform .22s ease,box-shadow .22s ease}
   .cat:hover .ico{transform:translateY(-2px) scale(1.06);box-shadow:0 0 26px -2px var(--cc)}
   .cat .chiffre{font-family:'Bebas Neue',sans-serif;font-size:52px;line-height:.9;letter-spacing:.01em;
-    color:var(--cc);text-shadow:0 0 16px var(--ccg)}
+    color:var(--cc);text-shadow:0 0 12px var(--ccg);opacity:.94}
   .cat .nom{font-size:12px;font-weight:800;letter-spacing:.16em;text-transform:uppercase;color:var(--txt);margin-top:8px}
   /* deux lignes réservées : les tuiles gardent la même hauteur, remplies ou non */
   .cat .nb{color:var(--faint);font-size:11.5px;margin-top:6px;min-height:36px;width:100%;
@@ -415,10 +415,10 @@
   .res-affiches .res-info{width:100%;font-size:12px;color:var(--faint)}
 
   /* ---- sections de l'accueil : une colonne, un espace constant ---- */
-  #pageAccueil{display:flex;flex-direction:column;gap:26px}
+  #pageAccueil{display:flex;flex-direction:column;gap:34px}
   #pageAccueil>div:empty{display:none}
   .cav-section{animation:montee .45s ease both}
-  @media (max-width:560px){#pageAccueil{gap:18px}}
+  @media (max-width:560px){#pageAccueil{gap:22px}}
   @keyframes montee{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
   .grille-cat .cat{animation:montee .45s ease both}
   .grille-cat .cat:nth-child(1){animation-delay:.02s}
@@ -428,8 +428,10 @@
   @media (prefers-reduced-motion: reduce){.cav-section,.grille-cat .cat,.hero{animation:none}}
 
   /* ---- lignes « prochaines sorties » ---- */
+  /* Le liseré ne prend sa couleur pleine que sur la ligne survolée : dix lignes de suite
+     avec un trait saturé, cela faisait une échelle de néons. */
   .cav-row{display:flex;align-items:center;gap:13px;background:rgba(30,24,52,.9);border:1px solid rgba(255,255,255,.055);
-    border-left:3px solid var(--cc,#403466);border-radius:var(--r-sm);padding:10px 13px;margin-bottom:8px;cursor:pointer;
+    border-left:3px solid var(--ccf,var(--cc,#403466));border-radius:var(--r-sm);padding:10px 13px;margin-bottom:8px;cursor:pointer;
     transition:background .15s ease,border-color .15s ease,transform .15s ease}
   .cav-row:hover{background:rgba(40,32,71,.95);border-color:rgba(157,139,255,.28);border-left-color:var(--cc,#403466);transform:translateX(2px)}
   .cav-aff{position:relative;width:40px;height:58px;border-radius:8px;overflow:hidden;flex-shrink:0;
@@ -447,8 +449,10 @@
   .cav-chip.retard{background:rgba(255,94,122,.16);color:#ffa9b6;border:1px solid rgba(255,94,122,.55)}
   .cav-chip.dodo{background:rgba(255,255,255,.03);color:var(--faint);border:1px dashed var(--border)}
   .cav-actions{display:flex;align-items:center;gap:6px;flex-shrink:0}
-  .cav-report,.cav-reglage{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0;line-height:1;transition:all .14s ease}
-  .cav-report:hover,.cav-reglage:hover{border-color:var(--border-h);color:var(--txt);background:rgba(255,255,255,.08)}
+  .cav-report,.cav-reglage{background:rgba(255,255,255,.04);border:1px solid var(--border);color:var(--muted);border-radius:8px;padding:7px 10px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:600;flex-shrink:0;line-height:1;opacity:.38;transition:all .14s ease}
+  .cav-row:hover .cav-report,.cav-row:hover .cav-reglage{opacity:1}
+  .cav-report:hover,.cav-reglage:hover{border-color:var(--border-h);color:var(--txt);background:rgba(255,255,255,.08);opacity:1}
+  @media (hover:none){.cav-report,.cav-reglage{opacity:.8}}
   .cav-plus{background:rgba(255,194,75,.12);border:1px solid rgba(255,194,75,.42);color:var(--gold);border-radius:8px;padding:7px 12px;font-size:13px;cursor:pointer;font-family:inherit;font-weight:800;flex-shrink:0;line-height:1;transition:all .14s ease}
   .cav-plus:hover{background:var(--gold);color:var(--ink);border-color:var(--gold);box-shadow:0 0 14px rgba(255,194,75,.35)}
   .cav-groupe{font-size:10.5px;text-transform:uppercase;letter-spacing:.16em;color:var(--faint);font-weight:800;
@@ -738,20 +742,13 @@
     .uc-stats{grid-template-columns:repeat(2,1fr)}
   }
 
-  /* ---- accueil : sorties et activité côte à côte ---- */
-  .duo-accueil{display:grid;grid-template-columns:1.04fr .96fr;gap:20px;align-items:stretch}
-  .duo-accueil>.panneau{display:flex;flex-direction:column;min-width:0}
-  .duo-accueil>.panneau>.pan-corps{flex:1 1 auto;min-height:0;display:flex;flex-direction:column}
-  @media (max-width:900px){
-    .duo-accueil{grid-template-columns:1fr;gap:18px}
-  }
   /* message quand rien n'est en cours */
   #cavPanel.vide,#feedPanel.vide{display:flex;align-items:center;justify-content:center;min-height:190px}
   .cav-vide{text-align:center;padding:18px 14px;max-width:340px}
   .cav-vide .cv-emo{font-size:34px;line-height:1;margin-bottom:10px;opacity:.85}
   .cav-vide .cv-t{font-family:'Bebas Neue',sans-serif;font-size:20px;letter-spacing:.1em;color:#f0eae0;margin-bottom:6px}
   .cav-vide .cv-s{font-size:12.5px;color:var(--faint);line-height:1.55}
-  #cavPanel{max-height:472px;overflow-y:auto;overscroll-behavior:contain;padding:11px}
+  #cavPanel{max-height:352px;overflow-y:auto;overscroll-behavior:contain;padding:11px}
   #cavPanel::-webkit-scrollbar,#feedPanel::-webkit-scrollbar{width:8px}
   #cavPanel::-webkit-scrollbar-thumb,#feedPanel::-webkit-scrollbar-thumb{background:#3d3363;border-radius:8px}
   #cavPanel::-webkit-scrollbar-thumb:hover,#feedPanel::-webkit-scrollbar-thumb:hover{background:#4c4079}
@@ -759,7 +756,7 @@
   #cavPanel .cav-row:last-child{margin-bottom:0}
 
   /* ---- feed d'activité ---- */
-  #feedPanel{position:relative;max-height:472px;overflow-y:auto;overscroll-behavior:contain;padding:10px}
+  #feedPanel{position:relative;max-height:352px;overflow-y:auto;overscroll-behavior:contain;padding:10px}
   .feed-jour{display:flex;align-items:center;gap:11px;margin:14px 2px 9px}
   .feed-jour:first-child{margin-top:2px}
   .feed-jour span{font-size:9.5px;letter-spacing:.19em;text-transform:uppercase;color:var(--faint);font-weight:800;
@@ -768,7 +765,7 @@
 
   .feed-row{position:relative;border-radius:var(--r-sm);margin-bottom:8px;
     background:rgba(255,255,255,.032);border:1px solid rgba(255,255,255,.06);
-    border-left:3px solid var(--cc,#403466);transition:background .15s ease,border-color .15s ease}
+    border-left:3px solid var(--ccf,var(--cc,#403466));transition:background .15s ease,border-color .15s ease}
   .feed-row:hover{background:rgba(255,255,255,.06);border-color:rgba(255,255,255,.1);border-left-color:var(--cc,#403466)}
   .feed-row:last-child{margin-bottom:0}
 
@@ -780,9 +777,11 @@
     font-size:19px;background:linear-gradient(135deg,#ffc24b,#ff5e7a)}
   /* la pastille de catégorie : c'est elle qui dit d'un coup d'œil de quel rayon on parle,
      elle mérite d'être vue */
-  .fr-cat{position:absolute;right:-5px;bottom:-5px;width:23px;height:23px;border-radius:50%;
-    display:flex;align-items:center;justify-content:center;font-size:12px;
-    border:2.5px solid #16102a;box-shadow:0 2px 8px rgba(0,0,0,.5)}
+  .fr-cat{position:absolute;right:-5px;bottom:-5px;width:21px;height:21px;border-radius:50%;
+    display:flex;align-items:center;justify-content:center;font-size:11px;
+    border:2.5px solid #16102a;box-shadow:0 2px 8px rgba(0,0,0,.5);
+    opacity:.72;transition:opacity .15s ease}
+  .feed-row:hover .fr-cat{opacity:1}
   .fr-txt{flex:1;min-width:0;display:flex;align-items:center;gap:9px}
   /* Une entrée = une phrase = UNE ligne, comme les paliers. Le titre est simplement mis
      en avant dedans ; le découpage en deux lignes doublait la hauteur pour rien. */
@@ -810,7 +809,7 @@
   .f-evol.up{color:#3ee0a5}
   .f-evol.down{color:#ff5e7a}
 
-  .fr-btns{display:flex;flex-direction:column;gap:4px;flex-shrink:0;opacity:.4;transition:opacity .15s ease}
+  .fr-btns{display:flex;flex-direction:column;gap:4px;flex-shrink:0;opacity:.22;transition:opacity .15s ease}
   .feed-row:hover .fr-btns,.fr-pin.on{opacity:1}
   @media (hover:none){.fr-btns{opacity:.85}}
   .fr-pin,.feed-x{background:transparent;border:none;color:#6f6497;font-size:13px;cursor:pointer;
@@ -836,16 +835,17 @@
   .reac-pp{width:17px;height:17px;border-radius:50%;object-fit:cover;background:#161029;flex-shrink:0}
   .reac-em{font-size:13px}
   .reac-mot{font-size:9px;opacity:.85;margin-left:1px}
-  /* le bouton doit se voir sans avoir à le chercher : plein, doré, avec son libellé */
+  /* Lisible, mais pas doré : une pastille d'or par ligne, dix lignes d'affilée, c'était
+     la première chose qui sautait aux yeux alors que ce n'est qu'une action secondaire. */
   .reac-add{display:inline-flex;align-items:center;gap:6px;
-    background:rgba(255,194,75,.12);border:1px solid rgba(255,194,75,.34);color:var(--gold);
+    background:transparent;border:1px solid var(--border);color:var(--muted);
     border-radius:99px;padding:3px 11px 3px 8px;font-size:10.5px;font-weight:800;
     letter-spacing:.08em;text-transform:uppercase;cursor:pointer;font-family:inherit;line-height:1.6;
-    opacity:.82;transition:opacity .14s ease,background .14s ease,border-color .14s ease,transform .12s ease}
+    opacity:.6;transition:opacity .14s ease,background .14s ease,border-color .14s ease,color .14s ease}
   .reac-add svg{width:16px;height:16px;flex-shrink:0;display:block}
   .feed-row:hover .reac-add{opacity:1}
-  .reac-add:hover{background:rgba(255,194,75,.24);border-color:var(--gold);opacity:1;transform:translateY(-1px)}
-  @media (hover:none){.reac-add{opacity:1}}
+  .reac-add:hover{background:rgba(255,194,75,.14);border-color:rgba(255,194,75,.5);color:var(--gold);opacity:1}
+  @media (hover:none){.reac-add{opacity:.85}}
   /* bande de réactions dans une carte de la liste */
   .card-reacs{position:relative;z-index:3;margin-top:10px}
   .card-reacs .fr-reacs{padding-left:0;margin-top:0}
@@ -1173,7 +1173,7 @@
     background:linear-gradient(180deg,rgba(255,255,255,.045),transparent)}
   .pan-ico{width:35px;height:35px;border-radius:11px;display:flex;align-items:center;justify-content:center;
     font-size:17px;flex-shrink:0;background:rgba(255,255,255,.05);
-    border:1px solid var(--cc,var(--border));box-shadow:0 0 16px -6px var(--ccg,transparent)}
+    border:1px solid var(--ccg,var(--border));box-shadow:0 0 14px -9px var(--ccg,transparent)}
   .pan-t{flex:1;min-width:0}
   .pan-nom{font-family:'Bebas Neue',sans-serif;font-size:22px;letter-spacing:.12em;line-height:1;
     white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
@@ -2144,7 +2144,7 @@
 </div>
 
 <script>
-const VERSION = 'v143';
+const VERSION = 'v146';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -5135,6 +5135,8 @@ const ICO_REAC = '<svg viewBox="0 0 24 24" aria-hidden="true">'
   + '<path d="M19.3 1.6v6.4M16.1 4.8h6.4" fill="none" stroke="currentColor" stroke-width="2.4"'
   + ' stroke-linecap="round"/></svg>';
 
+const boutonReac = cle => '<button class="reac-add" data-cle="' + echap(cle)
+  + '" title="Réagir">' + ICO_REAC + '<span>Réagir</span></button>';
 function bandeReac(cle, forcerBouton){
   const l = reactionsDe(cle);
   const bulles = [];
@@ -5153,8 +5155,7 @@ function bandeReac(cle, forcerBouton){
       + ' title="' + echap(r.pseudo || '') + (r.msg ? ', clique pour lire son message' : '') + '">'
       + pp + '<span class="reac-em">' + r.emoji + '</span>' + marque + '</button>';
   }).join('');
-  const bouton = (visu && !forcerBouton) ? '' : '<button class="reac-add" data-cle="' + echap(cle)
-    + '" title="Réagir">' + ICO_REAC + '<span>Réagir</span></button>';
+  const bouton = (visu && !forcerBouton) ? '' : boutonReac(cle);
   if(!puces && !bouton) return '';
   return '<div class="fr-reacs">' + puces + bouton + '</div>'
     + (bulles.length ? '<div class="fr-bulles">' + bulles.join('') + '</div>' : '');
@@ -5203,7 +5204,8 @@ function rendreFeed(panneau){
       let sepJ = '';
       const jourJ = isoLocal(new Date(e.t));
       if(jourJ !== jourPrec){ sepJ = '<div class="feed-jour"><span>' + libelleJour(jourJ) + '</span></div>'; jourPrec = jourJ; }
-      return sepJ + '<div class="feed-row" style="--cc:#ffc24b">' + ligneEvenement(e, {}) + '</div>';
+      return sepJ + '<div class="feed-row" style="--cc:#ffc24b;--ccf:' + hexRgba('#ffc24b', .38) + '">'
+        + ligneEvenement(e, {}) + '</div>';
     }
     const cle = cleReac(e);
     const idx = feed.indexOf(e);
@@ -5216,9 +5218,13 @@ function rendreFeed(panneau){
         +   '" data-jour="' + jour + '" title="Retirer de mon activité">✕</button>'
         + '</span>'
       : '';
-    return sep + '<div class="feed-row" style="--cc:' + (CATS[e.c] ? CATS[e.c].couleur : '#9d8bff') + '">'
-      + ligneEvenement(e, { actions })
-      + bandeReac(cle) + '</div>';
+    const cc = CATS[e.c] ? CATS[e.c].couleur : '#9d8bff';
+    // tant que personne n'a réagi, le bouton tient dans la ligne ; dès qu'il y a des
+    // réactions à montrer, la bande reprend sa place en dessous
+    const dejaReagi = reactionsDe(cle).length > 0;
+    return sep + '<div class="feed-row" style="--cc:' + cc + ';--ccf:' + hexRgba(cc, .38) + '">'
+      + ligneEvenement(e, { actions, reac: (dejaReagi || visu) ? '' : boutonReac(cle) })
+      + (dejaReagi ? bandeReac(cle) : '') + '</div>';
   }).join('');
 
   panneau.querySelectorAll('.fr-pin').forEach(b => {
@@ -5380,7 +5386,7 @@ function ligneEvenement(e, opts){
           + '<i>' + o.mot.emoji + '</i>« ' + echap(o.mot.msg) + ' »</span>'
         : '')
     + '</span>'
-    + '<span class="fr-d">' + droite
+    + '<span class="fr-d">' + droite + (o.reac || '')
     +   (o.quand === false ? '' : '<span class="f-quand">' + ilYA(e.t) + '</span>') + '</span>'
     + (o.actions || '')
     + '</div>';
@@ -5490,7 +5496,7 @@ function rendreProchainsEpisodes(){
       classe = (jours === 1) ? 'demain' : 'plus-tard';
     }
     if(!visu) actions += '<button class="cav-reglage" data-suivi data-cat="'+c+'" data-id="'+f.id+'" title="Régler le suivi">⚙</button>';
-    return '<div class="cav-row" style="--cc:'+CATS[c].couleur+'" data-cat="'+c+'" data-id="'+f.id+'">'
+    return '<div class="cav-row" style="--cc:'+CATS[c].couleur+';--ccf:'+hexRgba(CATS[c].couleur,.38)+'" data-cat="'+c+'" data-id="'+f.id+'">'
       + affichetteHTML(f, c)
       + '<span class="cav-info"><div class="cav-nom">'+echap(f.titre)+'</div><div class="cav-sub">'+sous+'</div></span>'
       + '<span class="cav-chip '+classe+'">'+chip+'</span>'
