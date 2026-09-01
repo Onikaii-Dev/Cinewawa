@@ -1274,18 +1274,18 @@
   .jal-x:hover{color:var(--txt)}
   .deco-c.verrou .deco-nom{color:var(--muted)}
   .deco-cond{font-size:10.5px;color:var(--faint);line-height:1.45}
-  .dc-previews{display:grid;grid-template-columns:repeat(6,1fr);gap:8px}
-  .dc-p{display:flex;flex-direction:column;align-items:center;gap:5px;text-align:center;
+  .dc-previews{display:grid;grid-template-columns:repeat(7,1fr);gap:8px}
+  .dc-p{display:flex;flex-direction:column;align-items:center;gap:9px;text-align:center;
     background:rgba(255,255,255,.03);border:1px solid rgba(255,255,255,.07);
-    border-radius:12px;padding:26px 4px 9px;opacity:.42;filter:grayscale(.55)}
+    border-radius:12px;padding:22px 3px 9px;opacity:.42;filter:grayscale(.55)}
   .dc-p.fait{opacity:1;filter:none}
   .dc-p.actif{border-color:var(--dk);box-shadow:0 0 0 1px var(--dk),0 0 22px -12px var(--dk);
     background:linear-gradient(170deg,rgba(255,255,255,.08),rgba(255,255,255,.02))}
-  .dc-p-ap{position:relative;width:64px;height:64px;display:flex;align-items:center;justify-content:center}
+  .dc-p-ap{position:relative;width:58px;height:58px;display:flex;align-items:center;justify-content:center}
   .dc-p-ap .deco-cadre{width:120%;height:auto}
-  .dc-p-rond{width:42px;height:42px;border-radius:50%;overflow:hidden;
+  .dc-p-rond{width:38px;height:38px;border-radius:50%;overflow:hidden;
     background:radial-gradient(circle at 32% 28%,#3a3060,#191230);border:1px solid rgba(255,255,255,.1)}
-  .dc-p-n{font-size:9.5px;font-weight:800;letter-spacing:.06em;text-transform:uppercase;color:var(--dk)}
+  .dc-p-n{font-size:9px;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--dk)}
   .dc-p-v{font-size:9px;color:var(--faint);line-height:1.3}
   .dc-p{position:relative}
   .dc-p-porte{position:absolute;top:5px;right:5px;font-size:8px;font-weight:800;
@@ -1304,7 +1304,13 @@
   .dc-p-solo .dc-p-ap{width:96px;height:96px}
   .dc-p-solo .dc-p-rond{width:66px;height:66px}
   .dc-p-solo .dc-p-n{font-size:11.5px}
-  @media(max-width:560px){ .dc-previews{grid-template-columns:repeat(3,1fr)} }
+  @media(max-width:760px){
+    .dc-previews{grid-template-columns:repeat(4,1fr);gap:9px}
+    .dc-p{padding:26px 4px 9px}
+    .dc-p-ap{width:64px;height:64px}
+    .dc-p-rond{width:42px;height:42px}
+  }
+  @media(max-width:460px){ .dc-previews{grid-template-columns:repeat(3,1fr)} }
 
   .deco-rang{font-size:9px;font-weight:800;letter-spacing:.11em;text-transform:uppercase;
     color:var(--dk);border:1px solid var(--dk);border-radius:99px;padding:2px 9px;opacity:.9}
@@ -1942,7 +1948,7 @@
 
 <!-- ======== APERÇU D'UN CADRE, PALIER PAR PALIER ======== -->
 <div id="overlayDeco" class="ovl">
-  <div class="mini-modale" style="max-width:566px">
+  <div class="mini-modale" style="max-width:700px">
     <div class="sc-tete">
       <div class="sc-med" id="dcIco">🖼️</div>
       <div style="min-width:0">
@@ -2144,7 +2150,7 @@
 </div>
 
 <script>
-const VERSION = 'v146';
+const VERSION = 'v148';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -2243,7 +2249,7 @@ function normaliser(d){
       mcu: Array.isArray(d.mcu) ? d.mcu : [],        // défi Avengers: Doomsday (ids cochés)
       epingles: Array.isArray(d.epingles) ? d.epingles.slice(0, 3) : [],  // temps forts du profil
       deco: typeof d.deco === 'string' ? d.deco : '',   // décoration d'avatar choisie
-      decoNiv: Number(d.decoNiv) > 0 ? Math.min(6, Math.round(Number(d.decoNiv))) : 0,   // 0 = suit mon palier
+      decoNiv: Number(d.decoNiv) > 0 ? Math.min(7, Math.round(Number(d.decoNiv))) : 0,   // 0 = suit mon palier
       jalons: Array.isArray(d.jalons) ? d.jalons.slice(0, 25) : [],   // paliers et cadres franchis
       jalonsVus: (d.jalonsVus && typeof d.jalonsVus === 'object') ? d.jalonsVus : null,
       jalonsLus: Number(d.jalonsLus) || 0,
@@ -2389,9 +2395,15 @@ const NIVEAUX = [
   { n:'Platine',  c:'#7fe3ff' },
   { n:'Légende',  c:'#ff5e7a' },
   { n:'Anomalie', c:'#d9b8ff' },
+  { n:'Hacker',   c:'#b96bff' },
 ];
 // Le dernier palier vaut le double du précédent : hors catégorie, presque hors d'atteinte.
-const paliersDe = sc => sc.paliers.concat([sc.paliers[sc.paliers.length - 1] * 2]);
+// Anomalie vaut le double du dernier palier annoncé ; Hacker, le quadruple d'Anomalie.
+// Presque hors d'atteinte : c'est le principe.
+const paliersDe = sc => {
+  const der = sc.paliers[sc.paliers.length - 1];
+  return sc.paliers.concat([der * 2, der * 8]);
+};
 
 const compte = (d, f) => ['films','series','anime','manga'].reduce((t,c) => t + d[c].filter(x => f(x, c)).length, 0);
 
@@ -2556,6 +2568,10 @@ const DECO_TEINTES = [
   ['#ffc4ce', '#c81f45'],   // Légende
 ];
 function decoDefs(u, niv){
+  // Hacker : du violet électrique qui plonge dans le noir
+  if(niv >= 7) return '<defs><linearGradient id="g' + u + '" x1="0" y1="0" x2="1" y2="1">'
+    + '<stop offset="0" stop-color="#e9c4ff"/><stop offset=".38" stop-color="#a855f7"/>'
+    + '<stop offset=".74" stop-color="#4c1d95"/><stop offset="1" stop-color="#0d0118"/></linearGradient></defs>';
   if(niv >= 6) return '<defs><linearGradient id="g' + u + '" x1="0" y1="0" x2="1" y2="1">'
     + '<stop offset="0" stop-color="#7fe3ff"/><stop offset=".45" stop-color="#d9b8ff"/>'
     + '<stop offset="1" stop-color="#ff5e7a"/></linearGradient></defs>';
@@ -2796,7 +2812,7 @@ const PARURES = {
 
 // Les couches, empilées selon le palier atteint. Chacune ajoute un cran de détail.
 function cadreSucces(u, niv, id, fige){
-  const n = Math.max(1, Math.min(6, niv));
+  const n = Math.max(1, Math.min(7, niv));
   const p = PARURES[id] || PARURES.total;
   let g = decoDefs(u, n);
 
@@ -2830,6 +2846,39 @@ function cadreSucces(u, niv, id, fige){
       + ' stroke-dasharray="10 14" opacity=".9">' + tourne(0, 360, 18) + '</circle>'
       + '<circle cx="60" cy="60" r="52" fill="none" stroke="' + F(u) + '" stroke-width="1" opacity=".5"'
       + ' stroke-dasharray="3 7">' + tourne(360, 0, 26) + '</circle>';
+  }
+
+  // 7 - Hacker : le cadre s'allume. Une onde part de la photo et se dissipe vers
+  // l'extérieur, et un reflet balaie l'ensemble en diagonale — le même principe que
+  // l'éclat qui traverse les lunettes d'Heisenberg, mais sur tout le cadre.
+  if(n >= 7){
+    g += '<circle cx="60" cy="60" r="46" fill="none" stroke="#0d0118" stroke-width="9" opacity=".55"/>'
+      + ANNEAUX[p.anneau](u, 4)
+      // l'onde : elle part du bord de la photo et se dissipe au-delà du cadre. Doublée
+      // d'un halo large, sinon elle se perdait entre les anneaux.
+      + [[0, 7, '#c98bff', '.5'], [0, 2.6, '#f4e2ff', '1'],
+         [1.7, 7, '#c98bff', '.5'], [1.7, 2.6, '#f4e2ff', '1']].map(o =>
+          '<circle cx="60" cy="60" r="44" fill="none" stroke="' + o[2] + '" stroke-width="' + o[1] + '"'
+          + ' opacity="' + (fige ? (o[0] ? '0' : '.22') : '0') + '">'
+          + (fige ? '' : '<animate attributeName="r" values="43;70" dur="3.4s" begin="' + o[0]
+              + 's" repeatCount="indefinite"/>'
+            + '<animate attributeName="opacity" values="' + o[3] + ';0" dur="3.4s" begin="' + o[0]
+              + 's" repeatCount="indefinite"/>')
+          + '</circle>').join('')
+      // le reflet, découpé au cadre pour ne pas déborder
+      + '<defs><linearGradient id="hk' + u + '" x1="0" y1="0" x2="1" y2="0">'
+      +   '<stop offset="0" stop-color="#ffffff" stop-opacity="0"/>'
+      +   '<stop offset=".5" stop-color="#f6e6ff" stop-opacity=".78"/>'
+      +   '<stop offset="1" stop-color="#ffffff" stop-opacity="0"/></linearGradient>'
+      + '<clipPath id="hc' + u + '"><circle cx="60" cy="60" r="60"/></clipPath></defs>'
+      + '<g clip-path="url(#hc' + u + ')" opacity="' + (fige ? '0' : '.38') + '">'
+      +   '<g transform="rotate(-24 60 60)">'
+      +     '<rect x="-48" y="-30" width="23" height="180" fill="url(#hk' + u + ')">'
+      +       (fige ? '' : '<animateTransform attributeName="transform" type="translate"'
+            + ' values="0 0;196 0;196 0" keyTimes="0;.34;1" dur="3.8s" repeatCount="indefinite"/>')
+      +     '</rect>'
+      +   '</g>'
+      + '</g>';
   }
 
   return g + motifDe(u, id);
@@ -4709,7 +4758,7 @@ function rendreClassement(){
 }
 
 function carteBadge(e){
-  const niveau = e.niv > 0 ? NIVEAUX[e.niv-1].n : 'Verrouillé';   // 6 paliers : Bronze → Anomalie
+  const niveau = e.niv > 0 ? NIVEAUX[e.niv-1].n : 'Verrouillé';   // 7 paliers : Bronze → Hacker
   const prog = e.suivant
     ? '<b>' + e.v + '</b> / ' + e.suivant + ' ' + e.sc.unite
     : '<b>' + e.v + '</b> ' + e.sc.unite + ' · au maximum';
@@ -4937,8 +4986,29 @@ function normReac(v){
 function slugTitre(t){
   return String(t).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,'-').replace(/^-|-$/g,'');
 }
+// La part d'une clé qui identifie un jalon : sûre pour un slug, et recalculable
+// à l'identique chez celui qui reçoit la réaction.
+function jalonSlug(j){
+  return slugTitre(j.k + '-' + String(j.id).replace(/:/g, '-') + '-' + (j.niv || 0));
+}
+// De quoi parle un jalon, en clair : « Anomalie sur Sériephile », « le défi Nolan »…
+function jalonSujet(j){
+  if(j.k === 'sc'){
+    const sc = SUCCES.find(x => x.id === j.id);
+    const nv = NIVEAUX[Math.max(0, Math.min(NIVEAUX.length - 1, (j.niv || 1) - 1))];
+    return sc ? nv.n + ' sur ' + sc.nom : 'un palier';
+  }
+  if(j.k === 'df'){
+    const def = DEFIS.find(x => x.id === j.id);
+    return def ? 'le défi ' + def.court : 'un défi';
+  }
+  const x = decoDe(j.id);
+  return (x && x.id) ? 'le cadre ' + x.nom : 'un cadre';
+}
 function cleReac(e){
   const qui = (e.login || monLogin || 'moi').toLowerCase();
+  // un palier franchi n'a pas d'œuvre : sa clé décrit le jalon lui-même
+  if(e.jalon) return qui + '#jalon#' + jalonSlug(e.jalon) + '#j' + (e.t || 0);
   // suffixe : 'p<jour>' = progression, 'n<horodatage>' = entrée « a noté »
   // l'horodatage rend le fil PROPRE À CETTE NOTATION : les réactions posées sur la fiche
   // (suffixe 'n' seul) ou sur une notation précédente ne remontent pas ici
@@ -4991,6 +5061,11 @@ function marquerReacsVues(){
 function cibleReac(cle){
   const p = cle.split('#');
   const c = p[1], slug = p[2] || '', suf = p[3] || 'n';
+  if(c === 'jalon'){
+    const t = Number(String(suf).slice(1)) || 0;
+    const j = (etat.jalons || []).find(x => x.t === t && jalonSlug(x) === slug);
+    return { titre: j ? jalonSujet(j) : 'un palier franchi', quoi: 'ton palier', c: 'films' };
+  }
   let titre = slug.replace(/-/g, ' ');
   if(CATS[c]){
     const f = (etat[c] || []).find(x => slugTitre(x.titre) === slug);
@@ -5204,8 +5279,11 @@ function rendreFeed(panneau){
       let sepJ = '';
       const jourJ = isoLocal(new Date(e.t));
       if(jourJ !== jourPrec){ sepJ = '<div class="feed-jour"><span>' + libelleJour(jourJ) + '</span></div>'; jourPrec = jourJ; }
+      const cleJ = cleReac(e);
+      const reagiJ = reactionsDe(cleJ).length > 0;
       return sepJ + '<div class="feed-row" style="--cc:#ffc24b;--ccf:' + hexRgba('#ffc24b', .38) + '">'
-        + ligneEvenement(e, {}) + '</div>';
+        + ligneEvenement(e, { reac: (reagiJ || visu) ? '' : boutonReac(cleJ) })
+        + (reagiJ ? bandeReac(cleJ) : '') + '</div>';
     }
     const cle = cleReac(e);
     const idx = feed.indexOf(e);
