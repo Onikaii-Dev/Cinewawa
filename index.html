@@ -2159,7 +2159,7 @@
 </div>
 
 <script>
-const VERSION = 'v149';
+const VERSION = 'v150';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -5319,7 +5319,7 @@ function rendreFeed(panneau){
       const inlineJ = (RJ.puces ? '<span class="fr-reacs-in">' + RJ.puces + '</span>' : '')
         + (visu ? '' : boutonReac(cleJ));
       return sepJ + '<div class="feed-row" style="--cc:#ffc24b;--ccf:' + hexRgba('#ffc24b', .38) + '">'
-        + ligneEvenement(e, { reac: inlineJ, mot: RJ.mot })
+        + ligneEvenement(e, { reac: inlineJ })
         + (RJ.bulles.length ? '<div class="fr-bulles">' + RJ.bulles.join('') + '</div>' : '')
         + '</div>';
     }
@@ -5335,13 +5335,13 @@ function rendreFeed(panneau){
         + '</span>'
       : '';
     const cc = CATS[e.c] ? CATS[e.c].couleur : '#9d8bff';
-    // tout tient sur la ligne : les pastilles et le bouton se rangent à droite, le mot
-    // laissé en réaction se pose au bout de la phrase, tronqué s'il est long
+    // tout tient sur la ligne : les pastilles et le bouton se rangent à droite. Le message
+    // n'est pas recopié en clair — la pastille porte déjà le repère 💬 et l'ouvre au clic.
     const R = pucesReac(cle);
     const inline = (R.puces ? '<span class="fr-reacs-in">' + R.puces + '</span>' : '')
       + (visu ? '' : boutonReac(cle));
     return sep + '<div class="feed-row" style="--cc:' + cc + ';--ccf:' + hexRgba(cc, .38) + '">'
-      + ligneEvenement(e, { actions, reac: inline, mot: R.mot })
+      + ligneEvenement(e, { actions, reac: inline })
       + (R.bulles.length ? '<div class="fr-bulles">' + R.bulles.join('') + '</div>' : '')
       + '</div>';
   }).join('');
