@@ -324,9 +324,10 @@
   .profil-btn:hover{border-color:var(--gold);box-shadow:0 0 17px rgba(255,194,75,.26)}
   .profil-pp{width:33px;height:33px;border-radius:50%;object-fit:cover;background:#161029;flex-shrink:0;display:block;border:1px solid var(--border)}
   .profil-ava{position:relative;display:flex;flex-shrink:0}
-  .notif-pt{position:absolute;top:-3px;right:-4px;min-width:17px;height:17px;border-radius:99px;
-    background:#ff5e7a;color:#fff;font-size:10px;font-weight:800;padding:0 4px;
-    display:none;align-items:center;justify-content:center;border:2px solid #0d0a18;
+  /* posée à droite du nom, plus sur la photo : le cadre d'avatar y passe maintenant */
+  .notif-pt{position:static;min-width:17px;height:17px;border-radius:99px;flex-shrink:0;
+    background:#ff5e7a;color:#fff;font-size:10px;font-weight:800;padding:0 5px;
+    display:none;align-items:center;justify-content:center;
     box-shadow:0 0 10px rgba(255,94,122,.9);animation:pulseNotif 1.15s ease-in-out infinite}
   .notif-pt.on{display:flex}
   @keyframes pulseNotif{0%,100%{transform:scale(1);opacity:1}50%{transform:scale(1.2);opacity:.7}}
@@ -641,42 +642,59 @@
   @media (max-width:700px){.cp-meds{display:none}}
   @media (max-width:460px){.cp-sous{font-size:11px}.cp-nom{font-size:22px}}
 
-  /* ---- page utilisateurs : cartes compactes ---- */
-  .users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:13px}
-  .user-card{display:flex;flex-direction:column;gap:10px;
-    background:linear-gradient(180deg,rgba(22,22,32,.95),rgba(13,13,20,.95));
-    border:1px solid rgba(255,255,255,.06);border-radius:16px;padding:15px 16px;
-    transition:border-color .15s ease,box-shadow .15s ease}
-  .user-card:hover{border-color:rgba(157,139,255,.35);box-shadow:0 0 22px rgba(157,139,255,.12)}
-  .user-card.indispo{opacity:.55}
+  /* ---- page Communauté : une carte par membre, dans la charte des panneaux ---- */
+  .users-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(292px,1fr));gap:16px}
+  .user-card{position:relative;display:flex;flex-direction:column;gap:13px;overflow:hidden;
+    background:linear-gradient(170deg,rgba(255,255,255,.055),rgba(255,255,255,.014));
+    border:1px solid var(--border);border-radius:var(--r);padding:17px 17px 15px;
+    transition:transform .18s cubic-bezier(.2,.7,.3,1),border-color .18s ease,box-shadow .18s ease}
+  /* le liseré du haut : la même signature que les tuiles de l'accueil */
+  .user-card::before{content:'';position:absolute;left:14%;right:14%;top:0;height:2px;
+    background:linear-gradient(90deg,transparent,var(--neon),transparent);opacity:.7}
+  .user-card:hover{transform:translateY(-4px);border-color:var(--border-h);
+    box-shadow:0 18px 36px -20px rgba(0,0,0,.75),0 0 28px -14px rgba(157,139,255,.85)}
+  .user-card.indispo{opacity:.5}
   .uc-head{display:flex;align-items:center;gap:12px;min-width:0}
-  .uc-pp{width:44px;height:44px;border-radius:50%;flex-shrink:0;background:#161029;object-fit:cover;border:1px solid var(--border)}
-  .uc-id{min-width:0}
-  .uc-pseudo{font-weight:800;font-size:16px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-  .uc-login{font-size:11.5px;color:var(--faint);font-family:ui-monospace,'SF Mono',Menlo,monospace}
-  .uc-bio{display:none;font-size:12.5px;color:#b3a9c9;font-style:italic;line-height:1.45;
-    border-left:2px solid var(--neon-soft);padding-left:9px}
+  .uc-pp{width:50px;height:50px;border-radius:50%;flex-shrink:0;background:var(--bg2);
+    object-fit:cover;border:1px solid var(--border)}
+  .uc-id{min-width:0;flex:1}
+  .uc-pseudo{font-family:'Bebas Neue',sans-serif;font-size:23px;letter-spacing:.05em;line-height:1.05;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .uc-login{font-size:11px;color:var(--faint);font-family:ui-monospace,'SF Mono',Menlo,monospace;
+    margin-top:3px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+  .uc-bio{display:none;font-size:12.5px;color:var(--muted);font-style:italic;line-height:1.5;
+    border-left:2px solid var(--neon-soft);padding-left:10px}
   .uc-bio.on{display:block}
-  .uc-stats{display:flex;flex-wrap:wrap;gap:6px;font-size:12px;color:var(--muted);
-    padding-top:11px;border-top:1px solid rgba(255,255,255,.06)}
-  .uc-stats.uc-muet{color:var(--faint);font-style:italic}
-  .uc-stat{display:flex;align-items:baseline;gap:4px;background:rgba(22,17,40,.75);border:1px solid rgba(255,255,255,.05);
-    border-radius:8px;padding:5px 9px;font-size:11px;color:var(--muted)}
-  .uc-stat b{font-size:14px;font-weight:800}
+  .uc-stats{display:grid;grid-template-columns:repeat(4,1fr);gap:7px;
+    padding-top:13px;border-top:1px solid rgba(255,255,255,.07)}
+  .uc-stats.uc-muet{display:block;font-size:12.5px;color:var(--faint);font-style:italic}
+  .uc-stat{display:flex;flex-direction:column;align-items:center;gap:2px;
+    background:rgba(255,255,255,.035);border:1px solid rgba(255,255,255,.06);
+    border-radius:var(--r-xs);padding:8px 4px}
+  .uc-stat b{font-size:16px;font-weight:800;line-height:1}
+  .uc-stat span{font-size:9.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--faint)}
   .uc-pied{display:flex;align-items:center;gap:10px;flex-wrap:wrap}
-  .uc-encours{font-size:11.5px;color:#6ff0c0}
-  .uc-voir{margin-left:auto;background:var(--gold);color:#241a05;border:none;border-radius:9px;
-    padding:9px 15px;font-size:13px;font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap}
-  .uc-voir:hover{filter:brightness(1.08)}
-  .uc-badge{margin-left:auto;font-size:12px;font-weight:800;border-radius:9px;padding:8px 14px;white-space:nowrap}
-  .uc-badge.prive{background:rgba(255,94,122,.16);color:#ffa9b6;border:1px solid rgba(255,94,122,.45)}
-  .uc-presence{margin-left:auto;align-self:flex-start;margin-top:2px;flex-shrink:0;
-    display:flex;align-items:center;gap:5px;font-size:11px;font-weight:700;line-height:1;
-    font-variant-numeric:tabular-nums;letter-spacing:.2px}
-  .uc-presence i{width:7px;height:7px;border-radius:50%;display:block;flex-shrink:0}
+  .uc-encours{display:flex;align-items:center;gap:5px;font-size:11.5px;font-weight:700;color:#6ff0c0}
+  .uc-voir{margin-left:auto;background:linear-gradient(135deg,var(--gold-vif),var(--gold));
+    color:var(--ink);border:none;border-radius:var(--r-xs);padding:10px 17px;font-size:13px;
+    font-weight:800;cursor:pointer;font-family:inherit;white-space:nowrap;
+    transition:filter .15s ease,transform .15s ease}
+  .uc-voir:hover{filter:brightness(1.07);transform:translateY(-1px)}
+  .uc-badge{margin-left:auto;font-size:12px;font-weight:800;border-radius:var(--r-xs);
+    padding:9px 15px;white-space:nowrap}
+  .uc-badge.prive{background:rgba(255,94,122,.14);color:#ffa9b6;border:1px solid rgba(255,94,122,.4)}
+  .uc-presence{flex-shrink:0;align-self:flex-start;margin-top:3px;
+    display:flex;align-items:center;gap:5px;font-size:10.5px;font-weight:800;line-height:1;
+    border-radius:99px;padding:5px 9px;font-variant-numeric:tabular-nums;letter-spacing:.03em}
+  .uc-presence i{width:6px;height:6px;border-radius:50%;display:block;flex-shrink:0}
+  .uc-presence.en-ligne{background:rgba(62,224,165,.13);border:1px solid rgba(62,224,165,.4);color:#6ff0c0}
   .uc-presence.en-ligne i{background:#3ee0a5;box-shadow:0 0 7px rgba(62,224,165,.85)}
-  .uc-presence.hors-ligne{color:#ff5e7a;opacity:.85}
-  .uc-presence.hors-ligne i{background:#ff5e7a;opacity:.9}
+  .uc-presence.hors-ligne{background:rgba(255,255,255,.04);border:1px solid rgba(255,255,255,.08);color:var(--faint)}
+  .uc-presence.hors-ligne i{background:#7a719a}
+  @media (max-width:460px){
+    .users-grid{grid-template-columns:1fr}
+    .uc-stats{grid-template-columns:repeat(2,1fr)}
+  }
 
   /* ---- accueil : sorties et activité côte à côte ---- */
   .duo-accueil{display:grid;grid-template-columns:1.04fr .96fr;gap:20px;align-items:stretch}
@@ -1116,7 +1134,7 @@
   .mb-vide{font-size:12.5px;color:var(--faint);line-height:1.6;text-align:center;padding:18px 10px}
 
   /* ---- ligne « moi » dans la barre du haut ---- */
-  .profil-btn .sync-pt{position:absolute;left:-2px;bottom:-1px;width:12px;height:12px;border-radius:50%;
+  .profil-btn .sync-pt{position:static;width:9px;height:9px;border-radius:50%;flex-shrink:0;
     border:2px solid #14101f;background:#6f6497}
   .profil-btn .sync-pt.ok{background:#3ee0a5;box-shadow:0 0 9px rgba(62,224,165,.85)}
 
@@ -1529,10 +1547,10 @@
         <span class="profil-ava">
           <img class="profil-pp" id="profilPP" alt="" style="display:none">
           <span class="profil-vide" id="profilVide">🎬</span>
-          <span class="notif-pt" id="notifPt"></span>
-          <span class="sync-pt" id="syncPt"></span>
         </span>
         <span id="profilNom">Mon Profil</span>
+        <span class="notif-pt" id="notifPt"></span>
+        <span class="sync-pt" id="syncPt"></span>
       </button>
     </div>
   </div>
@@ -1571,7 +1589,7 @@
         </div>
       </div>
     </header>
-    <div id="listeUsers"></div>
+    <div class="panneau"><div class="pan-corps" id="listeUsers"></div></div>
   </div>
 
 
@@ -2088,7 +2106,7 @@
 </div>
 
 <script>
-const VERSION = 'v128';
+const VERSION = 'v129';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => { const v = document.getElementById('verSite'); if(v) v.textContent = VERSION; });
 // ================= configuration des catégories =================
@@ -6084,7 +6102,8 @@ async function allerUtilisateurs(){
       }
       const nb = { films: d.films.length, series: nbGroupe(d.series,'series'), anime: nbGroupe(d.anime,'anime'), manga: d.manga.length };
       stats.innerHTML = ['films','series','anime','manga'].map(c =>
-        '<span class="uc-stat"><b style="color:' + CATS[c].couleur + '">' + nb[c] + '</b>' + (c === 'manga' ? 'manga' : CATS[c].nom.toLowerCase()) + '</span>'
+        '<span class="uc-stat"><b style="color:' + CATS[c].couleur + '">' + nb[c] + '</b>'
+        + '<span>' + (c === 'manga' ? 'manga' : CATS[c].nom.toLowerCase()) + '</span></span>'
       ).join('');
       const enCours = ['series','anime','manga'].reduce((t,c) => t + (d[c]||[]).filter(f=>f.statut==='encours').length, 0);
       const btn = document.createElement('button');
@@ -6094,7 +6113,7 @@ async function allerUtilisateurs(){
       if(enCours){
         const e = document.createElement('span');
         e.className = 'uc-encours';
-        e.textContent = '▶ ' + enCours + ' en cours';
+        e.innerHTML = '<b>' + enCours + '</b> en cours';
         pied.appendChild(e);
       }
       pied.appendChild(btn);
