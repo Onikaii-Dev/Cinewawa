@@ -2159,7 +2159,7 @@
 </div>
 
 <script>
-const VERSION = 'v151';
+const VERSION = 'v152';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -7695,13 +7695,22 @@ async function importerMAL(fichier){
 }
 
 // ---- export / import ----
+// Le nom porte la date ET l'heure : deux sauvegardes du même jour ne se marchent pas
+// dessus, et l'ordre alphabétique du dossier est l'ordre chronologique.
+function nomSauvegarde(){
+  const d = new Date(), p = n => String(n).padStart(2, '0');
+  return 'cinewawa-' + d.getFullYear() + '-' + p(d.getMonth() + 1) + '-' + p(d.getDate())
+    + '_' + p(d.getHours()) + 'h' + p(d.getMinutes()) + '.json';
+}
 function exporter(){
   const blob = new Blob([JSON.stringify(etat, null, 2)], { type: 'application/json' });
   const a = document.createElement('a');
+  const nom = nomSauvegarde();
   a.href = URL.createObjectURL(blob);
-  a.download = 'cinewawa.json';
+  a.download = nom;
   a.click();
   URL.revokeObjectURL(a.href);
+  toast('Sauvegardé : <b>' + nom + '</b>', 'ok');
 }
 function importer(fichier){
   const lecteur = new FileReader();
