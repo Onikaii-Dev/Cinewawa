@@ -2159,7 +2159,7 @@
 </div>
 
 <script>
-const VERSION = 'v152';
+const VERSION = 'v153';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -5485,7 +5485,9 @@ function ligneEvenement(e, opts){
       action = verbe + ' <b>' + e.prog.n + '</b> ' + unite + 's de ' + titre;
       if(e.prog.e) infoBulle = ' title="jusqu\'au ' + unite + ' ' + e.prog.e + '"';
     } else if(e.prog.e){
-      action = verbe + ' l\'' + unite + ' <b>' + e.prog.e + '</b> de ' + titre;
+      // « l'épisode » mais « le chapitre » : on n'élide que devant une voyelle
+      const art = /^[aeiouyéèêh]/i.test(unite) ? 'l\'' : 'le ';
+      action = verbe + ' ' + art + unite + ' <b>' + e.prog.e + '</b> de ' + titre;
     } else {
       action = verbe + ' <b>1</b> ' + unite + ' de ' + titre;
     }
