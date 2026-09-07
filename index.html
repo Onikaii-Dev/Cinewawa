@@ -1769,7 +1769,7 @@
       <label id="labTitre">Titre (tape 3 lettres, le site trouve le reste)</label>
       <div class="champ-recherche" id="blocRecherche">
         <span class="loupe">🔍</span>
-        <input id="fTitre" placeholder="Ex : Chainsaw Man" autocomplete="off">
+        <input id="fTitre" placeholder="Ex : Interstellar" autocomplete="off">
         <span class="spin"></span>
       </div>
       <div class="sugg" id="sugg"></div>
@@ -1852,8 +1852,10 @@
       </div>
     </details>
 
-    <!-- champ conservé pour la compatibilité : le rythme se règle dans « Prochaines sorties » -->
-    <div class="champ" id="blocFreq">
+    <!-- rythme de sortie : n'a de sens que sur un titre en cours (il alimente le compte
+         à rebours des prochaines sorties), donc masqué partout ailleurs -->
+    <div class="champ cache" id="blocFreq">
+      <label>Rythme de sortie</label>
       <select id="fFreq">
         <option value="7">Chaque semaine</option>
         <option value="14">Toutes les 2 semaines</option>
@@ -2159,7 +2161,7 @@
 </div>
 
 <script>
-const VERSION = 'v153';
+const VERSION = 'v154';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -2175,10 +2177,10 @@ function logoDeSecours(img){
 }
 // ================= configuration des catégories =================
 const CATS = {
-  films:  { nom:'Films',  ico:'🎬', couleur:'#ffc24b', progression:null,                        labelDate:'Vu le' },
-  series: { nom:'Séries', ico:'📺', couleur:'#56ccff', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le' },
-  anime:  { nom:'Anime',  ico:'⛩️', couleur:'#ff5e7a', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le' },
-  manga:  { nom:'Manga/Manhwa', ico:'📖', couleur:'#3ee0a5', progression:['Tome','Chapitre'],  labelDate:'Dernière lecture' },
+  films:  { nom:'Films',  ico:'🎬', couleur:'#ffc24b', progression:null,                        labelDate:'Vu le',              ex:'Interstellar' },
+  series: { nom:'Séries', ico:'📺', couleur:'#56ccff', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le',  ex:'Breaking Bad' },
+  anime:  { nom:'Anime',  ico:'⛩️', couleur:'#ff5e7a', progression:['Saison','Épisode'],        labelDate:'Dernier ép. vu le',  ex:'Chainsaw Man' },
+  manga:  { nom:'Manga/Manhwa', ico:'📖', couleur:'#3ee0a5', progression:['Tome','Chapitre'],  labelDate:'Dernière lecture',   ex:'One Piece' },
 };
 const STATUTS = {
   encours:   { nom:'En cours',  couleur:'#3ee0a5' },
@@ -6783,6 +6785,14 @@ function majStatuts(){
   });
   const lb = $('labelDate');
   if(lb && catCourante === 'films') lb.textContent = (val === 'prevu') ? 'Ajouté le' : 'Vu le';
+  majBlocFreq();
+}
+// Le rythme ne sert qu'à un titre suivi épisode par épisode, et seulement tant qu'il est
+// en cours : un film n'en a pas, un titre terminé non plus.
+function majBlocFreq(){
+  const ro = $('fFreq').disabled;   // lecture seule : la fiche d'un autre membre
+  const utile = !ro && catCourante !== 'films' && $('fStatut').value === 'encours';
+  $('blocFreq').classList.toggle('cache', !utile);
 }
 
 // ---- choix du rayon, quand on ajoute depuis l'accueil ----
@@ -6824,6 +6834,7 @@ function ouvrirModale(id){
   $('btnChercherAffiche').style.display = ro ? 'none' : '';
   $('btnNotePub').style.display = ro ? 'none' : '';
   $('labTitre').textContent = (ro || f) ? 'Titre' : 'Titre (tape 3 lettres, le site trouve le reste)';
+  $('fTitre').placeholder = 'Ex : ' + (conf.ex || 'Interstellar');
 
   // champs spécifiques à la catégorie — et masqués aussi en lecture seule
   construireStatuts(c);
