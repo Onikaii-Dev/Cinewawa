@@ -2173,7 +2173,7 @@
 </div>
 
 <script>
-const VERSION = 'v157';
+const VERSION = 'v158';
 console.log("Ciné'Wawa " + VERSION);
 document.addEventListener('DOMContentLoaded', () => {
   const v = document.getElementById('verSite'); if(v) v.textContent = VERSION;
@@ -6005,6 +6005,13 @@ function notesCommuFusion(){
 // via regrouperSerie(). Un même membre ne compte qu'une fois : sa moyenne sur les saisons qu'il a
 // notées. Renvoie { g: groupes, kmap: clé de titre → clé de groupe }.
 let serieCache = null;
+// une fiche qui regroupe plusieurs saisons d'un coup (« Re:Zero 1,2,3 Season », progression « S1,2,3 »)
+function plusieursSaisons(f){
+  const t = String(f.titre || '').toLowerCase();
+  return /\b\d+(\s*(,|&|et|and|-)\s*\d+)+\s*(e|eme|st|nd|rd|th)?\s*(saisons?|seasons?)\b/.test(t)
+    || /(saisons?|seasons?)\s*\d+(\s*(,|&|et|and)\s*\d+)+/.test(t)
+    || /\d\s*[,&]\s*\d/.test(String(f.p1 || ''));
+}
 function notesSerieFusion(){
   if(serieCache && serieCache.src === notesAutres && serieCache.modif === etat.modif && serieCache.rv === racinesVer) return serieCache.val;
   const moiNom = etat.pseudo || 'Moi';
@@ -6029,7 +6036,11 @@ function notesSerieFusion(){
     ent.forEach((e, i) => {
       const gk = cleDe[grp[i]];
       kmap[e.k] = gk;
-      (g[gk] = g[gk] || { d: [] }).d.push(...e.d);
+      const gr = (g[gk] = g[gk] || { d: [], multi: false });
+      gr.d.push(...e.d);
+      // la série a plusieurs saisons si au moins un titre en porte la marque (S4, Season 2…)
+      const txt = e.k.slice(c.length + 1);
+      if(sansSaison(txt) !== txt) gr.multi = true;
     });
   });
   Object.values(g).forEach(x => {
@@ -6631,13 +6642,14 @@ function rendreListe(){
       const sm = sk && serieMap.g[sk];
       if(sm && sm.n > 0){
         const detailSerie = (sm.d || []).map(x => x.p + ' : ' + showNote(x.note)).join('  ·  ');
-        cellules.push('<span class="note-cell"><span class="note-lab">Communauté Wawa · Série</span>'
+        cellules.push('<span class="note-cell"><span class="note-lab">Communauté Wawa</span>'
           + '<button class="badge badge-commu '+(sm.n >= 2 ? 'badge-commu-hot' : 'badge-pub')+'"'
           +   ' data-commu="'+echap(sk)+'" data-serie="1" data-titre="'+echap(f.titre)+'"'
           +   ' title="'+echap('Voir qui a noté (toutes saisons)'+(detailSerie ? ' · ' + detailSerie : ''))+'">'
           + '👥 '+showNote(Math.round(sm.s/sm.n*10)/10)+'</button></span>');
       }
-      if(cm && cm.n >= 2){
+      // « Cette saison » n'a de sens que pour une fiche d'UNE saison, dans une série qui en a plusieurs
+      if(cm && cm.n >= 2 && sm && sm.multi && !plusieursSaisons(f)){
         const detailCommu = (cm.d || []).map(x => x.p + ' : ' + showNote(x.note)).join('  ·  ');
         cellules.push('<span class="note-cell"><span class="note-lab">Cette saison</span>'
           + '<button class="badge badge-commu badge-commu-hot"'
